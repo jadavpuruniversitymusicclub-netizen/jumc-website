@@ -83,10 +83,10 @@ function CarouselCard({
         className="w-full aspect-square object-cover rounded-xl pointer-events-none shadow-sm" 
       />
       
-      <h3 className="text-xl font-bold text-center text-[#1A1A1A] mt-4 pointer-events-none">
+      <h3 className="text-2xl font-black text-center bg-gradient-to-r from-[#E60026] to-[#ff4d6d] bg-clip-text text-transparent mt-4 pointer-events-none drop-shadow-sm">
         {member.name}
       </h3>
-      <p className="text-sm italic text-center text-[#E60026] mt-1 pointer-events-none">
+      <p className="text-base font-bold italic text-center text-[#1A1A1A]/80 mt-1 pointer-events-none">
         ({member.role})
       </p>
     </motion.div>
@@ -132,15 +132,12 @@ const BackgroundAnimations = () => {
 
 export default function CoreMembers() {
   const [isClient, setIsClient] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const dragX = useMotionValue(0);
   const filmStripX = useTransform(dragX, x => (x % 32) - 32);
   
   useAnimationFrame((t, delta) => {
-    if (!isDragging) {
-      // Rotate by approx 72px per second (0.12 px per ms * delta ~ 16.6)
-      dragX.set(dragX.get() - (0.12 * delta));
-    }
+    // Rotate by approx 72px per second (0.12 px per ms * delta ~ 16.6)
+    dragX.set(dragX.get() - (0.12 * delta));
   });
 
   useEffect(() => {
@@ -179,13 +176,8 @@ export default function CoreMembers() {
       
       <div className="relative w-full h-[520px] flex justify-center items-center overflow-hidden">
         <motion.div
-          drag="x"
           style={{ x: dragX }}
-          dragConstraints={{ left: -100000, right: 100000 }} 
-          dragElastic={0}
-          onDragStart={() => setIsDragging(true)}
-          onDragEnd={() => setIsDragging(false)}
-          className="absolute inset-0 flex justify-center items-center cursor-grab active:cursor-grabbing z-20"
+          className="absolute inset-0 flex justify-center items-center z-20"
         >
           {members.map((member, i) => (
             <CarouselCard
