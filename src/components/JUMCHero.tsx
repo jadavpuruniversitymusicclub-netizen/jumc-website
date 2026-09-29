@@ -4,6 +4,33 @@ import Link from 'next/link';
 import { User, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const upcomingEvents = [
+  {
+    id: 1,
+    month: 'Oct',
+    day: '12',
+    isLive: true,
+    title: 'Eastern Solo Auditions',
+    details: 'OAT • 10:00 AM'
+  },
+  {
+    id: 2,
+    month: 'Oct',
+    day: '20',
+    isLive: false,
+    title: 'Band Showcase',
+    details: 'Subarna Jayanti Bhavan • 5:00 PM'
+  },
+  {
+    id: 3,
+    month: 'Nov',
+    day: '05',
+    isLive: false,
+    title: 'Acoustic Evening',
+    details: 'Green Zone • 4:30 PM'
+  }
+];
+
 export default function JUMCHero() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
@@ -55,48 +82,31 @@ export default function JUMCHero() {
                 </Link>
               </div>
 
-              <div className="space-y-4">
-                {/* Event 1 */}
-                <div className="group flex items-start gap-5 p-4 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5">
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 flex flex-col items-center justify-center min-w-[72px]">
-                    <span className="text-xs text-[#E60026] font-bold uppercase tracking-widest">Oct</span>
-                    <span className="text-2xl font-black text-white leading-none mt-1">12</span>
-                  </div>
-                  <div className="flex-1 pt-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E60026] opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E60026]"></span>
-                      </span>
-                      <span className="text-xs uppercase tracking-wider font-bold text-white/70">Live Now</span>
+              <div className="h-64 overflow-hidden relative" style={{ maskImage: 'linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)' }}>
+                <div className="flex flex-col gap-4 animate-marquee-vertical hover:[animation-play-state:paused]">
+                  {[...upcomingEvents, ...upcomingEvents].map((evt, idx) => (
+                    <div key={`${evt.id}-${idx}`} className="group flex items-start gap-5 p-4 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5 shrink-0">
+                      <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 flex flex-col items-center justify-center min-w-[72px]">
+                        <span className={`text-xs ${evt.isLive ? 'text-[#E60026]' : 'text-white/60'} font-bold uppercase tracking-widest`}>{evt.month}</span>
+                        <span className="text-2xl font-black text-white leading-none mt-1">{evt.day}</span>
+                      </div>
+                      <div className="flex-1 pt-1">
+                        {evt.isLive ? (
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="relative flex h-2 w-2">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E60026] opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E60026]"></span>
+                            </span>
+                            <span className="text-xs uppercase tracking-wider font-bold text-white/70">Live Now</span>
+                          </div>
+                        ) : (
+                          <div className="h-6"></div> /* Spacer for alignment if needed, or just let it adjust */
+                        )}
+                        <h4 className="text-base sm:text-lg font-bold text-white group-hover:text-[#E60026] transition-colors leading-tight mb-1">{evt.title}</h4>
+                        <p className="text-sm text-white/50 font-medium">{evt.details}</p>
+                      </div>
                     </div>
-                    <h4 className="text-base sm:text-lg font-bold text-white group-hover:text-[#E60026] transition-colors leading-tight mb-1">Eastern Solo Auditions</h4>
-                    <p className="text-sm text-white/50 font-medium">OAT • 10:00 AM</p>
-                  </div>
-                </div>
-
-                {/* Event 2 */}
-                <div className="group flex items-start gap-5 p-4 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5">
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 flex flex-col items-center justify-center min-w-[72px]">
-                    <span className="text-xs text-white/60 font-bold uppercase tracking-widest">Oct</span>
-                    <span className="text-2xl font-black text-white leading-none mt-1">20</span>
-                  </div>
-                  <div className="flex-1 pt-2">
-                    <h4 className="text-base sm:text-lg font-bold text-white group-hover:text-[#E60026] transition-colors leading-tight mb-1">Band Showcase</h4>
-                    <p className="text-sm text-white/50 font-medium">Subarna Jayanti Bhavan • 5:00 PM</p>
-                  </div>
-                </div>
-
-                {/* Event 3 */}
-                <div className="group flex items-start gap-5 p-4 rounded-2xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/5">
-                  <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 flex flex-col items-center justify-center min-w-[72px]">
-                    <span className="text-xs text-white/60 font-bold uppercase tracking-widest">Nov</span>
-                    <span className="text-2xl font-black text-white leading-none mt-1">05</span>
-                  </div>
-                  <div className="flex-1 pt-2">
-                    <h4 className="text-base sm:text-lg font-bold text-white group-hover:text-[#E60026] transition-colors leading-tight mb-1">Acoustic Evening</h4>
-                    <p className="text-sm text-white/50 font-medium">Green Zone • 4:30 PM</p>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>

@@ -23,6 +23,15 @@ const config: Config = {
           glow: 'rgba(230, 0, 38, 0.2)',
         },
       },
+      keyframes: {
+        'marquee-vertical': {
+          '0%': { transform: 'translateY(0)' },
+          '100%': { transform: 'translateY(-50%)' },
+        },
+      },
+      animation: {
+        'marquee-vertical': 'marquee-vertical 15s linear infinite',
+      },
     },
   },
   plugins: [],
