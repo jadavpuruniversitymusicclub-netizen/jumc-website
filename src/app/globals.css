@@ -12,6 +12,13 @@ html {
   --color-charcoal-muted: #4A4A4A;
   --color-crimson: #E60026;
   --color-crimson-glow: rgba(230, 0, 38, 0.2);
+
+  --animate-marquee-vertical: marquee-vertical 15s linear infinite;
+
+  @keyframes marquee-vertical {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+  }
 }
 
 body {
