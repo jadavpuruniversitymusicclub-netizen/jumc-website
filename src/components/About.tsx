@@ -37,10 +37,10 @@ export default function About() {
             
             <div className="space-y-6 text-xl text-white/80 font-serif italic font-medium leading-relaxed tracking-wide">
               <p>
-                Founded on the rich cultural grounds of Jadavpur University, JUMC has been the beating heart of the campus music scene for decades. We are a collective of instrumentalists, vocalists, producers, and ardent music lovers.
+                Since its inception, Jadavpur University Music Club (JUMC) has embraced artistic expression and encouraged all kinds of musical talent. Be it stellar musicians or energetic vocalists, the club has provided a supportive and collaborative space for the exploration of music.
               </p>
               <p>
-                From classical ragas echoing through the Open Air Theatre to heavy metal riffs tearing through the student union, we provide a stage for every genre and every voice. Our mission is to nurture musical talent, foster collaboration, and create unforgettable sonic experiences.
+                Both within and outside of the walls of our club, we foster an environment that celebrates independent as well as collective efforts— as a result of which our members can develop their craft, while simultaneously growing as people.
               </p>
             </div>
             
