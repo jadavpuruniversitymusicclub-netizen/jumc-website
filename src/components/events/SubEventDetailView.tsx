@@ -91,7 +91,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
       </div>
 
       {/* Main Header Card */}
-      <div className="p-8 md:p-12 rounded-3xl bg-slate-950/70 border border-white/10 backdrop-blur-xl shadow-2xl mb-10 relative overflow-hidden">
+      <div className="p-8 md:p-12 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xl shadow-2xl mb-10 relative overflow-hidden">
         {/* Glow accent */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#E60026] via-amber-400 to-transparent opacity-80" />
 
@@ -174,7 +174,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
         <div className="lg:col-span-2 space-y-8">
           {/* Cash Prizes & Awards Card */}
           {event.prizes && (
-            <div className="p-8 rounded-3xl bg-slate-950/70 border border-amber-400/30 backdrop-blur-xl shadow-xl">
+            <div className="p-8 rounded-3xl bg-white/[0.04] border border-amber-400/30 backdrop-blur-xl shadow-xl">
               <div className="flex items-center gap-3 mb-6">
                 <Trophy className="w-6 h-6 text-amber-400" />
                 <h3 className="text-xl font-bold text-white">Prize Pool &amp; Recognitions</h3>
@@ -203,7 +203,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
 
           {/* Rules and Guidelines */}
           {event.rules && (
-            <div className="p-8 rounded-3xl bg-slate-950/70 border border-white/10 backdrop-blur-xl shadow-xl">
+            <div className="p-8 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xl shadow-xl">
               <div className="flex items-center gap-3 mb-6">
                 <ShieldAlert className="w-5 h-5 text-[#E60026]" />
                 <h3 className="text-xl font-bold text-white">Rules &amp; Guidelines</h3>
@@ -225,7 +225,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
         <div className="space-y-8">
           {/* Schedule Timeline */}
           {event.schedule && (
-            <div className="p-6 md:p-8 rounded-3xl bg-slate-950/70 border border-white/10 backdrop-blur-xl shadow-xl">
+            <div className="p-6 md:p-8 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xl shadow-xl">
               <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
                 <Clock className="w-4 h-4 text-amber-400" />
                 Event Schedule
@@ -247,7 +247,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
 
           {/* Coordinators Contact Card */}
           {event.coordinators && (
-            <div className="p-6 md:p-8 rounded-3xl bg-slate-950/70 border border-white/10 backdrop-blur-xl shadow-xl">
+            <div className="p-6 md:p-8 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xl shadow-xl">
               <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <Phone className="w-4 h-4 text-emerald-400" />
                 Event POC / Leads
@@ -270,7 +270,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
       </div>
 
       {/* Flagship Milaap Edition I Banner */}
-      <div className="p-8 rounded-3xl bg-gradient-to-r from-amber-950/30 via-slate-950 to-rose-950/30 border border-amber-400/30 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="p-8 rounded-3xl bg-white/[0.04] border border-amber-400/30 backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
         <div>
           <span className="text-[10px] font-mono tracking-widest uppercase text-amber-400 font-bold block mb-1">
             FLAGSHIP FESTIVAL SYNERGY
@@ -285,7 +285,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
 
         <Link
           href="/events/milaap"
-          className="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-2 flex-shrink-0"
+          className="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-2 flex-shrink-0 cursor-pointer"
         >
           <span>Explore Milaap Edition I</span>
           <ArrowRight className="w-4 h-4" />
@@ -294,8 +294,8 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
 
       {/* Registration Modal */}
       {registerModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-up">
-          <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-slate-950 border border-white/20 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-up">
+          <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-black/70 backdrop-blur-2xl border border-white/20 shadow-2xl">
             <button
               onClick={() => setRegisterModalOpen(false)}
               className="absolute top-5 right-5 p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
@@ -333,7 +333,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
                     placeholder="e.g. Swarnava Ghosh"
                     value={regForm.name}
                     onChange={(e) => setRegForm({ ...regForm, name: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                   />
                 </div>
 
@@ -348,7 +348,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
                       placeholder="+91 98765 43210"
                       value={regForm.phone}
                       onChange={(e) => setRegForm({ ...regForm, phone: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                     />
                   </div>
                   <div>
@@ -358,12 +358,12 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
                     <select
                       value={regForm.teamSize}
                       onChange={(e) => setRegForm({ ...regForm, teamSize: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                     >
-                      <option value="Solo (1)">Solo</option>
-                      <option value="Duet (2)">Duet</option>
-                      <option value="Ensemble / Band (3-8)">Ensemble / Band (3-8)</option>
-                      <option value="Dance Crew (6-16)">Dance Crew (6-16)</option>
+                      <option value="Solo (1)" className="bg-slate-900 text-white">Solo</option>
+                      <option value="Duet (2)" className="bg-slate-900 text-white">Duet</option>
+                      <option value="Ensemble / Band (3-8)" className="bg-slate-900 text-white">Ensemble / Band (3-8)</option>
+                      <option value="Dance Crew (6-16)" className="bg-slate-900 text-white">Dance Crew (6-16)</option>
                     </select>
                   </div>
                 </div>
@@ -378,7 +378,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
                     placeholder="student@university.edu"
                     value={regForm.email}
                     onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                   />
                 </div>
 
@@ -392,7 +392,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
                     placeholder="e.g. Jadavpur University"
                     value={regForm.college}
                     onChange={(e) => setRegForm({ ...regForm, college: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                   />
                 </div>
 

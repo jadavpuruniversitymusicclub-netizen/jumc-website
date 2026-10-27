@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 const StatCounter = ({ number, label, delay }: { number: string, label: string, delay: number }) => (
   <motion.div 
-    className="p-6 border-l-2 border-crimson/20 pl-6 flex flex-col justify-center bg-gradient-to-r from-black/40 to-transparent rounded-r-2xl"
+    className="p-6 sm:p-8 rounded-2xl bg-white/[0.05] backdrop-blur-xl border border-white/10 hover:border-crimson/40 transition-all shadow-lg flex flex-col justify-center"
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
     viewport={{ once: true, margin: "-50px" }}

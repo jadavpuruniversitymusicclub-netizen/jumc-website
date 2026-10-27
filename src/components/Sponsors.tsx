@@ -8,9 +8,9 @@ export default function Sponsors() {
   const placeholders = Array.from({ length: 6 });
 
   return (
-    <section className="w-full pt-32 pb-20 bg-[#FDF4E3] overflow-hidden">
+    <section className="w-full pt-28 pb-20 bg-black/20 backdrop-blur-md border-b border-white/10 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 mb-12">
-        <h2 className="text-center text-3xl md:text-4xl font-bold text-[#1A1A1A]">
+        <h2 className="text-center text-3xl md:text-4xl font-bold text-white drop-shadow-sm">
           Sponsored <span className="text-[#E60026] italic font-serif">By</span>
         </h2>
       </div>
@@ -31,10 +31,10 @@ export default function Sponsors() {
           {[...placeholders, ...placeholders].map((_, i) => (
             <div
               key={i}
-              className="h-32 w-64 shrink-0 bg-white/40 backdrop-blur-sm rounded-xl shadow-[0_4px_30px_rgba(0,0,0,0.05)] border border-white/20 hover:scale-105 transition-transform duration-300 flex items-center justify-center cursor-pointer will-change-transform"
+              className="h-32 w-64 shrink-0 bg-white/[0.05] backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.3)] border border-white/15 hover:border-crimson/50 hover:bg-white/[0.09] transition-all duration-300 flex items-center justify-center cursor-pointer will-change-transform"
             >
-              {/* Optional: A subtle placeholder text */}
-              <span className="text-[#1A1A1A]/20 font-bold tracking-widest text-sm uppercase">Sponsor</span>
+              {/* Subtle placeholder text */}
+              <span className="text-white/40 font-mono tracking-widest text-sm uppercase">Sponsor</span>
             </div>
           ))}
         </motion.div>

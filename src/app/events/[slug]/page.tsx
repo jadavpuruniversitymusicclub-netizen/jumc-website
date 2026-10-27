@@ -135,7 +135,7 @@ export default async function EventSlugPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <main className="min-h-screen bg-[#020617]/95 selection:bg-[#E60026]/30 selection:text-white">
+      <main className="min-h-screen bg-transparent selection:bg-[#E60026]/30 selection:text-white relative">
         {event.slug === 'milaap' ? (
           <MilaapDetailView />
         ) : (

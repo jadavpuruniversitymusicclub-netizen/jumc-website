@@ -95,7 +95,7 @@ export default function MilaapDetailView() {
         <div className="relative z-10 mb-8">
           <Link
             href="/events"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/80 border border-white/10 backdrop-blur-md text-xs font-mono font-bold uppercase tracking-widest text-slate-300 hover:text-white hover:border-amber-400/50 transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] border border-white/10 backdrop-blur-md text-xs font-mono font-bold uppercase tracking-widest text-slate-300 hover:text-white hover:border-amber-400/50 transition-all"
           >
             &larr; Back to Events Directory
           </Link>
@@ -120,15 +120,15 @@ export default function MilaapDetailView() {
 
         {/* Micro-Details Pill Bar */}
         <div className="relative z-10 flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm font-medium text-slate-300 mb-12">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/70 border border-white/10 backdrop-blur-md">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.05] border border-white/10 backdrop-blur-md">
             <Calendar className="w-4 h-4 text-amber-400" />
             <span>November 28 – 30, 2026</span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/70 border border-white/10 backdrop-blur-md">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.05] border border-white/10 backdrop-blur-md">
             <MapPin className="w-4 h-4 text-[#E60026]" />
             <span>Jadavpur University Main Campus, Kolkata</span>
           </div>
-          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900/70 border border-white/10 backdrop-blur-md">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/[0.05] border border-white/10 backdrop-blur-md">
             <Users className="w-4 h-4 text-sky-400" />
             <span>160,000+ Digital Reach • 15K+ Footfall</span>
           </div>
@@ -146,7 +146,7 @@ export default function MilaapDetailView() {
 
           <button
             onClick={() => setBrochureModalOpen(true)}
-            className="w-full sm:w-auto px-7 py-4 rounded-xl bg-slate-900/90 border border-amber-400/40 hover:border-amber-400 text-amber-200 font-bold text-sm tracking-wider uppercase backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.15)]"
+            className="w-full sm:w-auto px-7 py-4 rounded-xl bg-black/40 border border-amber-400/40 hover:border-amber-400 text-amber-200 font-bold text-sm tracking-wider uppercase backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.15)]"
           >
             <Download className="w-4 h-4 text-amber-400" />
             <span>View Brochure & Slabs</span>
@@ -171,7 +171,7 @@ export default function MilaapDetailView() {
         {/* 3 Glassmorphic Cards with Exact Brochure Text */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Card 1: About Jadavpur University */}
-          <div className="group relative p-8 rounded-3xl bg-slate-950/70 border border-white/10 backdrop-blur-xl hover:border-amber-400/40 transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between shadow-2xl">
+          <div className="group relative p-8 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xl hover:bg-white/[0.07] hover:border-amber-400/40 transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between shadow-2xl">
             <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl group-hover:bg-amber-500/10 transition-colors pointer-events-none" />
 
             <div>
@@ -198,7 +198,7 @@ export default function MilaapDetailView() {
           </div>
 
           {/* Card 2: About JUMC */}
-          <div className="group relative p-8 rounded-3xl bg-slate-950/70 border border-white/10 backdrop-blur-xl hover:border-[#E60026]/40 transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between shadow-2xl">
+          <div className="group relative p-8 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xl hover:bg-white/[0.07] hover:border-[#E60026]/40 transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between shadow-2xl">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#E60026]/10 rounded-full blur-2xl group-hover:bg-[#E60026]/20 transition-colors pointer-events-none" />
 
             <div>
@@ -225,7 +225,7 @@ export default function MilaapDetailView() {
           </div>
 
           {/* Card 3: About JUDF (JU Dance Wing) */}
-          <div className="group relative p-8 rounded-3xl bg-slate-950/70 border border-white/10 backdrop-blur-xl hover:border-blue-400/40 transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between shadow-2xl">
+          <div className="group relative p-8 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xl hover:bg-white/[0.07] hover:border-blue-400/40 transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between shadow-2xl">
             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-colors pointer-events-none" />
 
             <div>
@@ -255,7 +255,7 @@ export default function MilaapDetailView() {
 
       {/* ----------------- PART 3: SOCIAL MEDIA IMPACT & REACH BANNER ----------------- */}
       <section className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="relative p-8 md:p-12 rounded-3xl bg-gradient-to-r from-slate-950 via-[#0a0f24] to-slate-950 border border-white/15 backdrop-blur-2xl shadow-2xl overflow-hidden">
+        <div className="relative p-8 md:p-12 rounded-3xl bg-white/[0.04] border border-white/15 backdrop-blur-2xl shadow-2xl overflow-hidden">
           {/* Subtle Ambient Glow */}
           <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-[#E60026]/10 rounded-full blur-3xl pointer-events-none" />
@@ -396,10 +396,10 @@ export default function MilaapDetailView() {
                 onClick={() => setSelectedSlab(slab.id)}
                 className={`group relative p-6 rounded-3xl transition-all duration-500 cursor-pointer flex flex-col justify-between ${
                   isTitle
-                    ? 'bg-gradient-to-b from-amber-950/40 via-slate-950 to-slate-950 border-2 border-amber-400/50 shadow-[0_0_30px_rgba(245,158,11,0.2)]'
+                    ? 'bg-gradient-to-b from-amber-500/10 via-white/[0.04] to-black/40 border-2 border-amber-400/50 shadow-[0_0_30px_rgba(245,158,11,0.2)]'
                     : isSelected
-                    ? 'bg-slate-900/90 border-2 border-amber-400 shadow-xl'
-                    : 'bg-slate-950/70 border border-white/10 backdrop-blur-xl hover:border-white/20'
+                    ? 'bg-white/[0.08] border-2 border-amber-400 shadow-xl'
+                    : 'bg-white/[0.04] border border-white/10 backdrop-blur-xl hover:bg-white/[0.07] hover:border-white/20'
                 }`}
               >
                 {/* Popular / Exclusive Banner */}
@@ -409,7 +409,7 @@ export default function MilaapDetailView() {
                       className={`px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-widest uppercase shadow-md ${
                         isTitle
                           ? 'bg-amber-400 text-black font-extrabold'
-                          : 'bg-slate-800 text-amber-300 border border-amber-400/30'
+                          : 'bg-black/60 text-amber-300 border border-amber-400/30'
                       }`}
                     >
                       {slab.badge}
@@ -465,7 +465,7 @@ export default function MilaapDetailView() {
         </div>
 
         {/* Benefits Breakdown Tabs (PR Benefits, Web Benefits, Venue Benefits) */}
-        <div className="p-8 md:p-12 rounded-3xl bg-slate-950/80 border border-white/15 backdrop-blur-2xl shadow-2xl">
+        <div className="p-8 md:p-12 rounded-3xl bg-white/[0.04] border border-white/15 backdrop-blur-2xl shadow-2xl">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-white/10 mb-8">
             <div>
               <span className="text-xs font-mono font-bold uppercase tracking-widest text-amber-400">
@@ -608,7 +608,7 @@ export default function MilaapDetailView() {
             <Link
               key={event.slug}
               href={`/events/${event.slug}`}
-              className="group p-6 rounded-3xl bg-slate-950/70 border border-white/10 backdrop-blur-xl hover:border-white/30 transition-all duration-300 flex flex-col justify-between hover:-translate-y-1"
+              className="group p-6 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xl hover:bg-white/[0.08] hover:border-white/30 transition-all duration-300 flex flex-col justify-between hover:-translate-y-1 shadow-lg"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">
@@ -641,8 +641,8 @@ export default function MilaapDetailView() {
 
       {/* ----------------- REGISTRATION MODAL ----------------- */}
       {registerModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-up">
-          <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-slate-950 border border-white/20 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-up">
+          <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-black/70 backdrop-blur-2xl border border-white/20 shadow-2xl">
             <button
               onClick={() => setRegisterModalOpen(false)}
               className="absolute top-5 right-5 p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
@@ -677,14 +677,14 @@ export default function MilaapDetailView() {
                   <select
                     value={regForm.eventCategory}
                     onChange={(e) => setRegForm({ ...regForm, eventCategory: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                   >
                     {subEvents.map((e) => (
-                      <option key={e.slug} value={e.title}>
+                      <option key={e.slug} value={e.title} className="bg-slate-900 text-white">
                         {e.title}
                       </option>
                     ))}
-                    <option value="All-Access Audience Pass">All-Access Audience Pass</option>
+                    <option value="All-Access Audience Pass" className="bg-slate-900 text-white">All-Access Audience Pass</option>
                   </select>
                 </div>
 
@@ -699,7 +699,7 @@ export default function MilaapDetailView() {
                       placeholder="e.g. Swarnava Ghosh"
                       value={regForm.name}
                       onChange={(e) => setRegForm({ ...regForm, name: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                     />
                   </div>
                   <div>
@@ -712,7 +712,7 @@ export default function MilaapDetailView() {
                       placeholder="+91 98765 43210"
                       value={regForm.phone}
                       onChange={(e) => setRegForm({ ...regForm, phone: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                      className="w-full px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                     />
                   </div>
                 </div>
@@ -727,7 +727,7 @@ export default function MilaapDetailView() {
                     placeholder="student@university.edu"
                     value={regForm.email}
                     onChange={(e) => setRegForm({ ...regForm, email: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                   />
                 </div>
 
@@ -741,7 +741,7 @@ export default function MilaapDetailView() {
                     placeholder="e.g. Jadavpur University, Main Campus"
                     value={regForm.college}
                     onChange={(e) => setRegForm({ ...regForm, college: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-white/[0.06] border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                   />
                 </div>
 
@@ -759,8 +759,8 @@ export default function MilaapDetailView() {
 
       {/* ----------------- SPONSORSHIP INQUIRY MODAL ----------------- */}
       {inquiryModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-up">
-          <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-slate-950 border border-amber-400/30 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-up">
+          <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-black/70 backdrop-blur-2xl border border-amber-400/30 shadow-2xl">
             <button
               onClick={() => setInquiryModalOpen(false)}
               className="absolute top-5 right-5 p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
@@ -798,7 +798,7 @@ export default function MilaapDetailView() {
                     placeholder="e.g. Acme Corporation"
                     value={inquiryForm.company}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, company: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                   />
                 </div>
 
@@ -815,7 +815,7 @@ export default function MilaapDetailView() {
                       onChange={(e) =>
                         setInquiryForm({ ...inquiryForm, contactPerson: e.target.value })
                       }
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                      className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                     />
                   </div>
                   <div>
@@ -828,7 +828,7 @@ export default function MilaapDetailView() {
                       placeholder="+91 98300 00000"
                       value={inquiryForm.phone}
                       onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
-                      className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                      className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                     />
                   </div>
                 </div>
@@ -843,7 +843,7 @@ export default function MilaapDetailView() {
                     placeholder="partner@company.com"
                     value={inquiryForm.email}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, email: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-black/40 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                   />
                 </div>
 
@@ -856,7 +856,7 @@ export default function MilaapDetailView() {
                     placeholder="Tell us about your brand goals, stall requirements, or campaign objectives..."
                     value={inquiryForm.notes}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, notes: e.target.value })}
-                    className="w-full px-4 py-2 rounded-xl bg-slate-900 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
+                    className="w-full px-4 py-2 rounded-xl bg-black/40 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400"
                   />
                 </div>
 
@@ -874,8 +874,8 @@ export default function MilaapDetailView() {
 
       {/* ----------------- INTERACTIVE BROCHURE VIEWER MODAL ----------------- */}
       {brochureModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-up">
-          <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 sm:p-10 rounded-3xl bg-slate-950 border border-amber-400/40 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-up">
+          <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 sm:p-10 rounded-3xl bg-black/75 backdrop-blur-2xl border border-amber-400/40 shadow-2xl">
             <button
               onClick={() => setBrochureModalOpen(false)}
               className="absolute top-5 right-5 p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
@@ -902,7 +902,7 @@ export default function MilaapDetailView() {
               </h4>
               <div className="overflow-x-auto rounded-xl border border-white/10">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-slate-900 text-amber-300 font-mono uppercase">
+                  <thead className="bg-white/[0.08] text-amber-300 font-mono uppercase">
                     <tr>
                       <th className="p-3">Slab Tier</th>
                       <th className="p-3">Investment</th>

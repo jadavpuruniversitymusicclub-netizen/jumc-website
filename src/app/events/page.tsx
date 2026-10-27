@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 
 export default function EventsPage() {
   return (
-    <main className="min-h-screen bg-[#020617]/95 selection:bg-[#E60026]/30 selection:text-white">
+    <main className="min-h-screen bg-transparent selection:bg-[#E60026]/30 selection:text-white relative">
       <EventsPortal />
     </main>
   );

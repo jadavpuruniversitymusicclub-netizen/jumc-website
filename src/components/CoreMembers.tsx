@@ -65,7 +65,7 @@ function CarouselCard({
   
   return (
     <motion.div
-      className="absolute flex flex-col items-center bg-white p-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-gray-100"
+      className="absolute flex flex-col items-center bg-white/[0.06] backdrop-blur-xl p-4 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.4)] border border-white/15 hover:border-crimson/50 transition-colors"
       style={{
         width: itemWidth,
         height: itemHeight,
@@ -80,13 +80,13 @@ function CarouselCard({
         src={member.image} 
         alt={member.name} 
         draggable="false"
-        className="w-full aspect-square object-cover rounded-xl pointer-events-none shadow-sm" 
+        className="w-full aspect-square object-cover rounded-xl pointer-events-none shadow-md border border-white/10" 
       />
       
-      <h3 className="text-2xl font-black text-center bg-gradient-to-r from-[#E60026] to-[#ff4d6d] bg-clip-text text-transparent mt-4 pointer-events-none drop-shadow-sm">
+      <h3 className="text-2xl font-black text-center bg-gradient-to-r from-red-400 via-rose-300 to-amber-300 bg-clip-text text-transparent mt-4 pointer-events-none drop-shadow-sm">
         {member.name}
       </h3>
-      <p className="text-base font-bold italic text-center text-[#1A1A1A]/80 mt-1 pointer-events-none">
+      <p className="text-base font-semibold italic text-center text-white/80 mt-1 pointer-events-none">
         ({member.role})
       </p>
     </motion.div>
@@ -151,9 +151,9 @@ export default function CoreMembers() {
   if (!isClient) return null; 
 
   return (
-    <section id="members" className="w-full relative overflow-hidden py-12 bg-[#FDF4E3]">
+    <section id="members" className="w-full relative overflow-hidden py-16 bg-black/25 backdrop-blur-md border-y border-white/10">
       <BackgroundAnimations />
-      <div className="absolute top-0 left-0 w-full h-10 bg-black flex items-center border-b-4 border-[#E60026] z-40 overflow-hidden shadow-md">
+      <div className="absolute top-0 left-0 w-full h-10 bg-black/40 backdrop-blur-md flex items-center border-b-2 border-[#E60026] z-40 overflow-hidden shadow-md">
         <motion.div 
            className="h-4 pointer-events-none"
            style={{
@@ -166,10 +166,10 @@ export default function CoreMembers() {
       </div>
 
       <div className="w-full max-w-7xl mx-auto px-6 relative z-10 mb-8 text-center mt-4 pointer-events-none">
-        <h2 className="text-4xl md:text-5xl font-black text-[#1A1A1A] tracking-tight mb-4">
+        <h2 className="text-4xl md:text-5xl font-black text-white tracking-tight mb-4 drop-shadow-sm">
           Core <span className="text-[#E60026]">Members</span>
         </h2>
-        <p className="text-xl md:text-2xl font-serif italic font-medium text-[#1A1A1A]/80 max-w-2xl mx-auto tracking-wide">
+        <p className="text-xl md:text-2xl font-serif italic font-medium text-white/80 max-w-2xl mx-auto tracking-wide">
           Hearts and Minds Behind Jadavpur University Music Club
         </p>
       </div>
@@ -194,7 +194,7 @@ export default function CoreMembers() {
         </motion.div>
       </div>
 
-      <div className="absolute bottom-0 left-0 w-full h-10 bg-black flex items-center border-t-4 border-[#E60026] z-40 overflow-hidden shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
+      <div className="absolute bottom-0 left-0 w-full h-10 bg-black/40 backdrop-blur-md flex items-center border-t-2 border-[#E60026] z-40 overflow-hidden shadow-[0_-10px_30px_rgba(0,0,0,0.3)]">
         <motion.div 
            className="h-4 pointer-events-none"
            style={{

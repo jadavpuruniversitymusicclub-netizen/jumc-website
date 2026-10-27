@@ -92,7 +92,7 @@ export default function EventsPortal() {
       </div>
 
       {/* Srijan JU Style Header Bar */}
-      <div className="mb-10 p-6 md:p-8 rounded-2xl bg-slate-950/70 border border-white/10 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
+      <div className="mb-10 p-6 md:p-8 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl shadow-2xl flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden">
         {/* Subtle decorative top border glow */}
         <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#E60026] via-amber-400 to-transparent opacity-80" />
 
@@ -123,7 +123,7 @@ export default function EventsPortal() {
             {/* Chamfered accent border effect */}
             <div className="absolute -inset-0.5 bg-gradient-to-r from-[#E60026]/40 via-amber-400/30 to-blue-600/40 rounded-xl opacity-0 group-focus-within:opacity-100 transition duration-300 blur-sm pointer-events-none" />
 
-            <div className="relative flex items-center w-full bg-slate-900/80 border border-white/15 focus-within:border-amber-400/80 rounded-xl backdrop-blur-xl px-4 py-3 transition-all">
+            <div className="relative flex items-center w-full bg-black/35 border border-white/15 focus-within:border-amber-400/80 rounded-xl backdrop-blur-xl px-4 py-3 transition-all">
               <Search className="w-5 h-5 text-amber-400/80 mr-3 flex-shrink-0" />
               <input
                 type="text"
@@ -147,7 +147,7 @@ export default function EventsPortal() {
           {/* Mobile Filter Toggle Button */}
           <button
             onClick={() => setMobileFilterOpen(!mobileFilterOpen)}
-            className="md:hidden w-full sm:w-auto px-4 py-3 rounded-xl bg-slate-900/90 border border-white/15 flex items-center justify-center gap-2 text-sm font-semibold text-slate-200"
+            className="md:hidden w-full sm:w-auto px-4 py-3 rounded-xl bg-black/40 border border-white/15 flex items-center justify-center gap-2 text-sm font-semibold text-slate-200"
           >
             <Filter className="w-4 h-4 text-amber-400" />
             Filters {hasActiveFilters && '(Active)'}
@@ -164,7 +164,7 @@ export default function EventsPortal() {
           }`}
         >
           {/* Filter Container */}
-          <div className="p-6 rounded-2xl bg-slate-950/70 border border-white/10 backdrop-blur-xl shadow-xl sticky top-28">
+          <div className="p-6 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-xl shadow-xl sticky top-28">
             {/* Header with Total Count */}
             <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
               <div>
@@ -306,7 +306,7 @@ export default function EventsPortal() {
         <main className="lg:col-span-9">
           {filteredEvents.length === 0 ? (
             /* Empty State */
-            <div className="p-12 rounded-3xl bg-slate-950/60 border border-white/10 backdrop-blur-xl text-center flex flex-col items-center justify-center min-h-[400px]">
+            <div className="p-12 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xl text-center flex flex-col items-center justify-center min-h-[400px]">
               <Search className="w-12 h-12 text-slate-500 mb-4 stroke-1" />
               <h3 className="text-xl font-bold text-white mb-2">No Events Found</h3>
               <p className="text-sm text-slate-400 max-w-md mb-6">
@@ -314,7 +314,7 @@ export default function EventsPortal() {
               </p>
               <button
                 onClick={resetFilters}
-                className="px-6 py-2.5 rounded-xl bg-[#E60026] hover:bg-[#c40020] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-lg"
+                className="px-6 py-2.5 rounded-xl bg-[#E60026] hover:bg-[#c40020] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-lg cursor-pointer"
               >
                 Reset All Filters
               </button>
@@ -335,8 +335,8 @@ export default function EventsPortal() {
                     <div
                       className={`relative w-full aspect-[3/4.2] flex flex-col justify-between p-6 rounded-3xl transition-all duration-500 ${
                         isMilaapFlagship
-                          ? 'bg-gradient-to-b from-[#1a0815] via-[#090b1e] to-[#04060f] border-2 border-amber-400/40 shadow-[0_0_35px_rgba(230,0,38,0.25)] hover:border-amber-300 hover:shadow-[0_0_50px_rgba(245,158,11,0.35)]'
-                          : 'bg-slate-950/70 border border-white/10 backdrop-blur-xl hover:border-white/25 hover:shadow-[0_10px_35px_rgba(0,0,0,0.5)]'
+                          ? 'bg-white/[0.05] backdrop-blur-xl border-2 border-amber-400/40 shadow-[0_0_35px_rgba(230,0,38,0.25)] hover:border-amber-300 hover:bg-white/[0.08] hover:shadow-[0_0_50px_rgba(245,158,11,0.35)]'
+                          : 'bg-white/[0.04] border border-white/10 backdrop-blur-xl hover:bg-white/[0.08] hover:border-white/25 hover:shadow-[0_10px_35px_rgba(0,0,0,0.5)]'
                       }`}
                     >
                       {/* Specialized Visual Background */}
@@ -353,7 +353,7 @@ export default function EventsPortal() {
                           </div>
 
                           {/* Shimmer overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
                         </div>
                       ) : (
                         /* Standard Event Ambient Gradient & Pattern */
@@ -361,7 +361,7 @@ export default function EventsPortal() {
                           <div
                             className={`absolute inset-0 bg-gradient-to-br ${event.bannerGradient} opacity-30 group-hover:opacity-50 transition-opacity duration-500`}
                           />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-transparent" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                         </div>
                       )}
 
