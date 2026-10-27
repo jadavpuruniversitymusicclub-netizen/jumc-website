@@ -1,9 +1,48 @@
 @import url('https://db.onlinewebfonts.com/c/a64ff11d2c24584c767f6257e880dc65?family=Helvetica+Regular');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Rozha+One&family=Yatra+One&family=Outfit:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 html {
   font-family: 'Helvetica Regular', sans-serif;
 }
+
+.font-rozha {
+  font-family: 'Rozha One', 'Yatra One', serif;
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+}
+
+.font-yatra {
+  font-family: 'Yatra One', serif;
+}
+
+.font-outfit {
+  font-family: 'Outfit', sans-serif;
+}
+
+.gold-text-gradient {
+  background: linear-gradient(135deg, #FFF4CC 0%, #FCD34D 25%, #F59E0B 50%, #FEF08A 75%, #D97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-bar-gradient {
+  background: linear-gradient(90deg, rgba(217, 119, 6, 0.4) 0%, #FEF08A 20%, #F59E0B 50%, #FEF08A 80%, rgba(217, 119, 6, 0.4) 100%);
+}
+
+.gold-glow {
+  filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.45));
+}
+
+.srijan-glass {
+  background: rgba(2, 6, 23, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
 
 @theme {
   --color-acoustic-bg: #F7EBD0;
