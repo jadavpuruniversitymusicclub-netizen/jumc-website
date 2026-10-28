@@ -16,7 +16,6 @@ import {
   Star,
   HeartHandshake
 } from 'lucide-react';
-import MilaapBrand from '@/components/MilaapBrand';
 import MandalaBackground from '@/components/MandalaBackground';
 import { BROCHURE_DATA } from '@/data/eventsData';
 
@@ -169,9 +168,35 @@ export default function MilaapPage() {
             INAUGURAL FLAGSHIP EDITION ? 2026
           </div>
 
-          {/* Custom "milaap" Title with metallic gold gradient & "EDITION I" */}
+          {/* Custom "lilaap" Title using Samarkan font with metallic gold gradient & "EDITION I" */}
           <div className="relative z-10 w-full max-w-5xl mx-auto mb-8 flex flex-col items-center">
-            <MilaapBrand size="hero" showSubtitle={true} centered={true} animate={true} />
+            <div className="relative inline-flex flex-col items-center text-center">
+              {/* Ambient golden aura behind the word */}
+              <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-yellow-400/20 to-amber-600/10 blur-2xl opacity-60 pointer-events-none" />
+
+              {/* Main Title: "lilaap" using Samarkan font for connected shirorekha */}
+              <h1 className="relative z-10 MilaapFont leading-none bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent text-[20vw] md:text-[14vw] drop-shadow-lg select-none">
+                lilaap
+              </h1>
+
+              {/* Subtitle: "EDITION I" in classic Serif font, gold color, widely spaced */}
+              <div className="relative z-10 flex items-center justify-center gap-3 mt-3 sm:mt-4">
+                <span className="h-px w-6 sm:w-10 bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
+                <span className="font-serif font-cinzel font-bold text-yellow-400 tracking-[0.5em] text-sm sm:text-base md:text-xl uppercase drop-shadow-[0_2px_8px_rgba(245,158,11,0.3)]">
+                  EDITION I
+                </span>
+                <span className="h-px w-6 sm:w-10 bg-gradient-to-l from-transparent via-amber-400/70 to-transparent" />
+              </div>
+
+              {/* Organisers Header: clean with golden accents */}
+              <div className="relative z-10 mt-3 flex items-center justify-center gap-2">
+                <span className="inline-block h-1 w-1 rounded-full bg-[#E60026] animate-pulse" />
+                <p className="font-sans font-semibold uppercase text-slate-300 tracking-[0.25em] text-xs sm:text-sm drop-shadow-sm">
+                  ORGANISED BY <span className="text-white font-bold">JUMC</span> & <span className="text-amber-400 font-bold">JUDW</span>
+                </p>
+                <span className="inline-block h-1 w-1 rounded-full bg-amber-400 animate-pulse" />
+              </div>
+            </div>
           </div>
 
           {/* Tagline & Synopsis */}
