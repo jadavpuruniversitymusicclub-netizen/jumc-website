@@ -119,7 +119,7 @@ export default function MilaapLayout({ children }: { children: React.ReactNode }
      *   Layer 2 (z-1) — animated starfield overlay & ambient glows
      *   Layer 3 (z-10) — page content (children)
      */
-    <div className="relative min-h-screen overflow-x-hidden bg-[url('/milaap-bg.jpeg')] bg-[length:100vw_100vh] bg-no-repeat bg-center bg-fixed bg-[#2b050a]">
+    <div className="relative min-h-screen overflow-x-hidden MilaapFont bg-[url('/milaap-bg.jpeg')] bg-[length:100vw_100vh] bg-no-repeat bg-center bg-fixed bg-[#2b050a]">
       {/* Dark overlay to ensure readability over the image */}
       <div className="absolute inset-0 z-0 bg-black/60 pointer-events-none" />
 

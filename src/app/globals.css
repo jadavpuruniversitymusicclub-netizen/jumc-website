@@ -10,8 +10,9 @@
   font-display: swap;
 }
 
-.MilaapFont {
-  font-family: 'Samarkan', sans-serif;
+.MilaapFont,
+.MilaapFont * {
+  font-family: 'Samarkan', sans-serif !important;
 }
 
 html {
