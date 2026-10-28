@@ -199,6 +199,25 @@ export default function MilaapPage() {
             </div>
           </div>
 
+          {/* Action Buttons — placed directly below ORGANISED BY line */}
+          <div className="relative z-10 my-6 py-2 flex flex-col sm:flex-row items-center gap-4 w-full max-w-md justify-center">
+            <Link
+              href="/milaap/sign-in"
+              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-[#E60026] via-[#ff2a4b] to-amber-500 text-white font-bold text-sm tracking-wider uppercase transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-[0_0_30px_rgba(230,0,38,0.45)] flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <span>Register for Milaap</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+
+            <Link
+              href="/milaap/sign-in?tab=signin"
+              className="w-full sm:w-auto px-7 py-4 rounded-xl bg-white/[0.04] border border-white/20 hover:border-amber-400/70 hover:bg-white/[0.08] text-slate-200 font-bold text-sm tracking-wider uppercase backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+            >
+              <span>Already registered?</span>
+              <ChevronRight className="w-4 h-4 text-amber-400" />
+            </Link>
+          </div>
+
           {/* Tagline & Synopsis */}
           <p className="relative z-10 text-lg sm:text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto font-light leading-relaxed">
             The landmark cultural celebration uniting the{' '}
@@ -220,25 +239,6 @@ export default function MilaapPage() {
               <Users className="w-4 h-4 text-sky-400" />
               <span>160,000+ Digital Reach • 15K+ Footfall</span>
             </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="relative z-10 flex flex-col sm:flex-row items-center gap-4 w-full max-w-md justify-center">
-            <Link
-              href="/milaap/sign-in"
-              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-[#E60026] via-[#ff2a4b] to-amber-500 text-white font-bold text-sm tracking-wider uppercase transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-[0_0_30px_rgba(230,0,38,0.45)] flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <span>Register for Milaap</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-
-            <Link
-              href="/milaap/sign-in?tab=signin"
-              className="w-full sm:w-auto px-7 py-4 rounded-xl bg-white/[0.04] border border-white/20 hover:border-amber-400/70 hover:bg-white/[0.08] text-slate-200 font-bold text-sm tracking-wider uppercase backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-lg"
-            >
-              <span>Already registered?</span>
-              <ChevronRight className="w-4 h-4 text-amber-400" />
-            </Link>
           </div>
         </section>
 

@@ -44,19 +44,20 @@ export default function Header() {
         </div>
       </Link>
 
-      <nav className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide">
-        {['Home', 'Events', 'Memories', 'Contact'].map((item) => (
-          <Link 
-            key={item} 
-            href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '')}`} 
-            className="hover:text-[#E60026] text-white transition-colors"
-          >
-            {item}
-          </Link>
-        ))}
-      </nav>
+      {/* Right side: Nav links and Admin profile button grouped together */}
+      <div className="flex items-center justify-end gap-6 md:gap-8">
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide">
+          {['Home', 'Events', 'Memories', 'Contact'].map((item) => (
+            <Link 
+              key={item} 
+              href={item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '')}`} 
+              className="hover:text-[#E60026] text-white transition-colors"
+            >
+              {item}
+            </Link>
+          ))}
+        </nav>
 
-      <div className="flex items-center gap-4">
         <Link href="/admin">
           <button className="hidden md:flex items-center gap-3 text-white hover:text-[#E60026] transition-colors uppercase tracking-wider cursor-pointer">
             <span className="text-sm font-medium">Admin</span>
