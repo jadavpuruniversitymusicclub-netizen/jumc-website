@@ -146,14 +146,14 @@ export default function MilaapPage() {
       <main className="relative min-h-screen text-slate-100 overflow-hidden">
 
         {/* ----------------- HERO SECTION ----------------- */}
-        <section className="relative min-h-screen flex flex-col items-center justify-center py-24 px-4 sm:px-6 lg:px-8 text-center">
-          {/* Central Rotating Sacred Geometry Mandala — behind hero text but above layout bg */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none">
+        <section className="relative z-10 flex flex-col items-center justify-center min-h-screen w-full px-4 text-center py-20 gap-6 sm:gap-8">
+          {/* Central Rotating Sacred Geometry Mandala — centered perfectly behind hero content */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -z-10 pointer-events-none">
             <MandalaBackground size={720} opacity={0.24} animated />
           </div>
 
           {/* Breadcrumb / Directory Link */}
-          <div className="relative z-10 mb-8 mx-auto">
+          <div className="relative z-10 mx-auto">
             <Link
               href="/events"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-xs font-mono font-bold uppercase tracking-widest text-slate-300 hover:text-white hover:border-amber-400/50 hover:bg-white/[0.08] transition-all"
@@ -163,20 +163,20 @@ export default function MilaapPage() {
           </div>
 
           {/* Edition Pill Badge */}
-          <div className="relative z-10 inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 backdrop-blur-md text-xs font-mono font-bold uppercase tracking-[0.25em] text-amber-300 mb-8 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+          <div className="relative z-10 inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 backdrop-blur-md text-xs font-mono font-bold uppercase tracking-[0.25em] text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
             <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-            INAUGURAL FLAGSHIP EDITION ? 2026
+            INAUGURAL FLAGSHIP EDITION • 2026
           </div>
 
-          {/* Custom "lilaap" Title using Samarkan font with metallic gold gradient & "EDITION I" */}
-          <div className="relative z-10 w-full max-w-5xl mx-auto mb-8 flex flex-col items-center">
+          {/* Custom "milaap" Title using Samarkan font with metallic gold gradient & "EDITION I" */}
+          <div className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center">
             <div className="relative inline-flex flex-col items-center text-center">
               {/* Ambient golden aura behind the word */}
               <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-yellow-400/20 to-amber-600/10 blur-2xl opacity-60 pointer-events-none" />
 
-              {/* Main Title: "lilaap" using Samarkan font for connected shirorekha */}
-              <h1 className="relative z-10 MilaapFont leading-none bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent text-[20vw] md:text-[14vw] drop-shadow-lg select-none">
-                lilaap
+              {/* Main Title: "milaap" using Samarkan font for connected shirorekha */}
+              <h1 className="relative z-10 MilaapFont leading-none tracking-tight bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent text-[20vw] md:text-[14vw] drop-shadow-lg select-none">
+                milaap
               </h1>
 
               {/* Subtitle: "EDITION I" in classic Serif font, gold color, widely spaced */}
@@ -200,17 +200,17 @@ export default function MilaapPage() {
           </div>
 
           {/* Tagline & Synopsis */}
-          <p className="relative z-10 text-lg sm:text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto font-light leading-relaxed mb-10">
+          <p className="relative z-10 text-lg sm:text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto font-light leading-relaxed">
             The landmark cultural celebration uniting the{' '}
             <span className="text-white font-semibold">Jadavpur University Music Club (JUMC)</span> and{' '}
             <span className="text-amber-300 font-semibold">JU Dance Wing (JUDF)</span>. Three days of virtuosic music, electrifying dance battles, and timeless artistic legacy.
           </p>
 
           {/* Micro-Details Pill Bar */}
-          <div className="relative z-10 flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm font-medium text-slate-300 mb-12">
+          <div className="relative z-10 flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm font-medium text-slate-300">
             <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-md shadow-sm">
               <Calendar className="w-4 h-4 text-amber-400" />
-              <span>November 28 ? 30, 2026</span>
+              <span>November 28 – 30, 2026</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-md shadow-sm">
               <MapPin className="w-4 h-4 text-[#E60026]" />
@@ -218,7 +218,7 @@ export default function MilaapPage() {
             </div>
             <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-md shadow-sm">
               <Users className="w-4 h-4 text-sky-400" />
-              <span>160,000+ Digital Reach ? 15K+ Footfall</span>
+              <span>160,000+ Digital Reach • 15K+ Footfall</span>
             </div>
           </div>
 

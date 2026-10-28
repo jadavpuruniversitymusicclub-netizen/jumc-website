@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
-import MandalaBackground from '@/components/MandalaBackground';
+import React from 'react';
 
 // Animated starfield particle overlay ? pure CSS, zero dependencies
 function StarfieldOverlay() {
@@ -115,25 +114,16 @@ const STARS = [
 export default function MilaapLayout({ children }: { children: React.ReactNode }) {
   return (
     /*
-     * Stacking context for the 3-layer background:
-     *   Layer 1 (z-0) ? static bg image via inline CSS (milaap-bg.jpeg)
-     *   Layer 2 (z-1) ? animated starfield + rotating mandala overlay
-     *   Layer 3 (z-10) ? page content (children)
+     * Stacking context for the layered background:
+     *   Layer 1 (z-0) — static background image fitted to viewport
+     *   Layer 2 (z-1) — animated starfield overlay & ambient glows
+     *   Layer 3 (z-10) — page content (children)
      */
-    <div
-      className="relative min-h-screen overflow-x-hidden"
-      style={{
-        backgroundImage: "url('/milaap-bg.jpeg')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-        backgroundRepeat: 'no-repeat',
-      }}
-    >
+    <div className="relative min-h-screen overflow-x-hidden bg-[url('/milaap-bg.jpeg')] bg-[length:100vw_100vh] bg-no-repeat bg-center bg-fixed bg-[#2b050a]">
       {/* Dark overlay to ensure readability over the image */}
       <div className="absolute inset-0 z-0 bg-black/60 pointer-events-none" />
 
-      {/* ?? Layer 2: Starfield + Mandala ?? */}
+      {/* ── Layer 2: Starfield ── */}
       <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
         {/* Animated star particles */}
         <StarfieldOverlay />
@@ -143,14 +133,9 @@ export default function MilaapLayout({ children }: { children: React.ReactNode }
 
         {/* Ambient crimson glow bottom-right */}
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-[#E60026]/[0.05] blur-[160px]" />
-
-        {/* Full-screen slowly rotating mandala */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10">
-          <MandalaBackground size={900} opacity={1} animated />
-        </div>
       </div>
 
-      {/* ?? Layer 3: Content ?? */}
+      {/* ── Layer 3: Content ── */}
       <div className="relative z-10">
         {children}
       </div>
