@@ -143,7 +143,7 @@ export default function MilaapPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <main className="relative min-h-screen text-slate-100 overflow-hidden MilaapFont">
+      <main className="relative min-h-screen text-slate-100 overflow-hidden">
 
         {/* ----------------- HERO SECTION ----------------- */}
         <section className="relative z-10 flex flex-col items-center justify-center min-h-screen w-full px-4 text-center py-20 gap-6 sm:gap-8">
@@ -156,14 +156,14 @@ export default function MilaapPage() {
           <div className="relative z-10 mx-auto">
             <Link
               href="/events"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-xs font-bold uppercase tracking-widest text-slate-300 hover:text-white hover:border-amber-400/50 hover:bg-white/[0.08] transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-xs font-sans font-medium uppercase tracking-widest text-slate-300 hover:text-white hover:border-amber-400/50 hover:bg-white/[0.08] transition-all"
             >
               &larr; Back to Events Directory
             </Link>
           </div>
 
           {/* Edition Pill Badge */}
-          <div className="relative z-10 inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 backdrop-blur-md text-xs font-bold uppercase tracking-[0.25em] text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
+          <div className="relative z-10 inline-flex items-center gap-2 px-5 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 backdrop-blur-md text-xs font-mono font-bold uppercase tracking-[0.25em] text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
             <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
             INAUGURAL FLAGSHIP EDITION • 2026
           </div>
@@ -174,15 +174,15 @@ export default function MilaapPage() {
               {/* Ambient golden aura behind the word */}
               <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-yellow-400/20 to-amber-600/10 blur-2xl opacity-60 pointer-events-none" />
 
-              {/* Main Title: "milaap" using Samarkan font for connected shirorekha */}
-              <h1 className="relative z-10 leading-none tracking-tight bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent text-[20vw] md:text-[14vw] drop-shadow-lg select-none">
+              {/* Main Title: ONLY "milaap" using Samarkan font for connected shirorekha */}
+              <h1 className="relative z-10 MilaapFont leading-none tracking-tight bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent text-[20vw] md:text-[14vw] drop-shadow-lg select-none">
                 milaap
               </h1>
 
               {/* Subtitle: "EDITION I" */}
               <div className="relative z-10 flex items-center justify-center gap-3 mt-3 sm:mt-4">
                 <span className="h-px w-6 sm:w-10 bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
-                <span className="font-bold text-yellow-400 tracking-[0.3em] text-sm sm:text-base md:text-xl uppercase drop-shadow-[0_2px_8px_rgba(245,158,11,0.3)]">
+                <span className="font-cinzel font-bold text-yellow-400 tracking-[0.3em] text-sm sm:text-base md:text-xl uppercase drop-shadow-[0_2px_8px_rgba(245,158,11,0.3)]">
                   EDITION I
                 </span>
                 <span className="h-px w-6 sm:w-10 bg-gradient-to-l from-transparent via-amber-400/70 to-transparent" />
@@ -191,7 +191,7 @@ export default function MilaapPage() {
               {/* Organisers Header */}
               <div className="relative z-10 mt-3 flex items-center justify-center gap-2">
                 <span className="inline-block h-1 w-1 rounded-full bg-[#E60026] animate-pulse" />
-                <p className="font-semibold uppercase text-slate-300 tracking-[0.2em] text-xs sm:text-sm drop-shadow-sm">
+                <p className="font-sans font-semibold uppercase text-slate-300 tracking-[0.2em] text-xs sm:text-sm drop-shadow-sm">
                   ORGANISED BY <span className="text-white font-bold">JUMC</span> & <span className="text-amber-400 font-bold">JUDW</span>
                 </p>
                 <span className="inline-block h-1 w-1 rounded-full bg-amber-400 animate-pulse" />
@@ -203,7 +203,7 @@ export default function MilaapPage() {
           <div className="relative z-10 my-6 py-2 flex flex-col sm:flex-row items-center gap-4 w-full max-w-md justify-center">
             <Link
               href="/milaap/sign-in"
-              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-[#E60026] via-[#ff2a4b] to-amber-500 text-white font-bold text-sm tracking-wider uppercase transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-[0_0_30px_rgba(230,0,38,0.45)] flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-[#E60026] via-[#ff2a4b] to-amber-500 text-white font-sans font-bold text-sm tracking-wider uppercase transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-[0_0_30px_rgba(230,0,38,0.45)] flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>Register for Milaap</span>
               <ArrowRight className="w-4 h-4" />
@@ -211,7 +211,7 @@ export default function MilaapPage() {
 
             <Link
               href="/milaap/sign-in?tab=signin"
-              className="w-full sm:w-auto px-7 py-4 rounded-xl bg-white/[0.04] border border-white/20 hover:border-amber-400/70 hover:bg-white/[0.08] text-slate-200 font-bold text-sm tracking-wider uppercase backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-lg"
+              className="w-full sm:w-auto px-7 py-4 rounded-xl bg-white/[0.04] border border-white/20 hover:border-amber-400/70 hover:bg-white/[0.08] text-slate-200 font-sans font-bold text-sm tracking-wider uppercase backdrop-blur-xl transition-all duration-300 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-lg"
             >
               <span>Already registered?</span>
               <ChevronRight className="w-4 h-4 text-amber-400" />
@@ -219,14 +219,14 @@ export default function MilaapPage() {
           </div>
 
           {/* Tagline & Synopsis */}
-          <p className="relative z-10 text-lg sm:text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto font-light leading-relaxed">
+          <p className="relative z-10 text-lg sm:text-xl md:text-2xl text-slate-300 max-w-3xl mx-auto font-sans font-light leading-relaxed">
             The landmark cultural celebration uniting the{' '}
             <span className="text-white font-semibold">Jadavpur University Music Club (JUMC)</span> and{' '}
             <span className="text-amber-300 font-semibold">JU Dance Wing (JUDF)</span>. Three days of virtuosic music, electrifying dance battles, and timeless artistic legacy.
           </p>
 
           {/* Micro-Details Pill Bar */}
-          <div className="relative z-10 flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm font-medium text-slate-300">
+          <div className="relative z-10 flex flex-wrap items-center justify-center gap-4 text-xs sm:text-sm font-sans font-medium text-slate-300">
             <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/[0.04] border border-white/10 backdrop-blur-md shadow-sm">
               <Calendar className="w-4 h-4 text-amber-400" />
               <span>November 28 – 30, 2026</span>
