@@ -145,22 +145,16 @@ export default function MilaapPage() {
       />
 
       <main className="relative min-h-screen text-slate-100 overflow-hidden">
-        {/* Ambient Gradient Background Glows */}
-        <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-          <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-gradient-to-br from-amber-600/15 via-rose-900/20 to-blue-950/40 blur-[160px]" />
-          <div className="absolute top-[35%] -left-[10%] w-[500px] h-[500px] rounded-full bg-blue-900/20 blur-[150px]" />
-          <div className="absolute top-[65%] -right-[10%] w-[600px] h-[600px] rounded-full bg-[#E60026]/15 blur-[160px]" />
-        </div>
 
         {/* ----------------- HERO SECTION ----------------- */}
-        <section className="relative min-h-[92vh] flex flex-col items-center justify-center pt-32 pb-24 px-4 sm:px-6 lg:px-8 text-center">
-          {/* Central Rotating Sacred Geometry Mandala */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 pointer-events-none">
+        <section className="relative min-h-screen flex flex-col items-center justify-center py-24 px-4 sm:px-6 lg:px-8 text-center">
+          {/* Central Rotating Sacred Geometry Mandala — behind hero text but above layout bg */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none">
             <MandalaBackground size={720} opacity={0.24} animated />
           </div>
 
           {/* Breadcrumb / Directory Link */}
-          <div className="relative z-10 mb-8">
+          <div className="relative z-10 mb-8 mx-auto">
             <Link
               href="/events"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-xs font-mono font-bold uppercase tracking-widest text-slate-300 hover:text-white hover:border-amber-400/50 hover:bg-white/[0.08] transition-all"
@@ -176,7 +170,7 @@ export default function MilaapPage() {
           </div>
 
           {/* Custom "milaap" Title with metallic gold gradient & "EDITION I" */}
-          <div className="relative z-10 max-w-5xl mx-auto mb-8">
+          <div className="relative z-10 w-full max-w-5xl mx-auto mb-8 flex flex-col items-center">
             <MilaapBrand size="hero" showSubtitle={true} centered={true} animate={true} />
           </div>
 
