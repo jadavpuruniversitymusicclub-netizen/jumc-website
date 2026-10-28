@@ -16,7 +16,6 @@ import {
   Star,
   HeartHandshake
 } from 'lucide-react';
-import MandalaBackground from '@/components/MandalaBackground';
 import { BROCHURE_DATA } from '@/data/eventsData';
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -147,11 +146,6 @@ export default function MilaapPage() {
 
         {/* ----------------- HERO SECTION ----------------- */}
         <section className="relative z-10 flex flex-col items-center justify-center min-h-screen w-full px-4 text-center py-20 gap-6 sm:gap-8">
-          {/* Central Rotating Sacred Geometry Mandala — centered perfectly behind hero content */}
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -z-10 pointer-events-none">
-            <MandalaBackground size={720} opacity={0.24} animated />
-          </div>
-
           {/* Breadcrumb / Directory Link */}
           <div className="relative z-10 mx-auto">
             <Link

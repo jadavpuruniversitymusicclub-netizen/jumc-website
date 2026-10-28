@@ -118,20 +118,19 @@ const STARS = [
   { top: '83.3%', left: '69.5%', size: '3px',   dur: '4.0s', delay: '1.7s', color: 'gold'  },
 ];
 
+import CleanChakra from '@/components/CleanChakra';
+
 export default function MilaapLayout({ children }: { children: React.ReactNode }) {
   return (
-    /*
-     * Stacking context for the layered background:
-     *   Layer 1 (z-0) — static background image fitted to viewport
-     *   Layer 2 (z-1) — animated starfield overlay & ambient glows (fixed across viewport)
-     *   Layer 3 (z-10) — page content (children)
-     */
-    <div className="relative min-h-screen overflow-x-hidden bg-[url('/milaap-bg.jpeg')] bg-[length:100vw_100vh] bg-no-repeat bg-center bg-fixed bg-[#2b050a]">
-      {/* Dark overlay to ensure readability over the image */}
-      <div className="fixed inset-0 z-0 bg-black/60 pointer-events-none" />
+    <div className="relative min-h-screen overflow-x-hidden bg-[#2b050a]">
+      {/* ── Fixed Background Image Layer (-z-20) ── */}
+      <div className="fixed inset-0 bg-[url('/milaap-bg.jpeg')] bg-[length:100vw_100vh] bg-no-repeat bg-center -z-20" />
 
-      {/* ── Layer 2: Starfield & Ambient Glows ── */}
-      <div className="fixed inset-0 z-[1] pointer-events-none overflow-hidden">
+      {/* Dark overlay to ensure readability over the background image */}
+      <div className="fixed inset-0 bg-black/60 -z-20 pointer-events-none" />
+
+      {/* ── Fixed Starfield & Ambient Glows ── */}
+      <div className="fixed inset-0 -z-15 pointer-events-none overflow-hidden">
         {/* Animated star particles */}
         <StarfieldOverlay />
 
@@ -142,7 +141,12 @@ export default function MilaapLayout({ children }: { children: React.ReactNode }
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-[#E60026]/[0.06] blur-[160px]" />
       </div>
 
-      {/* ── Layer 3: Content ── */}
+      {/* ── Fixed Persistent Clean Chakra (Parallax Centerpiece: -z-10) ── */}
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -z-10 pointer-events-none flex items-center justify-center">
+        <CleanChakra />
+      </div>
+
+      {/* ── Content: Glides Over the Fixed Background & Chakra ── */}
       <div className="relative z-10">
         {children}
       </div>

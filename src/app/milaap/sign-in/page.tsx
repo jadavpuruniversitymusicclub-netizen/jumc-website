@@ -14,7 +14,6 @@ import {
   Loader2
 } from 'lucide-react';
 import MilaapBrand from '@/components/MilaapBrand';
-import MandalaBackground from '@/components/MandalaBackground';
 
 const CATEGORIES = [
   'Eastern Vocals (Solo / Duet)',
@@ -88,11 +87,6 @@ export default function MilaapRegistrationPage() {
         <div className="absolute top-[-5%] left-1/2 -translate-x-1/2 w-[750px] h-[750px] rounded-full bg-gradient-to-br from-amber-600/15 via-rose-950/20 to-blue-950/35 blur-[170px]" />
         <div className="absolute bottom-[5%] -right-[5%] w-[480px] h-[480px] rounded-full bg-[#E60026]/12 blur-[150px]" />
         <div className="absolute bottom-[30%] -left-[8%] w-[400px] h-[400px] rounded-full bg-blue-900/18 blur-[140px]" />
-      </div>
-
-      {/* ?? Rotating Mandala ?? */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 pointer-events-none">
-        <MandalaBackground size={700} opacity={0.16} animated />
       </div>
 
       <div className="w-full max-w-lg relative z-10">
