@@ -25,6 +25,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import MilaapBrand from '@/components/MilaapBrand';
+import { formatMilaapText } from '@/components/MilaapText';
 import MandalaBackground from '@/components/MandalaBackground';
 import { BROCHURE_DATA, EVENTS_DATA } from '@/data/eventsData';
 
@@ -374,7 +375,7 @@ export default function MilaapDetailView() {
       <section id="sponsorship" className="relative py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <span className="text-xs font-mono font-bold uppercase tracking-[0.3em] text-[#E60026] block mb-2">
-            CORPORATE PARTNERSHIP • MILAAP &apos;26
+            CORPORATE PARTNERSHIP • <span className="font-samarkan MilaapFont text-sm text-amber-400 normal-case tracking-normal">milaap</span> &apos;26
           </span>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
             Sponsorship Slabs &amp; Deliverables
@@ -438,7 +439,7 @@ export default function MilaapDetailView() {
                     {slab.perks.map((perk, i) => (
                       <li key={i} className="text-xs text-slate-300 flex items-start gap-2">
                         <CheckCircle2 className="w-3.5 h-3.5 text-amber-400 mt-0.5 flex-shrink-0" />
-                        <span className="leading-relaxed">{perk}</span>
+                        <span className="leading-relaxed">{formatMilaapText(perk, 'text-amber-300 font-semibold')}</span>
                       </li>
                     ))}
                   </ul>
@@ -539,7 +540,7 @@ export default function MilaapDetailView() {
                       className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 flex items-start gap-3"
                     >
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" />
-                      <span className="text-xs sm:text-sm text-slate-200">{item}</span>
+                      <span className="text-xs sm:text-sm text-slate-200">{formatMilaapText(item, 'text-amber-300 font-semibold')}</span>
                     </div>
                   )
                 )}
@@ -556,7 +557,7 @@ export default function MilaapDetailView() {
                   Direct Student Interaction &amp; Digital Permanence
                 </h5>
                 <p className="text-xs text-slate-400 leading-relaxed mb-6">
-                  Unlike traditional collegiate events that fade after the weekend, milaap integrates corporate sponsors into the official university digital archives, website ecosystem, and post-event highlight reels indefinitely.
+                  Unlike traditional collegiate events that fade after the weekend, <span className="font-samarkan MilaapFont text-amber-300 text-sm normal-case tracking-normal">milaap</span> integrates corporate sponsors into the official university digital archives, website ecosystem, and post-event highlight reels indefinitely.
                 </p>
               </div>
 
@@ -654,9 +655,11 @@ export default function MilaapDetailView() {
               <span className="text-[10px] font-mono font-bold uppercase tracking-[0.25em] text-[#E60026] block">
                 PARTICIPANT REGISTRATION
               </span>
-              <h3 className="text-2xl font-bold text-white mt-1">milaap — EDITION I</h3>
+              <h3 className="text-2xl font-bold text-white mt-1">
+                <span className="font-samarkan MilaapFont text-3xl text-amber-400 normal-case tracking-normal">milaap</span> — EDITION I
+              </h3>
               <p className="text-xs text-slate-400 mt-1">
-                Enter your details below to register for milaap competitions and festival entry.
+                Enter your details below to register for <span className="font-samarkan MilaapFont text-amber-300 normal-case tracking-normal">milaap</span> competitions and festival entry.
               </p>
             </div>
 
@@ -890,7 +893,7 @@ export default function MilaapDetailView() {
               </span>
               <MilaapBrand size="sm" showSubtitle={true} centered={true} />
               <p className="text-xs text-slate-300 max-w-md mx-auto mt-4 leading-relaxed">
-                Complete overview of sponsorship slabs, social media footprint, and event deliverables for MILAAP &apos;26.
+                Complete overview of sponsorship slabs, social media footprint, and event deliverables for <span className="font-samarkan MilaapFont text-amber-400 text-sm normal-case tracking-normal">milaap</span> &apos;26.
               </p>
             </div>
 

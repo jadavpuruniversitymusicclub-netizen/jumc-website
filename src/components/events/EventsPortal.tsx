@@ -463,7 +463,11 @@ export default function EventsPortal() {
                         {/* Interactive CTA Link Bar */}
                         <div className="pt-2 flex items-center justify-between text-xs font-bold text-white group-hover:text-amber-300 transition-colors">
                           <span>
-                            {isMilaapFlagship ? 'Explore Milaap Portal' : 'View Rules & Register'}
+                            {isMilaapFlagship ? (
+                              <span>Explore <span className="font-samarkan MilaapFont text-sm text-amber-300 normal-case tracking-normal">milaap</span> Portal</span>
+                            ) : (
+                              'View Rules & Register'
+                            )}
                           </span>
                           <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1.5 transition-transform duration-300" />
                         </div>

@@ -104,7 +104,7 @@ export default function MilaapRegistrationPage() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-xs font-mono font-bold uppercase tracking-widest text-slate-300 hover:text-amber-300 hover:border-amber-400/50 transition-all duration-200"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            Back to Milaap Home
+            <span>Back to <span className="font-samarkan MilaapFont text-sm normal-case tracking-normal">milaap</span> Home</span>
           </Link>
         </div>
 
@@ -125,7 +125,7 @@ export default function MilaapRegistrationPage() {
                 Official Participant Portal
               </span>
               <h1 className="text-xl sm:text-2xl font-extrabold text-white font-cinzel leading-tight">
-                Register for Milaap Edition I
+                Register for <span className="font-samarkan MilaapFont text-2xl sm:text-3xl text-amber-300 normal-case tracking-normal">milaap</span> Edition I
               </h1>
               <p className="mt-2 text-xs text-slate-400 font-light">
                 Fill in your details below. Entry is free for all verified college students.
@@ -145,7 +145,7 @@ export default function MilaapRegistrationPage() {
                   Registration Confirmed!
                 </h2>
                 <p className="text-xs text-slate-400 font-light leading-relaxed max-w-xs mx-auto">
-                  Welcome to <span className="text-amber-300 font-semibold">Milaap Edition I</span>. Your slot is recorded. Please carry a valid student ID on fest day.
+                  Welcome to <span className="text-amber-300 font-semibold"><span className="font-samarkan MilaapFont text-base normal-case tracking-normal">milaap</span> Edition I</span>. Your slot is recorded. Please carry a valid student ID on fest day.
                 </p>
               </div>
 
@@ -171,7 +171,7 @@ export default function MilaapRegistrationPage() {
                 href="/milaap"
                 className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 text-black font-extrabold text-sm tracking-wider uppercase text-center transition-all hover:brightness-110 active:scale-95 shadow-[0_0_20px_rgba(245,158,11,0.3)]"
               >
-                Return to Milaap Home
+                Return to <span className="font-samarkan MilaapFont text-base normal-case tracking-normal">milaap</span> Home
               </Link>
             </div>
 
@@ -277,7 +277,7 @@ export default function MilaapRegistrationPage() {
                   />
                   <span className="text-xs text-slate-400 font-light leading-relaxed group-hover:text-slate-300 transition-colors">
                     I confirm I am a registered college/university student and agree to adhere to the{' '}
-                    <span className="text-amber-400 font-semibold">Milaap Edition I</span> code of conduct and event rules.
+                    <span className="text-amber-400 font-semibold"><span className="font-samarkan MilaapFont text-base normal-case tracking-normal">milaap</span> Edition I</span> code of conduct and event rules.
                   </span>
                 </label>
                 {errors.agreeToTerms && (
@@ -320,7 +320,7 @@ export default function MilaapRegistrationPage() {
                 className="text-xs text-slate-400 hover:text-amber-300 transition-colors font-light inline-flex items-center gap-1.5"
               >
                 <ArrowLeft className="w-3 h-3" />
-                Back to Milaap Home
+                <span>Back to <span className="font-samarkan MilaapFont text-sm normal-case tracking-normal">milaap</span> Home</span>
               </Link>
             </div>
           )}

@@ -111,8 +111,8 @@ function MilaapCard() {
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_#F59E0B] shrink-0" />
           </div>
 
-          {/* Main title ? milaap */}
-          <h2 className="font-cinzel font-black leading-none tracking-tight select-none
+          {/* Main title — milaap */}
+          <h2 className="font-samarkan MilaapFont lowercase leading-none tracking-tight select-none
                          bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600
                          bg-clip-text text-transparent"
               style={{ fontSize: 'clamp(3rem, 18vw, 5rem)' }}>

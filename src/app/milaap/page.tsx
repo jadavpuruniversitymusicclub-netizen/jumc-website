@@ -205,7 +205,7 @@ export default function MilaapPage() {
               href="/milaap/sign-in"
               className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-[#E60026] via-[#ff2a4b] to-amber-500 text-white font-sans font-bold text-sm tracking-wider uppercase transition-all duration-300 hover:scale-[1.03] active:scale-95 shadow-[0_0_30px_rgba(230,0,38,0.45)] flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>Register for Milaap</span>
+              <span>Register for <span className="font-samarkan MilaapFont text-base normal-case tracking-normal">milaap</span></span>
               <ArrowRight className="w-4 h-4" />
             </Link>
 

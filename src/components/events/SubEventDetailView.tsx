@@ -64,9 +64,9 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
           <span className="text-white/20">•</span>
           <Link
             href="/events/milaap"
-            className="text-xs font-mono font-bold uppercase tracking-widest text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1"
+            className="text-xs font-mono font-bold uppercase tracking-widest text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1.5"
           >
-            <span>milaap Edition I Flagship</span>
+            <span><span className="font-samarkan MilaapFont text-sm normal-case tracking-normal">milaap</span> Edition I Flagship</span>
             <Sparkles className="w-3 h-3" />
           </Link>
         </div>
@@ -276,7 +276,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
             FLAGSHIP FESTIVAL SYNERGY
           </span>
           <h4 className="text-xl font-bold text-white">
-            This competition is an official wing of milaap — EDITION I
+            This competition is an official wing of <span className="font-samarkan MilaapFont text-2xl text-amber-300 normal-case tracking-normal">milaap</span> — EDITION I
           </h4>
           <p className="text-xs text-slate-400 mt-1 max-w-xl">
             Explore the complete festival brochure, sponsorship opportunities, and social media reach statistics.
@@ -287,7 +287,7 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
           href="/events/milaap"
           className="px-6 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-2 flex-shrink-0 cursor-pointer"
         >
-          <span>Explore Milaap Edition I</span>
+          <span>Explore <span className="font-samarkan MilaapFont text-sm normal-case tracking-normal">milaap</span> Edition I</span>
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>

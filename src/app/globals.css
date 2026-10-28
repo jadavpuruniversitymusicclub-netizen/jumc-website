@@ -10,7 +10,9 @@
   font-display: swap;
 }
 
-.MilaapFont {
+.MilaapFont,
+.font-samarkan,
+.font-milaap {
   font-family: 'Samarkan', sans-serif;
 }
 
@@ -65,6 +67,8 @@ html {
 
 
 @theme {
+  --font-samarkan: 'Samarkan', sans-serif;
+  --font-milaap: 'Samarkan', sans-serif;
   --color-acoustic-bg: #F7EBD0;
   --color-acoustic-surface: #FFF6E3;
   --color-charcoal: #1A1A1A;
