@@ -16,11 +16,27 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "JUMC",
-  description: "Jadavpur University Music Club - The beating heart of our campus legacy.",
+  metadataBase: new URL("https://jumc.vercel.app"),
+  applicationName: "JUMC",
   icons: {
     icon: "/jumc-logo.jpeg",
+    shortcut: "/jumc-logo.jpeg",
+    apple: "/jumc-logo.jpeg",
   },
+  title: {
+    default: "JUMC — Jadavpur University Music Club",
+    template: "%s",
+  },
+  description:
+    "Official portal of JUMC (Jadavpur University Music Club). Register for Milaap Edition I, the flagship cultural fest by JU Music Club & JU Dance Wing.",
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "JUMC",
+  alternateName: ["JU Music Club", "Jadavpur University Music Club", "Milaap JU"],
+  url: "https://jumc.vercel.app/",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -30,6 +46,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
         <VideoBackground />
         <Header />
         <SmoothScroll>

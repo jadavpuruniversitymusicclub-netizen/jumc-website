@@ -507,15 +507,21 @@ export default function MilaapPage() {
         INAUGURAL FLAGSHIP EDITION • 2026
       </motion.div>
 
+      {/* Screen-reader accessible SEO H1 */}
+      <h1 className="sr-only">
+        Milaap Edition I — Cultural Fest by JU Music Club (JUMC) &amp; JUDF
+      </h1>
+
       {/* Main Title */}
-      <motion.h1
+      <motion.div
+        aria-hidden="true"
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.9, ease: "easeOut" }}
         className="MilaapFont text-7xl sm:text-8xl md:text-9xl bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_4px_32px_rgba(245,158,11,0.35)] mb-2 select-none transform-gpu relative z-10 px-4"
       >
         milaap
-      </motion.h1>
+      </motion.div>
 
       {/* Subtitle */}
       <motion.p
@@ -564,11 +570,14 @@ export default function MilaapPage() {
             className="group-hover:translate-x-1 transition-transform"
           />
         </Link>
-        <button className="px-7 py-3.5 rounded-xl bg-black/40 backdrop-blur-md border border-amber-400/30 text-amber-200 text-sm tracking-wide hover:bg-black/60 hover:border-amber-400/50 active:scale-95 touch-manipulation transition-all duration-300 flex items-center gap-2 transform-gpu cursor-pointer">
+        <Link
+          href="/milaap/sign-in"
+          className="px-7 py-3.5 rounded-xl bg-black/40 backdrop-blur-md border border-amber-400/30 text-amber-200 text-sm tracking-wide hover:bg-black/60 hover:border-amber-400/50 active:scale-95 touch-manipulation transition-all duration-300 flex items-center gap-2 transform-gpu cursor-pointer"
+        >
           <Footprints size={16} />
           ALREADY REGISTERED?
           <ChevronRight size={14} />
-        </button>
+        </Link>
       </motion.div>
 
       {/* Soulful One-Line Tagline Under Registration Buttons */}
