@@ -141,14 +141,28 @@ export default function MilaapLayout({ children }: { children: React.ReactNode }
 
         {/* Ambient crimson glow bottom-right */}
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-[#E60026]/[0.08] blur-[160px]" />
+
+        {/* ── Ambient Corner Mandalas (Matching the Reference Tapestry Aesthetic) ── */}
+        <div className="absolute -top-[160px] -left-[160px] md:-top-[220px] md:-left-[220px] w-[420px] h-[420px] md:w-[560px] md:h-[560px] opacity-[0.20] pointer-events-none transform-gpu">
+          <CleanChakra />
+        </div>
+        <div className="absolute -top-[160px] -right-[160px] md:-top-[220px] md:-right-[220px] w-[420px] h-[420px] md:w-[560px] md:h-[560px] opacity-[0.20] pointer-events-none transform-gpu">
+          <CleanChakra />
+        </div>
+        <div className="absolute -bottom-[160px] -left-[160px] md:-bottom-[220px] md:-left-[220px] w-[420px] h-[420px] md:w-[560px] md:h-[560px] opacity-[0.20] pointer-events-none transform-gpu">
+          <CleanChakra />
+        </div>
+        <div className="absolute -bottom-[160px] -right-[160px] md:-bottom-[220px] md:-right-[220px] w-[420px] h-[420px] md:w-[560px] md:h-[560px] opacity-[0.20] pointer-events-none transform-gpu">
+          <CleanChakra />
+        </div>
       </div>
 
-      {/* ── Fixed Heavenly Sacred-Geometry Chakra (z-[3]) ── */}
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[3] pointer-events-none w-[80vw] h-[80vw] max-w-[360px] max-h-[360px] md:w-[500px] md:h-[500px] md:max-w-[500px] md:max-h-[500px] flex items-center justify-center transform-gpu will-change-transform backface-hidden">
+      {/* ── Fixed Center Royal Baroque Mandala (Centerpiece: z-[3]) ── */}
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[3] pointer-events-none w-[88vw] h-[88vw] max-w-[420px] max-h-[420px] md:w-[600px] md:h-[600px] md:max-w-[600px] md:max-h-[600px] flex items-center justify-center transform-gpu will-change-transform backface-hidden">
         <CleanChakra />
       </div>
 
-      {/* ── Content: Glides Over the Fixed Background & Chakra (relative z-10) ── */}
+      {/* ── Content: Glides Over the Fixed Background & Mandala (relative z-10) ── */}
       <div className="relative z-10">
         {children}
       </div>
