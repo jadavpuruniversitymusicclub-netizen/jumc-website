@@ -15,9 +15,8 @@ export default function MilaapText({
 }: MilaapTextProps) {
   return (
     <span
-      className={`font-samarkan MilaapFont lowercase tracking-normal inline-block ${
-        gradient ? 'gold-text-gradient' : ''
-      } ${glow ? 'gold-glow' : ''} ${className}`}
+      className={`font-samarkan MilaapFont lowercase tracking-normal inline-block ${gradient ? 'gold-text-gradient' : ''
+        } ${glow ? 'gold-glow' : ''} ${className}`}
     >
       {children}
     </span>
