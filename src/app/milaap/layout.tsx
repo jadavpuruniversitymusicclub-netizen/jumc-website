@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import CleanChakra from '@/components/CleanChakra';
 
 // Animated starfield particle overlay — pure CSS, zero dependencies
 function StarfieldOverlay() {
@@ -118,19 +119,17 @@ const STARS = [
   { top: '83.3%', left: '69.5%', size: '3px',   dur: '4.0s', delay: '1.7s', color: 'gold'  },
 ];
 
-import CleanChakra from '@/components/CleanChakra';
-
 export default function MilaapLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#2b050a]">
-      {/* ── Fixed Background Image Layer (z-0) with GPU Layer Isolation ── */}
-      <div className="fixed inset-0 bg-[#2b050a] bg-[url('/milaap-bg.jpeg')] bg-[length:100vw_100vh] bg-no-repeat bg-center z-0 pointer-events-none transform-gpu will-change-transform backface-hidden" />
+      {/* ── Fixed Background Image Layer (z-[-30]) with GPU Layer Isolation ── */}
+      <div className="fixed inset-0 bg-[#2b050a] bg-[url('/milaap-bg.jpeg')] bg-[length:100vw_100vh] bg-no-repeat bg-center z-[-30] pointer-events-none transform-gpu will-change-transform backface-hidden" />
 
-      {/* Dark overlay to ensure readability over the background image (z-[1]) */}
-      <div className="fixed inset-0 bg-black/60 z-[1] pointer-events-none" />
+      {/* Dark overlay to ensure readability over the background image (z-[-20]) */}
+      <div className="fixed inset-0 bg-black/60 z-[-20] pointer-events-none" />
 
-      {/* ── Fixed Starfield & Ambient Glows (z-[2]) ── */}
-      <div className="fixed inset-0 z-[2] pointer-events-none overflow-hidden">
+      {/* ── Fixed Starfield & Ambient Glows (z-[-15]) ── */}
+      <div className="fixed inset-0 z-[-15] pointer-events-none overflow-hidden">
         {/* Animated star particles */}
         <StarfieldOverlay />
 
@@ -141,12 +140,12 @@ export default function MilaapLayout({ children }: { children: React.ReactNode }
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-[#E60026]/[0.06] blur-[160px]" />
       </div>
 
-      {/* ── Fixed Persistent Clean Chakra (Parallax Centerpiece: z-[3]) with GPU Layer Isolation ── */}
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[3] pointer-events-none flex items-center justify-center transform-gpu will-change-transform backface-hidden">
+      {/* ── Fixed Heavenly Sacred-Geometry Chakra (z-[-10]) with clamped mobile-first sizing & GPU isolation ── */}
+      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[-10] pointer-events-none w-[75vw] h-[75vw] max-w-[340px] max-h-[340px] md:max-w-[480px] md:max-h-[480px] flex items-center justify-center transform-gpu will-change-transform backface-hidden">
         <CleanChakra />
       </div>
 
-      {/* ── Content: Glides Over the Fixed Background & Chakra (z-10) ── */}
+      {/* ── Content: Glides Over the Fixed Background & Chakra (relative z-10) ── */}
       <div className="relative z-10">
         {children}
       </div>

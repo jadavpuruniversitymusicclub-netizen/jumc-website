@@ -1,99 +1,203 @@
 "use client";
+import React from "react";
+import { motion } from "framer-motion";
 
-import React from 'react';
+export function HeavenlyChakra({ className = "" }: { className?: string }) {
+  // Precompute triangle vertices for the 12-pointed sacred star (4 equilateral triangles rotated at 0°, 30°, 60°, 90°)
+  const R = 175;
+  const triangles = [0, 30, 60, 90].map((rot) => {
+    const pts = [0, 120, 240].map((deg) => {
+      const rad = ((deg + rot - 90) * Math.PI) / 180;
+      const x = 250 + R * Math.cos(rad);
+      const y = 250 + R * Math.sin(rad);
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
+    });
+    return pts.join(" ");
+  });
 
-interface CleanChakraProps {
-  className?: string;
-  sizeClassName?: string;
-  opacity?: string;
-}
+  // Precompute glowing intersection node dots at radii 80, 115, 145 across 12 rays
+  const nodeDots: { cx: string; cy: string }[] = [];
+  [80, 115, 145].forEach((r) => {
+    for (let i = 0; i < 12; i++) {
+      const rad = ((i * 30 - 90) * Math.PI) / 180;
+      nodeDots.push({
+        cx: (250 + r * Math.cos(rad)).toFixed(2),
+        cy: (250 + r * Math.sin(rad)).toFixed(2),
+      });
+    }
+  });
 
-export default function CleanChakra({
-  className = '',
-  sizeClassName = 'w-[75vw] max-w-[540px] md:w-[500px] aspect-square',
-  opacity = 'opacity-30',
-}: CleanChakraProps) {
   return (
-    <div
-      className={`pointer-events-none select-none flex items-center justify-center text-amber-400 ${sizeClassName} ${opacity} ${className}`}
-      aria-hidden="true"
+    <motion.div
+      animate={{ scale: [1, 1.03, 1], opacity: [0.6, 0.85, 0.6] }}
+      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      className={`relative w-full h-full flex items-center justify-center transform-gpu will-change-transform ${className}`}
     >
-      <svg
-        viewBox="0 0 400 400"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full animate-[spin_40s_linear_infinite] drop-shadow-[0_0_15px_rgba(245,158,11,0.3)]"
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+        className="w-full h-full transform-gpu will-change-transform"
       >
-        <defs>
-          <linearGradient id="cleanChakraGold" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FEF08A" stopOpacity="0.85" />
-            <stop offset="50%" stopColor="#F59E0B" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="#D97706" stopOpacity="0.85" />
-          </linearGradient>
-        </defs>
-
-        {/* 1. Outer Thin Concentric Circle */}
-        <circle
-          cx="200"
-          cy="200"
-          r="188"
-          stroke="url(#cleanChakraGold)"
-          strokeWidth="0.8"
-        />
-
-        {/* 2. Inner Thin Concentric Circle */}
-        <circle
-          cx="200"
-          cy="200"
-          r="132"
-          stroke="url(#cleanChakraGold)"
-          strokeWidth="0.8"
-        />
-
-        {/* 3. Inscribed Clean 12-Point Star Geometry */}
-        <polygon
-          points="200.00,12.00 234.16,72.50 294.00,37.19 293.34,106.66 362.81,106.00 327.50,165.84 388.00,200.00 327.50,234.16 362.81,294.00 293.34,293.34 294.00,362.81 234.16,327.50 200.00,388.00 165.84,327.50 106.00,362.81 106.66,293.34 37.19,294.00 72.50,234.16 12.00,200.00 72.50,165.84 37.19,106.00 106.66,106.66 106.00,37.19 165.84,72.50"
-          stroke="url(#cleanChakraGold)"
-          strokeWidth="0.8"
+        <svg
+          viewBox="0 0 500 500"
+          className="w-full h-full overflow-visible"
           fill="none"
-        />
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <radialGradient id="sunburstGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#fef08a" stopOpacity="0.85" />
+              <stop offset="45%" stopColor="#f59e0b" stopOpacity="0.45" />
+              <stop offset="100%" stopColor="#d97706" stopOpacity="0" />
+            </radialGradient>
+          </defs>
 
-        {/* 4. Delicate 12 Radial Rays linking the Concentric Rings */}
-        {[...Array(12)].map((_, i) => (
-          <line
-            key={`ray-${i}`}
-            x1="200"
-            y1="68"
-            x2="200"
-            y2="132"
-            stroke="url(#cleanChakraGold)"
-            strokeWidth="0.8"
-            transform={`rotate(${i * 30} 200 200)`}
-          />
-        ))}
+          {/* ── LAYER 1: Outer Lotus Petal Ring (16 delicate pointed petals) ── */}
+          <g id="lotus-petals">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <path
+                key={`petal-${i}`}
+                d="M 250 15 C 235 90, 230 140, 250 175 C 270 140, 265 90, 250 15 Z"
+                stroke="#fbbf24"
+                strokeWidth="0.75"
+                strokeOpacity="0.35"
+                fill="none"
+                transform={`rotate(${i * 22.5} 250 250)`}
+              />
+            ))}
+            {/* Outer boundary circle enclosing the lotus tips */}
+            <circle
+              cx="250"
+              cy="250"
+              r="236"
+              stroke="#fbbf24"
+              strokeWidth="0.5"
+              strokeOpacity="0.2"
+              strokeDasharray="3 6"
+            />
+          </g>
 
-        {/* 5. Delicate Center Hub Concentric Rings */}
-        <circle
-          cx="200"
-          cy="200"
-          r="28"
-          stroke="url(#cleanChakraGold)"
-          strokeWidth="0.8"
-        />
-        <circle
-          cx="200"
-          cy="200"
-          r="8"
-          stroke="url(#cleanChakraGold)"
-          strokeWidth="0.8"
-        />
-        <circle
-          cx="200"
-          cy="200"
-          r="2"
-          fill="#FEF08A"
-        />
-      </svg>
-    </div>
+          {/* ── LAYER 2: Sacred Star Matrix (12-pointed geometric star) ── */}
+          <g id="star-matrix">
+            {triangles.map((pts, i) => (
+              <polygon
+                key={`tri-${i}`}
+                points={pts}
+                stroke="#fde047"
+                strokeWidth="1"
+                strokeOpacity="0.5"
+                fill="none"
+              />
+            ))}
+            {/* Enclosing circles for the 12-point star */}
+            <circle
+              cx="250"
+              cy="250"
+              r={R}
+              stroke="#fde047"
+              strokeWidth="0.75"
+              strokeOpacity="0.3"
+              fill="none"
+            />
+            <circle
+              cx="250"
+              cy="250"
+              r="145"
+              stroke="#fbbf24"
+              strokeWidth="0.5"
+              strokeOpacity="0.35"
+              fill="none"
+            />
+          </g>
+
+          {/* ── LAYER 3: Inner Radiant Core (Concentric Ripples & Node Dots) ── */}
+          <g id="radiant-core">
+            {[45, 80, 115, 145].map((r, i) => (
+              <circle
+                key={`ring-${i}`}
+                cx="250"
+                cy="250"
+                r={r}
+                stroke="#f59e0b"
+                strokeWidth="0.5"
+                strokeDasharray="4 4"
+                fill="none"
+              />
+            ))}
+
+            {/* 12 Radiant Rays connecting core to star matrix */}
+            {Array.from({ length: 12 }).map((_, i) => (
+              <line
+                key={`ray-${i}`}
+                x1="250"
+                y1="45"
+                x2="250"
+                y2="175"
+                stroke="#f59e0b"
+                strokeWidth="0.5"
+                strokeOpacity="0.3"
+                transform={`rotate(${i * 30} 250 250)`}
+              />
+            ))}
+
+            {/* Glowing intersection node dots */}
+            {nodeDots.map((dot, i) => (
+              <circle
+                key={`node-${i}`}
+                cx={dot.cx}
+                cy={dot.cy}
+                r="1.75"
+                fill="#fde047"
+                opacity="0.8"
+              />
+            ))}
+          </g>
+
+          {/* ── LAYER 4: Center Sunburst & Luminous Golden Orb ── */}
+          <g id="center-sunburst">
+            {/* Ambient center radial glow */}
+            <circle
+              cx="250"
+              cy="250"
+              r="36"
+              fill="url(#sunburstGlow)"
+              opacity="0.65"
+            />
+            {/* Concentric hub rings */}
+            <circle
+              cx="250"
+              cy="250"
+              r="28"
+              stroke="#f59e0b"
+              strokeWidth="0.5"
+              strokeDasharray="2 3"
+              strokeOpacity="0.6"
+            />
+            <circle
+              cx="250"
+              cy="250"
+              r="16"
+              stroke="#fbbf24"
+              strokeWidth="0.75"
+              strokeOpacity="0.7"
+            />
+            {/* Dead-center luminous golden orb */}
+            <circle
+              cx="250"
+              cy="250"
+              r="8"
+              fill="#fde047"
+              filter="drop-shadow(0 0 10px #f59e0b)"
+            />
+            {/* White pinpoint core */}
+            <circle cx="250" cy="250" r="2.5" fill="#ffffff" />
+          </g>
+        </svg>
+      </motion.div>
+    </motion.div>
   );
 }
+
+// Export as both HeavenlyChakra and CleanChakra for 100% compatibility
+export const CleanChakra = HeavenlyChakra;
+export default HeavenlyChakra;

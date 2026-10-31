@@ -487,7 +487,7 @@ export default function MilaapPage() {
       {/* Back to Events */}
       <Link
         href="/events"
-        className="group flex items-center gap-2 text-xs uppercase tracking-wider text-amber-200/70 hover:text-amber-100 transition-colors mb-6 bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full border border-amber-500/20"
+        className="group flex items-center gap-2 text-xs uppercase tracking-wider text-amber-200/70 hover:text-amber-100 transition-colors mb-6 bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full border border-amber-500/20 active:scale-95 touch-manipulation"
       >
         <ArrowLeft
           size={14}
@@ -501,7 +501,7 @@ export default function MilaapPage() {
         initial={{ opacity: 0, y: -15 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2, duration: 0.6 }}
-        className="flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-amber-300/90 mb-4"
+        className="flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-amber-300/90 mb-4 relative z-10"
       >
         <Sparkles size={14} className="text-yellow-400" />
         INAUGURAL FLAGSHIP EDITION • 2026
@@ -512,7 +512,7 @@ export default function MilaapPage() {
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.9, ease: "easeOut" }}
-        className="MilaapFont text-7xl sm:text-8xl md:text-9xl bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_4px_32px_rgba(245,158,11,0.35)] mb-2 select-none transform-gpu"
+        className="MilaapFont text-7xl sm:text-8xl md:text-9xl bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_4px_32px_rgba(245,158,11,0.35)] mb-2 select-none transform-gpu relative z-10 px-4"
       >
         milaap
       </motion.h1>
@@ -522,7 +522,7 @@ export default function MilaapPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.6, duration: 0.7 }}
-        className="tracking-[0.45em] text-yellow-400 text-sm font-serif mb-3"
+        className="tracking-[0.45em] text-yellow-400 text-sm font-serif mb-3 relative z-10"
       >
         EDITION I
       </motion.p>
@@ -532,7 +532,7 @@ export default function MilaapPage() {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.8, duration: 0.6 }}
-        className="text-amber-100/80 font-medium tracking-[0.28em] text-xs md:text-sm uppercase flex items-center justify-center gap-2.5 sm:gap-3 mb-8 flex-wrap"
+        className="text-amber-100/80 font-medium tracking-[0.28em] text-xs md:text-sm uppercase flex items-center justify-center gap-2.5 sm:gap-3 mb-8 flex-wrap relative z-10 px-4"
       >
         <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 shadow-[0_0_8px_rgba(245,158,11,0.5)] shrink-0" />
         <span>ORGANISED BY</span>
@@ -551,11 +551,11 @@ export default function MilaapPage() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.0, duration: 0.6 }}
-        className="flex flex-col sm:flex-row items-center gap-3 mb-6"
+        className="flex flex-col sm:flex-row items-center gap-3 mb-4 relative z-10"
       >
         <Link
           href="/milaap/sign-in"
-          className="group relative px-7 py-3.5 rounded-xl bg-gradient-to-r from-red-600 via-red-500 to-amber-500 text-white font-semibold text-sm tracking-wide shadow-lg shadow-red-900/40 hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] hover:scale-[1.04] transition-all duration-300 flex items-center gap-2 transform-gpu"
+          className="group relative px-7 py-3.5 rounded-xl bg-gradient-to-r from-red-600 via-red-500 to-amber-500 text-white font-semibold text-sm tracking-wide shadow-lg shadow-red-900/40 hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] hover:scale-[1.04] active:scale-95 touch-manipulation transition-all duration-300 flex items-center gap-2 transform-gpu"
         >
           <Music size={16} />
           REGISTER FOR MILAAP
@@ -564,30 +564,22 @@ export default function MilaapPage() {
             className="group-hover:translate-x-1 transition-transform"
           />
         </Link>
-        <button className="px-7 py-3.5 rounded-xl bg-black/40 backdrop-blur-md border border-amber-400/30 text-amber-200 text-sm tracking-wide hover:bg-black/60 hover:border-amber-400/50 transition-all duration-300 flex items-center gap-2 transform-gpu">
+        <button className="px-7 py-3.5 rounded-xl bg-black/40 backdrop-blur-md border border-amber-400/30 text-amber-200 text-sm tracking-wide hover:bg-black/60 hover:border-amber-400/50 active:scale-95 touch-manipulation transition-all duration-300 flex items-center gap-2 transform-gpu cursor-pointer">
           <Footprints size={16} />
           ALREADY REGISTERED?
           <ChevronRight size={14} />
         </button>
       </motion.div>
 
-      {/* FIX 2: Heart-Touching Soulful Note Directly Under Registration Buttons */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
+      {/* Soulful One-Line Tagline Under Registration Buttons */}
+      <motion.p
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.8 }}
-        className="mt-2 mb-16 max-w-2xl mx-auto px-4 text-center"
+        transition={{ delay: 0.4, duration: 0.8 }}
+        className="mt-3 mb-16 px-4 text-center text-xs sm:text-sm md:text-base tracking-[0.25em] sm:tracking-[0.3em] uppercase font-light bg-gradient-to-r from-amber-200/40 via-amber-300/90 to-amber-200/40 bg-clip-text text-transparent select-none max-w-3xl mx-auto relative z-10"
       >
-        <div className="relative p-6 sm:p-7 rounded-3xl bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 shadow-[0_0_40px_rgba(245,158,11,0.12)] transform-gpu">
-          <p className="text-sm md:text-base text-amber-100/90 italic font-light leading-relaxed drop-shadow-md">
-            &ldquo;Where the evening melodies of Jhillpar meet the timeless echoes of ghungroos &mdash; for the very first time in Jadavpur University&apos;s history,{" "}
-            <span className="text-amber-300 font-semibold not-italic">
-              two legacies unite as one heartbeat
-            </span>
-            . <span className="text-amber-300 font-semibold not-italic">Milaap</span> is more than a festival; it is a homecoming of art, passion, and unbridled youth where every voice finds its stage and every rhythm finds its soul.&rdquo;
-          </p>
-        </div>
-      </motion.div>
+        Where Melody Meets Rhythm • Two Legacies, One Heartbeat
+      </motion.p>
 
       {/* ================================================================
           PART 3: ABOUT SECTIONS (LIGHTWEIGHT BACKDROP-BLUR & TRANSFORM-GPU)
@@ -995,7 +987,7 @@ export default function MilaapPage() {
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`px-4 py-2 rounded-xl text-xs tracking-wider uppercase font-medium transition-all duration-300 cursor-pointer ${
+                  className={`px-4 py-2 rounded-xl text-xs tracking-wider uppercase font-medium transition-all duration-300 cursor-pointer active:scale-95 touch-manipulation ${
                     activeTab === tab.key
                       ? "bg-amber-500/20 text-amber-200 border border-amber-400/40 shadow-[0_0_15px_rgba(245,158,11,0.15)]"
                       : "text-amber-200/50 border border-transparent hover:text-amber-200/80 hover:border-amber-500/20"
@@ -1231,7 +1223,7 @@ export default function MilaapPage() {
                 <button
                   onClick={prevSlide}
                   aria-label="Previous Slide"
-                  className="w-10 h-10 rounded-full bg-black/40 border border-amber-400/30 text-amber-200 flex items-center justify-center hover:bg-amber-500/20 hover:border-amber-400/50 transition-all cursor-pointer"
+                  className="w-10 h-10 rounded-full bg-black/40 border border-amber-400/30 text-amber-200 flex items-center justify-center hover:bg-amber-500/20 hover:border-amber-400/50 active:scale-90 touch-manipulation transition-all cursor-pointer"
                 >
                   <ChevronLeft size={18} />
                 </button>
@@ -1241,7 +1233,7 @@ export default function MilaapPage() {
                 <button
                   onClick={nextSlide}
                   aria-label="Next Slide"
-                  className="w-10 h-10 rounded-full bg-black/40 border border-amber-400/30 text-amber-200 flex items-center justify-center hover:bg-amber-500/20 hover:border-amber-400/50 transition-all cursor-pointer"
+                  className="w-10 h-10 rounded-full bg-black/40 border border-amber-400/30 text-amber-200 flex items-center justify-center hover:bg-amber-500/20 hover:border-amber-400/50 active:scale-90 touch-manipulation transition-all cursor-pointer"
                 >
                   <ChevronRight size={18} />
                 </button>
@@ -1395,7 +1387,7 @@ export default function MilaapPage() {
                       <div className="flex items-center gap-2">
                         <a
                           href={`tel:+91${c.phone.replace(/\s/g, "")}`}
-                          className="w-9 h-9 rounded-full bg-amber-500/10 border border-amber-400/25 flex items-center justify-center text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/40 transition-all"
+                          className="w-9 h-9 rounded-full bg-amber-500/10 border border-amber-400/25 flex items-center justify-center text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/40 active:scale-90 touch-manipulation transition-all"
                           title={`Call ${c.name}`}
                         >
                           <Phone size={14} />
@@ -1404,7 +1396,7 @@ export default function MilaapPage() {
                           href={`https://wa.me/91${c.phone.replace(/\s/g, "")}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-9 h-9 rounded-full bg-green-500/10 border border-green-400/25 flex items-center justify-center text-green-300 hover:bg-green-500/20 hover:border-green-400/40 transition-all"
+                          className="w-9 h-9 rounded-full bg-green-500/10 border border-green-400/25 flex items-center justify-center text-green-300 hover:bg-green-500/20 hover:border-green-400/40 active:scale-90 touch-manipulation transition-all"
                           title={`WhatsApp ${c.name}`}
                         >
                           <WhatsAppIcon className="w-3.5 h-3.5" />
@@ -1437,7 +1429,7 @@ export default function MilaapPage() {
                       <div className="flex items-center gap-2">
                         <a
                           href={`tel:+91${c.phone.replace(/\s/g, "")}`}
-                          className="w-9 h-9 rounded-full bg-amber-500/10 border border-amber-400/25 flex items-center justify-center text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/40 transition-all"
+                          className="w-9 h-9 rounded-full bg-amber-500/10 border border-amber-400/25 flex items-center justify-center text-amber-300 hover:bg-amber-500/20 hover:border-amber-400/40 active:scale-90 touch-manipulation transition-all"
                           title={`Call ${c.name}`}
                         >
                           <Phone size={14} />
@@ -1446,7 +1438,7 @@ export default function MilaapPage() {
                           href={`https://wa.me/91${c.phone.replace(/\s/g, "")}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-9 h-9 rounded-full bg-green-500/10 border border-green-400/25 flex items-center justify-center text-green-300 hover:bg-green-500/20 hover:border-green-400/40 transition-all"
+                          className="w-9 h-9 rounded-full bg-green-500/10 border border-green-400/25 flex items-center justify-center text-green-300 hover:bg-green-500/20 hover:border-green-400/40 active:scale-90 touch-manipulation transition-all"
                           title={`WhatsApp ${c.name}`}
                         >
                           <WhatsAppIcon className="w-3.5 h-3.5" />
@@ -1550,7 +1542,7 @@ export default function MilaapPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-pink-500/20 hover:border-pink-400/40 hover:text-pink-300 hover:shadow-[0_0_20px_rgba(236,72,153,0.3)] transform-gpu"
+                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-pink-500/20 hover:border-pink-400/40 hover:text-pink-300 hover:shadow-[0_0_20px_rgba(236,72,153,0.3)] active:scale-90 touch-manipulation transform-gpu"
               >
                 <InstagramIcon className="w-5 h-5" />
               </a>
@@ -1559,7 +1551,7 @@ export default function MilaapPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-blue-500/20 hover:border-blue-400/40 hover:text-blue-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transform-gpu"
+                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-blue-500/20 hover:border-blue-400/40 hover:text-blue-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-90 touch-manipulation transform-gpu"
               >
                 <FacebookIcon className="w-4 h-4" />
               </a>
@@ -1568,14 +1560,14 @@ export default function MilaapPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
-                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-red-500/20 hover:border-red-400/40 hover:text-red-300 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] transform-gpu"
+                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-red-500/20 hover:border-red-400/40 hover:text-red-300 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] active:scale-90 touch-manipulation transform-gpu"
               >
                 <YouTubeIcon className="w-5 h-5" />
               </a>
               <a
                 href="mailto:jumusicclub@gmail.com"
                 aria-label="Email"
-                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-amber-500/20 hover:border-amber-400/40 hover:text-amber-300 hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] transform-gpu"
+                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-amber-500/20 hover:border-amber-400/40 hover:text-amber-300 hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] active:scale-90 touch-manipulation transform-gpu"
               >
                 <Mail size={18} />
               </a>
