@@ -29,25 +29,30 @@ export function HeavenlyChakra({ className = "" }: { className?: string }) {
 
   return (
     <motion.div
-      animate={{ scale: [1, 1.03, 1], opacity: [0.6, 0.85, 0.6] }}
+      animate={{ scale: [1, 1.04, 1], opacity: [0.75, 0.98, 0.75] }}
       transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       className={`relative w-full h-full flex items-center justify-center transform-gpu will-change-transform ${className}`}
     >
       <motion.div
-        animate={{ rotate: 360 }}
+        animate={{ rotate: [0, 360] }}
         transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-        className="w-full h-full transform-gpu will-change-transform"
+        className="w-full h-full transform-gpu will-change-transform flex items-center justify-center"
       >
         <svg
           viewBox="0 0 500 500"
-          className="w-full h-full overflow-visible"
+          className="w-full h-full overflow-visible drop-shadow-[0_0_24px_rgba(245,158,11,0.5)]"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
+            <linearGradient id="heavenlyGold" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FEF08A" stopOpacity="0.95" />
+              <stop offset="50%" stopColor="#F59E0B" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#D97706" stopOpacity="0.95" />
+            </linearGradient>
             <radialGradient id="sunburstGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#fef08a" stopOpacity="0.85" />
-              <stop offset="45%" stopColor="#f59e0b" stopOpacity="0.45" />
+              <stop offset="0%" stopColor="#fef08a" stopOpacity="0.9" />
+              <stop offset="45%" stopColor="#f59e0b" stopOpacity="0.55" />
               <stop offset="100%" stopColor="#d97706" stopOpacity="0" />
             </radialGradient>
           </defs>
@@ -58,9 +63,9 @@ export function HeavenlyChakra({ className = "" }: { className?: string }) {
               <path
                 key={`petal-${i}`}
                 d="M 250 15 C 235 90, 230 140, 250 175 C 270 140, 265 90, 250 15 Z"
-                stroke="#fbbf24"
-                strokeWidth="0.75"
-                strokeOpacity="0.35"
+                stroke="url(#heavenlyGold)"
+                strokeWidth="1.1"
+                strokeOpacity="0.65"
                 fill="none"
                 transform={`rotate(${i * 22.5} 250 250)`}
               />
@@ -71,9 +76,9 @@ export function HeavenlyChakra({ className = "" }: { className?: string }) {
               cy="250"
               r="236"
               stroke="#fbbf24"
-              strokeWidth="0.5"
-              strokeOpacity="0.2"
-              strokeDasharray="3 6"
+              strokeWidth="0.8"
+              strokeOpacity="0.45"
+              strokeDasharray="4 6"
             />
           </g>
 
@@ -83,9 +88,9 @@ export function HeavenlyChakra({ className = "" }: { className?: string }) {
               <polygon
                 key={`tri-${i}`}
                 points={pts}
-                stroke="#fde047"
-                strokeWidth="1"
-                strokeOpacity="0.5"
+                stroke="url(#heavenlyGold)"
+                strokeWidth="1.3"
+                strokeOpacity="0.75"
                 fill="none"
               />
             ))}
@@ -95,8 +100,8 @@ export function HeavenlyChakra({ className = "" }: { className?: string }) {
               cy="250"
               r={R}
               stroke="#fde047"
-              strokeWidth="0.75"
-              strokeOpacity="0.3"
+              strokeWidth="1"
+              strokeOpacity="0.6"
               fill="none"
             />
             <circle
@@ -104,8 +109,8 @@ export function HeavenlyChakra({ className = "" }: { className?: string }) {
               cy="250"
               r="145"
               stroke="#fbbf24"
-              strokeWidth="0.5"
-              strokeOpacity="0.35"
+              strokeWidth="0.8"
+              strokeOpacity="0.6"
               fill="none"
             />
           </g>
@@ -119,8 +124,9 @@ export function HeavenlyChakra({ className = "" }: { className?: string }) {
                 cy="250"
                 r={r}
                 stroke="#f59e0b"
-                strokeWidth="0.5"
+                strokeWidth="0.8"
                 strokeDasharray="4 4"
+                strokeOpacity="0.7"
                 fill="none"
               />
             ))}
@@ -133,9 +139,9 @@ export function HeavenlyChakra({ className = "" }: { className?: string }) {
                 y1="45"
                 x2="250"
                 y2="175"
-                stroke="#f59e0b"
-                strokeWidth="0.5"
-                strokeOpacity="0.3"
+                stroke="url(#heavenlyGold)"
+                strokeWidth="0.8"
+                strokeOpacity="0.6"
                 transform={`rotate(${i * 30} 250 250)`}
               />
             ))}
@@ -146,9 +152,9 @@ export function HeavenlyChakra({ className = "" }: { className?: string }) {
                 key={`node-${i}`}
                 cx={dot.cx}
                 cy={dot.cy}
-                r="1.75"
+                r="2.2"
                 fill="#fde047"
-                opacity="0.8"
+                opacity="0.95"
               />
             ))}
           </g>
@@ -159,9 +165,9 @@ export function HeavenlyChakra({ className = "" }: { className?: string }) {
             <circle
               cx="250"
               cy="250"
-              r="36"
+              r="38"
               fill="url(#sunburstGlow)"
-              opacity="0.65"
+              opacity="0.85"
             />
             {/* Concentric hub rings */}
             <circle
@@ -169,28 +175,28 @@ export function HeavenlyChakra({ className = "" }: { className?: string }) {
               cy="250"
               r="28"
               stroke="#f59e0b"
-              strokeWidth="0.5"
+              strokeWidth="0.8"
               strokeDasharray="2 3"
-              strokeOpacity="0.6"
+              strokeOpacity="0.75"
             />
             <circle
               cx="250"
               cy="250"
               r="16"
               stroke="#fbbf24"
-              strokeWidth="0.75"
-              strokeOpacity="0.7"
+              strokeWidth="1.1"
+              strokeOpacity="0.85"
             />
             {/* Dead-center luminous golden orb */}
             <circle
               cx="250"
               cy="250"
-              r="8"
+              r="9"
               fill="#fde047"
-              filter="drop-shadow(0 0 10px #f59e0b)"
+              filter="drop-shadow(0 0 12px #f59e0b)"
             />
             {/* White pinpoint core */}
-            <circle cx="250" cy="250" r="2.5" fill="#ffffff" />
+            <circle cx="250" cy="250" r="3" fill="#ffffff" />
           </g>
         </svg>
       </motion.div>
