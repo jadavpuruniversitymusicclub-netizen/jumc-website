@@ -7,6 +7,7 @@ import {
   useTransform,
   useInView,
   AnimatePresence,
+  type MotionValue,
 } from "framer-motion";
 import Link from "next/link";
 import {
@@ -67,10 +68,10 @@ function YouTubeIcon({ className = "w-5 h-5" }: { className?: string }) {
 }
 
 /* ====================================================================
-   PART 2: CUSTOM FRAMER MOTION ANIMATION ENGINE (REUSABLE WRAPPERS)
+   PART 2: 60FPS HARDWARE-ACCELERATED MOTION WRAPPERS
    ==================================================================== */
 
-// 2.1 — MorphTextReveal: Animates section headings & paragraphs as they enter the viewport
+// 2.1 — MorphTextReveal: Pure opacity/y GPU transform with once: true
 function MorphTextReveal({
   children,
   className = "",
@@ -82,22 +83,22 @@ function MorphTextReveal({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 35, filter: "blur(8px)" }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{ once: false, amount: 0.25 }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.18 }}
       transition={{
-        duration: 0.7,
+        duration: 0.65,
         ease: [0.22, 1, 0.36, 1],
         delay,
       }}
-      className={className}
+      className={`transform-gpu will-change-transform ${className}`}
     >
       {children}
     </motion.div>
   );
 }
 
-// 2.2 — SvgMorphFrame: Wraps custom SVG image assets with floating + reveal animation
+// 2.2 — SvgMorphFrame: Gentle 3D float + one-time scroll reveal
 function SvgMorphFrame({
   children,
   className = "",
@@ -117,9 +118,9 @@ function SvgMorphFrame({
         scale: 1,
         clipPath: "inset(0% 0% 0% 0% round 24px)",
       }}
-      viewport={{ once: false, amount: 0.25 }}
-      transition={{ duration: 0.9 }}
-      className={`relative ${className}`}
+      viewport={{ once: true, amount: 0.18 }}
+      transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+      className={`relative transform-gpu will-change-transform ${className}`}
     >
       <motion.div
         animate={{
@@ -131,9 +132,8 @@ function SvgMorphFrame({
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="border border-amber-400/30 bg-gradient-to-b from-amber-500/10 to-transparent p-3 rounded-2xl shadow-[0_0_40px_rgba(245,158,11,0.15)] relative overflow-hidden"
+        className="border border-amber-400/30 bg-gradient-to-b from-amber-500/10 to-transparent p-3 rounded-2xl shadow-[0_0_40px_rgba(245,158,11,0.15)] relative overflow-hidden transform-gpu will-change-transform"
       >
-        {/* Animated corner accents */}
         <span className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-amber-400/50 rounded-tl-xl pointer-events-none" />
         <span className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-amber-400/50 rounded-tr-xl pointer-events-none" />
         <span className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-amber-400/50 rounded-bl-xl pointer-events-none" />
@@ -144,7 +144,7 @@ function SvgMorphFrame({
   );
 }
 
-// 2.3 — AnimatedCounter: Counts up numbers on scroll into view
+// 2.3 — AnimatedCounter: Runs once on scroll enter without continuous re-renders
 function AnimatedCounter({
   value,
   suffix = "",
@@ -155,15 +155,12 @@ function AnimatedCounter({
   prefix?: string;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: false, amount: 0.5 });
+  const isInView = useInView(ref, { once: true, amount: 0.18 });
   const [displayValue, setDisplayValue] = useState(0);
 
   useEffect(() => {
-    if (!isInView) {
-      setDisplayValue(0);
-      return;
-    }
-    const duration = 2000;
+    if (!isInView) return;
+    const duration = 1800;
     const startTime = Date.now();
 
     const tick = () => {
@@ -201,6 +198,7 @@ function GoldenDivider() {
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        className="transform-gpu will-change-transform"
       >
         <Sparkles size={16} className="text-amber-400/50" />
       </motion.div>
@@ -255,6 +253,29 @@ const competitions = [
     icon: <PartyPopper size={20} />,
   },
 ];
+
+/* ====================================================================
+   FIX 3 & 4: MATHEMATICALLY LOCKED NODE COORDINATES & WINDING SVG PATH
+   ==================================================================== */
+
+const nodePositions: {
+  x: number;
+  y: number;
+  cardSide: "left" | "right";
+  threshold: number;
+}[] = [
+  { x: 580, y: 200, cardSide: "left", threshold: 0.08 },
+  { x: 420, y: 440, cardSide: "right", threshold: 0.19 },
+  { x: 580, y: 680, cardSide: "left", threshold: 0.30 },
+  { x: 420, y: 920, cardSide: "right", threshold: 0.42 },
+  { x: 580, y: 1160, cardSide: "left", threshold: 0.53 },
+  { x: 420, y: 1400, cardSide: "right", threshold: 0.65 },
+  { x: 580, y: 1640, cardSide: "left", threshold: 0.76 },
+  { x: 420, y: 1880, cardSide: "right", threshold: 0.88 },
+];
+
+const windingPath =
+  "M 500 50 C 530 90, 620 140, 580 200 C 540 260, 380 380, 420 440 C 460 500, 620 620, 580 680 C 540 740, 380 860, 420 920 C 460 980, 620 1100, 580 1160 C 540 1220, 380 1340, 420 1400 C 460 1460, 620 1580, 580 1640 C 540 1700, 380 1820, 420 1880 C 450 1930, 530 1960, 510 2010 C 490 2055, 435 2040, 445 1995 C 452 1965, 468 2040, 468 2115";
 
 /* ====================================================================
    SPONSORSHIP DATA
@@ -425,43 +446,22 @@ const judfContacts = [
 ];
 
 /* ====================================================================
-   SVG WINDING PATH NODE POSITIONS
-   ==================================================================== */
-
-const nodePositions: {
-  x: number;
-  y: number;
-  align: "left" | "right";
-  threshold: number;
-}[] = [
-  { x: 200, y: 120, align: "right", threshold: 0.04 },
-  { x: 600, y: 340, align: "left", threshold: 0.16 },
-  { x: 200, y: 560, align: "right", threshold: 0.28 },
-  { x: 600, y: 780, align: "left", threshold: 0.40 },
-  { x: 400, y: 980, align: "right", threshold: 0.52 },
-  { x: 200, y: 1180, align: "right", threshold: 0.64 },
-  { x: 600, y: 1380, align: "left", threshold: 0.76 },
-  { x: 400, y: 1600, align: "left", threshold: 0.88 },
-];
-
-const windingPath =
-  "M 400 40 C 200 40, 100 120, 200 120 C 300 120, 700 200, 600 340 C 500 480, 100 400, 200 560 C 300 720, 700 640, 600 780 C 500 920, 300 900, 400 980 C 500 1060, 100 1060, 200 1180 C 300 1300, 700 1240, 600 1380 C 500 1520, 300 1500, 400 1600 C 500 1700, 400 1780, 400 1780";
-
-/* ====================================================================
    MAIN PAGE COMPONENT
    ==================================================================== */
 
 export default function MilaapPage() {
   const timelineRef = useRef<HTMLDivElement>(null);
 
-  // Scroll progress for competition SVG path
+  // OPTIMIZATION 2: Exact Center Scroll Sync with tightened spring dynamics
   const { scrollYProgress: timelineProgress } = useScroll({
     target: timelineRef,
-    offset: ["start 75%", "end 25%"],
+    offset: ["start center", "end center"],
   });
   const smoothTimelineProgress = useSpring(timelineProgress, {
-    stiffness: 80,
-    damping: 25,
+    stiffness: 280,
+    damping: 38,
+    mass: 0.15,
+    restDelta: 0.001,
   });
 
   // Sponsorship tab state
@@ -509,10 +509,10 @@ export default function MilaapPage() {
 
       {/* Main Title */}
       <motion.h1
-        initial={{ opacity: 0, scale: 0.85, filter: "blur(12px)" }}
-        animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-        transition={{ duration: 1.1, ease: "easeOut" }}
-        className="MilaapFont text-7xl sm:text-8xl md:text-9xl bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_4px_32px_rgba(245,158,11,0.35)] mb-2 select-none"
+        initial={{ opacity: 0, scale: 0.85 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.9, ease: "easeOut" }}
+        className="MilaapFont text-7xl sm:text-8xl md:text-9xl bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_4px_32px_rgba(245,158,11,0.35)] mb-2 select-none transform-gpu"
       >
         milaap
       </motion.h1>
@@ -521,34 +521,41 @@ export default function MilaapPage() {
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.7, duration: 0.8 }}
+        transition={{ delay: 0.6, duration: 0.7 }}
         className="tracking-[0.45em] text-yellow-400 text-sm font-serif mb-3"
       >
         EDITION I
       </motion.p>
 
-      {/* Credit line */}
+      {/* FIX 1: Prominent Bold "JUMC" & "JUDF" in Hero Credit Line */}
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9, duration: 0.7 }}
-        className="text-amber-200/60 text-[11px] tracking-[0.3em] uppercase flex items-center gap-3 mb-8"
+        transition={{ delay: 0.8, duration: 0.6 }}
+        className="text-amber-100/80 font-medium tracking-[0.28em] text-xs md:text-sm uppercase flex items-center justify-center gap-2.5 sm:gap-3 mb-8 flex-wrap"
       >
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-        ORGANISED BY JUMC &amp; JUDF
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 shadow-[0_0_8px_rgba(245,158,11,0.5)] shrink-0" />
+        <span>ORGANISED BY</span>
+        <span className="font-black text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)] text-sm md:text-base">
+          JUMC
+        </span>
+        <span className="text-amber-300/80 font-light">&amp;</span>
+        <span className="font-black text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,0.5)] text-sm md:text-base">
+          JUDF
+        </span>
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 shadow-[0_0_8px_rgba(245,158,11,0.5)] shrink-0" />
       </motion.p>
 
       {/* Immediate CTA Buttons (Crucial Position) */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.1, duration: 0.7 }}
-        className="flex flex-col sm:flex-row items-center gap-3 mb-16"
+        transition={{ delay: 1.0, duration: 0.6 }}
+        className="flex flex-col sm:flex-row items-center gap-3 mb-6"
       >
         <Link
           href="/milaap/sign-in"
-          className="group relative px-7 py-3.5 rounded-xl bg-gradient-to-r from-red-600 via-red-500 to-amber-500 text-white font-semibold text-sm tracking-wide shadow-lg shadow-red-900/40 hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] hover:scale-[1.04] transition-all duration-300 flex items-center gap-2"
+          className="group relative px-7 py-3.5 rounded-xl bg-gradient-to-r from-red-600 via-red-500 to-amber-500 text-white font-semibold text-sm tracking-wide shadow-lg shadow-red-900/40 hover:shadow-[0_0_30px_rgba(220,38,38,0.5)] hover:scale-[1.04] transition-all duration-300 flex items-center gap-2 transform-gpu"
         >
           <Music size={16} />
           REGISTER FOR MILAAP
@@ -557,22 +564,40 @@ export default function MilaapPage() {
             className="group-hover:translate-x-1 transition-transform"
           />
         </Link>
-        <button className="px-7 py-3.5 rounded-xl bg-black/40 backdrop-blur-md border border-amber-400/30 text-amber-200 text-sm tracking-wide hover:bg-black/60 hover:border-amber-400/50 transition-all duration-300 flex items-center gap-2">
+        <button className="px-7 py-3.5 rounded-xl bg-black/40 backdrop-blur-md border border-amber-400/30 text-amber-200 text-sm tracking-wide hover:bg-black/60 hover:border-amber-400/50 transition-all duration-300 flex items-center gap-2 transform-gpu">
           <Footprints size={16} />
           ALREADY REGISTERED?
           <ChevronRight size={14} />
         </button>
       </motion.div>
 
+      {/* FIX 2: Heart-Touching Soulful Note Directly Under Registration Buttons */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.8 }}
+        className="mt-2 mb-16 max-w-2xl mx-auto px-4 text-center"
+      >
+        <div className="relative p-6 sm:p-7 rounded-3xl bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 shadow-[0_0_40px_rgba(245,158,11,0.12)] transform-gpu">
+          <p className="text-sm md:text-base text-amber-100/90 italic font-light leading-relaxed drop-shadow-md">
+            &ldquo;Where the evening melodies of Jhillpar meet the timeless echoes of ghungroos &mdash; for the very first time in Jadavpur University&apos;s history,{" "}
+            <span className="text-amber-300 font-semibold not-italic">
+              two legacies unite as one heartbeat
+            </span>
+            . <span className="text-amber-300 font-semibold not-italic">Milaap</span> is more than a festival; it is a homecoming of art, passion, and unbridled youth where every voice finds its stage and every rhythm finds its soul.&rdquo;
+          </p>
+        </div>
+      </motion.div>
+
       {/* ================================================================
-          PART 3: ABOUT SECTIONS
+          PART 3: ABOUT SECTIONS (LIGHTWEIGHT BACKDROP-BLUR & TRANSFORM-GPU)
           ================================================================ */}
 
       <div className="w-full max-w-6xl mx-auto space-y-0">
         {/* ── 3A: About the University ── */}
         <GoldenDivider />
         <MorphTextReveal>
-          <section className="bg-[#2a070c]/65 backdrop-blur-xl border border-amber-500/25 rounded-3xl p-8 md:p-12 shadow-2xl">
+          <section className="bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 rounded-3xl p-8 md:p-12 shadow-2xl transform-gpu">
             <div className="text-center mb-8">
               <p className="text-amber-200/50 text-[10px] tracking-[0.35em] uppercase mb-3 font-serif">
                 JADAVPUR UNIVERSITY • EST. 1955
@@ -596,7 +621,7 @@ export default function MilaapPage() {
               ].map((badge) => (
                 <span
                   key={badge}
-                  className="px-4 py-2 rounded-full text-xs tracking-wide text-amber-200 bg-amber-500/10 border border-amber-400/25 backdrop-blur-sm"
+                  className="px-4 py-2 rounded-full text-xs tracking-wide text-amber-200 bg-amber-500/10 border border-amber-400/25"
                 >
                   {badge}
                 </span>
@@ -608,7 +633,7 @@ export default function MilaapPage() {
         {/* ── 3B: About JUMC ── */}
         <GoldenDivider />
         <MorphTextReveal>
-          <section className="bg-[#2a070c]/65 backdrop-blur-xl border border-amber-500/25 rounded-3xl p-8 md:p-12 shadow-2xl">
+          <section className="bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 rounded-3xl p-8 md:p-12 shadow-2xl transform-gpu">
             <div className="text-center mb-8">
               <p className="text-amber-200/50 text-[10px] tracking-[0.35em] uppercase mb-3 font-serif">
                 JADAVPUR UNIVERSITY MUSIC CLUB
@@ -661,7 +686,7 @@ export default function MilaapPage() {
         {/* ── 3C: About JUDF ── */}
         <GoldenDivider />
         <MorphTextReveal>
-          <section className="bg-[#2a070c]/65 backdrop-blur-xl border border-amber-500/25 rounded-3xl p-8 md:p-12 shadow-2xl">
+          <section className="bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 rounded-3xl p-8 md:p-12 shadow-2xl transform-gpu">
             <div className="text-center mb-8">
               <p className="text-amber-200/50 text-[10px] tracking-[0.35em] uppercase mb-3 font-serif">
                 JADAVPUR UNIVERSITY DANCE WING
@@ -721,7 +746,7 @@ export default function MilaapPage() {
             ================================================================ */}
         <GoldenDivider />
         <MorphTextReveal>
-          <section className="bg-[#2a070c]/65 backdrop-blur-xl border border-amber-500/25 rounded-3xl p-8 md:p-12 shadow-2xl">
+          <section className="bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 rounded-3xl p-8 md:p-12 shadow-2xl transform-gpu">
             <div className="text-center mb-10">
               <p className="text-amber-200/50 text-[10px] tracking-[0.35em] uppercase mb-3 font-serif">
                 JUMC X JUDF • DIGITAL &amp; CAMPUS IMPACT
@@ -744,7 +769,7 @@ export default function MilaapPage() {
                 {/* 1. Footfall Card */}
                 <motion.div
                   whileHover={{ y: -6, scale: 1.03 }}
-                  className="bg-[#1a0505]/60 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 text-center group hover:border-amber-400/40 transition-all duration-300 shadow-lg"
+                  className="bg-[#1a0505]/60 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 text-center group hover:border-amber-400/40 transition-all duration-300 shadow-lg transform-gpu"
                 >
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-400/20 to-amber-600/10 border border-amber-400/30 flex items-center justify-center text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
                     <Users size={22} />
@@ -760,7 +785,7 @@ export default function MilaapPage() {
                 {/* 2. Views Card */}
                 <motion.div
                   whileHover={{ y: -6, scale: 1.03 }}
-                  className="bg-[#1a0505]/60 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 text-center group hover:border-amber-400/40 transition-all duration-300 shadow-lg"
+                  className="bg-[#1a0505]/60 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 text-center group hover:border-amber-400/40 transition-all duration-300 shadow-lg transform-gpu"
                 >
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-400/20 to-amber-600/10 border border-amber-400/30 flex items-center justify-center text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
                     <Eye size={22} />
@@ -784,7 +809,7 @@ export default function MilaapPage() {
                 {/* 3. Instagram Card */}
                 <motion.div
                   whileHover={{ y: -6, scale: 1.03 }}
-                  className="bg-[#1a0505]/60 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 text-center group hover:border-amber-400/40 transition-all duration-300 shadow-lg"
+                  className="bg-[#1a0505]/60 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 text-center group hover:border-amber-400/40 transition-all duration-300 shadow-lg transform-gpu"
                 >
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-pink-500/20 to-amber-500/10 border border-pink-400/30 flex items-center justify-center text-pink-300 shadow-[0_0_20px_rgba(236,72,153,0.2)]">
                     <InstagramIcon className="w-5 h-5" />
@@ -800,7 +825,7 @@ export default function MilaapPage() {
                 {/* 4. Facebook Card */}
                 <motion.div
                   whileHover={{ y: -6, scale: 1.03 }}
-                  className="bg-[#1a0505]/60 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 text-center group hover:border-amber-400/40 transition-all duration-300 shadow-lg"
+                  className="bg-[#1a0505]/60 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 text-center group hover:border-amber-400/40 transition-all duration-300 shadow-lg transform-gpu"
                 >
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-500/20 to-amber-500/10 border border-blue-400/30 flex items-center justify-center text-blue-300 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
                     <FacebookIcon className="w-5 h-5" />
@@ -818,7 +843,7 @@ export default function MilaapPage() {
         </MorphTextReveal>
 
         {/* ================================================================
-            PART 5: SRIJAN-STYLE WINDING SCROLL-DRIVEN SVG PATH FOR COMPETITIONS
+            PART 5: 60FPS ZERO RE-RENDER WINDING SVG TIMELINE (FIX 1-4)
             ================================================================ */}
         <GoldenDivider />
         <MorphTextReveal>
@@ -832,14 +857,14 @@ export default function MilaapPage() {
           </div>
         </MorphTextReveal>
 
-        {/* Tall scroll-driven timeline container */}
+        {/* Unified Coordinate Timeline Container (1000 x 2300 viewBox) */}
         <div
           ref={timelineRef}
-          className="relative w-full min-h-[220vh] py-20"
+          className="relative w-full max-w-5xl mx-auto h-[2100px] md:h-[2300px] py-10 transform-gpu"
         >
-          {/* Central responsive SVG */}
+          {/* Central Responsive SVG Canvas */}
           <svg
-            viewBox="0 0 800 1800"
+            viewBox="0 0 1000 2300"
             className="absolute inset-0 w-full h-full pointer-events-none"
             preserveAspectRatio="none"
             fill="none"
@@ -857,45 +882,54 @@ export default function MilaapPage() {
                 <stop offset="100%" stopColor="#d97706" />
               </linearGradient>
             </defs>
-            {/* Base faint path */}
+
+            {/* Base Faint Path */}
             <path
               d={windingPath}
               stroke="rgba(245, 209, 66, 0.15)"
-              strokeWidth="2"
+              strokeWidth="2.5"
               fill="none"
             />
-            {/* Active scroll-drawn path */}
+
+            {/* Active Scroll-Drawn Glowing Path */}
             <motion.path
               d={windingPath}
               stroke="url(#goldGradient)"
-              strokeWidth="3.5"
+              strokeWidth="4"
               fill="none"
-              filter="drop-shadow(0 0 8px rgba(245,209,66,0.8))"
+              filter="drop-shadow(0 0 10px rgba(245,209,66,0.85))"
               style={{ pathLength: smoothTimelineProgress }}
             />
+
+            {/* Nodes & Horizontal Connector Lines Driven Strictly via MotionValue */}
+            {nodePositions.map((node, idx) => (
+              <SvgTimelineNode
+                key={idx}
+                node={node}
+                scrollProgress={smoothTimelineProgress}
+              />
+            ))}
+
+            {/* Terminal Dot Just Above the 'i' of 'milaap' at (468, 2115) */}
+            <SvgTerminalDot scrollProgress={smoothTimelineProgress} />
           </svg>
 
-          {/* Interactive Competition Nodes Along the Curve */}
+          {/* HTML Competition Cards with Direct MotionValue Transform */}
           {competitions.map((comp, idx) => {
             const node = nodePositions[idx];
-            const topPercent = (node.y / 1800) * 100;
-            const leftPercent = (node.x / 800) * 100;
-
             return (
-              <CompetitionNode
+              <CompetitionCard
                 key={idx}
                 comp={comp}
                 node={node}
                 idx={idx}
-                topPercent={topPercent}
-                leftPercent={leftPercent}
                 scrollProgress={smoothTimelineProgress}
               />
             );
           })}
 
-          {/* Path Finale: Glowing golden milaap emblem */}
-          <PathFinale scrollProgress={smoothTimelineProgress} />
+          {/* Glowing Finale Emblem at top: 93%, directly beneath the path termination dot */}
+          <TimelineFinale scrollProgress={smoothTimelineProgress} />
         </div>
 
         {/* ================================================================
@@ -914,10 +948,10 @@ export default function MilaapPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
           {sponsorSlabs.map((slab, idx) => (
-            <MorphTextReveal key={slab.tier} delay={idx * 0.1}>
+            <MorphTextReveal key={slab.tier} delay={idx * 0.08}>
               <motion.div
-                whileHover={{ y: -10, scale: 1.02 }}
-                className={`relative bg-[#2a070c]/65 backdrop-blur-xl border rounded-3xl p-6 md:p-8 shadow-2xl h-full flex flex-col transition-all duration-300 ${
+                whileHover={{ y: -8, scale: 1.02 }}
+                className={`relative bg-[#24060a]/80 backdrop-blur-md border rounded-3xl p-6 md:p-8 shadow-2xl h-full flex flex-col transition-all duration-300 transform-gpu ${
                   slab.isFeatured
                     ? "border-amber-400/50 shadow-[0_0_40px_rgba(245,158,11,0.2)]"
                     : "border-amber-500/25"
@@ -945,7 +979,7 @@ export default function MilaapPage() {
 
         {/* 6B: Interactive Tabbed Sponsorship Levels Matrix */}
         <MorphTextReveal>
-          <section className="bg-[#2a070c]/65 backdrop-blur-xl border border-amber-500/25 rounded-3xl p-6 md:p-10 shadow-2xl mb-0">
+          <section className="bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 rounded-3xl p-6 md:p-10 shadow-2xl mb-0 transform-gpu">
             <div className="text-center mb-8">
               <p className="text-amber-200/50 text-[10px] tracking-[0.35em] uppercase mb-3 font-serif">
                 COMPARE PACKAGES
@@ -972,15 +1006,16 @@ export default function MilaapPage() {
               ))}
             </div>
 
-            {/* Tab Content with AnimatePresence */}
+            {/* Tab Content with AnimatePresence - GPU Optimized */}
             <AnimatePresence mode="wait">
               {activeTab === "stall" ? (
                 <motion.div
                   key="stall"
-                  initial={{ opacity: 0, y: 20, filter: "blur(6px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, y: -20, filter: "blur(6px)" }}
-                  transition={{ duration: 0.4 }}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className="transform-gpu"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                     {/* PR Benefits */}
@@ -1048,10 +1083,11 @@ export default function MilaapPage() {
               ) : (
                 <motion.div
                   key={activeTab}
-                  initial={{ opacity: 0, y: 20, filter: "blur(6px)" }}
-                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, y: -20, filter: "blur(6px)" }}
-                  transition={{ duration: 0.4 }}
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -15 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className="transform-gpu"
                 >
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
@@ -1136,7 +1172,7 @@ export default function MilaapPage() {
 
         {/* 7A: Glimpse Carousel */}
         <MorphTextReveal>
-          <section className="bg-[#2a070c]/65 backdrop-blur-xl border border-amber-500/25 rounded-3xl p-8 md:p-12 shadow-2xl mb-0">
+          <section className="bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 rounded-3xl p-8 md:p-12 shadow-2xl mb-0 transform-gpu">
             <div className="text-center mb-8">
               <h2 className="MilaapFont text-4xl sm:text-5xl md:text-6xl bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent mb-3">
                 glimpse of our legacy
@@ -1168,10 +1204,10 @@ export default function MilaapPage() {
                         }}
                         exit={{ opacity: 0, scale: 0.8 }}
                         transition={{
-                          duration: 0.5,
+                          duration: 0.45,
                           ease: [0.22, 1, 0.36, 1],
                         }}
-                        className="absolute w-[280px] md:w-[380px] h-[240px] md:h-[320px] rounded-2xl overflow-hidden border border-amber-400/20 shadow-xl bg-[#1a0505]/50 backdrop-blur-sm"
+                        className="absolute w-[280px] md:w-[380px] h-[240px] md:h-[320px] rounded-2xl overflow-hidden border border-amber-400/20 shadow-xl bg-[#1a0505]/50 backdrop-blur-sm transform-gpu will-change-transform"
                         style={{ zIndex: 10 - absOffset }}
                       >
                         <img
@@ -1240,18 +1276,18 @@ export default function MilaapPage() {
               ].map((m, i) => (
                 <motion.div
                   key={m.name}
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 25 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: false, amount: 0.3 }}
+                  viewport={{ once: true, amount: 0.18 }}
                   transition={{
-                    delay: i * 0.08,
-                    duration: 0.5,
+                    delay: i * 0.06,
+                    duration: 0.45,
                     ease: [0.22, 1, 0.36, 1],
                   }}
                   whileHover={{ y: -6, scale: 1.03 }}
-                  className="relative bg-[#2a070c]/60 backdrop-blur-xl border border-amber-500/20 rounded-2xl p-5 shadow-xl group hover:border-amber-400/40 transition-all duration-300"
+                  className="relative bg-[#24060a]/80 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 shadow-xl group hover:border-amber-400/40 transition-all duration-300 transform-gpu"
                 >
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-amber-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-amber-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                   <div className="relative z-10">
                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400/20 to-amber-600/10 border border-amber-400/30 flex items-center justify-center mb-3">
                       <span className="text-amber-300 text-lg font-serif">
@@ -1285,18 +1321,18 @@ export default function MilaapPage() {
               ].map((m, i) => (
                 <motion.div
                   key={m.name}
-                  initial={{ opacity: 0, y: 30 }}
+                  initial={{ opacity: 0, y: 25 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: false, amount: 0.3 }}
+                  viewport={{ once: true, amount: 0.18 }}
                   transition={{
-                    delay: i * 0.08,
-                    duration: 0.5,
+                    delay: i * 0.06,
+                    duration: 0.45,
                     ease: [0.22, 1, 0.36, 1],
                   }}
                   whileHover={{ y: -6, scale: 1.03 }}
-                  className="relative bg-[#2a070c]/60 backdrop-blur-xl border border-amber-500/20 rounded-2xl p-5 shadow-xl group hover:border-amber-400/40 transition-all duration-300"
+                  className="relative bg-[#24060a]/80 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 shadow-xl group hover:border-amber-400/40 transition-all duration-300 transform-gpu"
                 >
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-amber-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-amber-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                   <div className="relative z-10">
                     <div className="w-14 h-14 rounded-full bg-gradient-to-br from-amber-400/20 to-amber-600/10 border border-amber-400/30 flex items-center justify-center mb-3">
                       <span className="text-amber-300 text-lg font-serif">
@@ -1326,7 +1362,7 @@ export default function MilaapPage() {
 
         {/* 8A: Contact Us Section */}
         <MorphTextReveal>
-          <section className="bg-[#2a070c]/65 backdrop-blur-xl border border-amber-500/25 rounded-3xl p-8 md:p-12 shadow-2xl mb-0">
+          <section className="bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 rounded-3xl p-8 md:p-12 shadow-2xl mb-0 transform-gpu">
             <div className="text-center mb-10">
               <h2 className="MilaapFont text-4xl sm:text-5xl md:text-6xl bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent mb-3">
                 contact us
@@ -1346,7 +1382,7 @@ export default function MilaapPage() {
                   {jumcContacts.map((c) => (
                     <div
                       key={c.name}
-                      className="bg-[#1a0505]/50 border border-amber-500/15 rounded-2xl p-4 flex items-center justify-between group hover:border-amber-400/30 transition-all"
+                      className="bg-[#1a0505]/50 border border-amber-500/15 rounded-2xl p-4 flex items-center justify-between group hover:border-amber-400/30 transition-all transform-gpu"
                     >
                       <div>
                         <p className="text-amber-100 text-sm font-medium">
@@ -1388,7 +1424,7 @@ export default function MilaapPage() {
                   {judfContacts.map((c) => (
                     <div
                       key={c.name}
-                      className="bg-[#1a0505]/50 border border-amber-500/15 rounded-2xl p-4 flex items-center justify-between group hover:border-amber-400/30 transition-all"
+                      className="bg-[#1a0505]/50 border border-amber-500/15 rounded-2xl p-4 flex items-center justify-between group hover:border-amber-400/30 transition-all transform-gpu"
                     >
                       <div>
                         <p className="text-amber-100 text-sm font-medium">
@@ -1514,7 +1550,7 @@ export default function MilaapPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
-                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-pink-500/20 hover:border-pink-400/40 hover:text-pink-300 hover:shadow-[0_0_20px_rgba(236,72,153,0.3)]"
+                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-pink-500/20 hover:border-pink-400/40 hover:text-pink-300 hover:shadow-[0_0_20px_rgba(236,72,153,0.3)] transform-gpu"
               >
                 <InstagramIcon className="w-5 h-5" />
               </a>
@@ -1523,7 +1559,7 @@ export default function MilaapPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Facebook"
-                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-blue-500/20 hover:border-blue-400/40 hover:text-blue-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-blue-500/20 hover:border-blue-400/40 hover:text-blue-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transform-gpu"
               >
                 <FacebookIcon className="w-4 h-4" />
               </a>
@@ -1532,14 +1568,14 @@ export default function MilaapPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
-                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-red-500/20 hover:border-red-400/40 hover:text-red-300 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-red-500/20 hover:border-red-400/40 hover:text-red-300 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] transform-gpu"
               >
                 <YouTubeIcon className="w-5 h-5" />
               </a>
               <a
                 href="mailto:jumusicclub@gmail.com"
                 aria-label="Email"
-                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-amber-500/20 hover:border-amber-400/40 hover:text-amber-300 hover:shadow-[0_0_20px_rgba(245,158,11,0.3)]"
+                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-amber-500/20 hover:border-amber-400/40 hover:text-amber-300 hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] transform-gpu"
               >
                 <Mail size={18} />
               </a>
@@ -1562,14 +1598,14 @@ export default function MilaapPage() {
           </p>
         </div>
 
-        {/* ── Massive Rising Watermark ── */}
+        {/* ── Massive Rising Watermark (once: true) ── */}
         <div className="relative w-full overflow-hidden">
           <motion.div
             initial={{ y: 80, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: false, amount: 0.1 }}
-            transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full text-center select-none pointer-events-none"
+            viewport={{ once: true, amount: 0.18 }}
+            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full text-center select-none pointer-events-none transform-gpu will-change-transform"
           >
             <span className="MilaapFont text-[26vw] leading-[0.75] tracking-tight bg-gradient-to-t from-amber-500/10 via-amber-300/40 to-yellow-200/80 bg-clip-text text-transparent inline-block">
               milaap
@@ -1582,168 +1618,213 @@ export default function MilaapPage() {
 }
 
 /* ====================================================================
-   SUB-COMPONENT: Competition Node (used in Part 5)
+   SUB-COMPONENT: SvgTimelineNode (ZERO STATE / DRIVEN BY MOTIONVALUE)
    ==================================================================== */
 
-function CompetitionNode({
+function SvgTimelineNode({
+  node,
+  scrollProgress,
+}: {
+  node: (typeof nodePositions)[0];
+  scrollProgress: MotionValue<number>;
+}) {
+  const connectorEndX = node.cardSide === "left" ? node.x - 70 : node.x + 70;
+  const tStart = Math.max(0, node.threshold - 0.05);
+  const tEnd = node.threshold;
+
+  // Direct 60FPS GPU transforms without React re-renders
+  const lineOpacity = useTransform(scrollProgress, [tStart, tEnd], [0.2, 1]);
+  const circleScale = useTransform(scrollProgress, [tStart, tEnd], [0.85, 1.25]);
+  const circleFill = useTransform(scrollProgress, [tStart, tEnd], ["#24060a", "#f59e0b"]);
+  const circleStroke = useTransform(scrollProgress, [tStart, tEnd], ["rgba(245, 209, 66, 0.35)", "#fef08a"]);
+  const haloOpacity = useTransform(scrollProgress, [tStart, tEnd, tEnd + 0.08], [0, 0.8, 0.4]);
+
+  return (
+    <g>
+      {/* Horizontal Connector Line */}
+      <motion.line
+        x1={node.x}
+        y1={node.y}
+        x2={connectorEndX}
+        y2={node.y}
+        stroke="url(#goldGradient)"
+        strokeWidth={2.5}
+        style={{ opacity: lineOpacity }}
+        filter="drop-shadow(0 0 6px rgba(245,209,66,0.7))"
+      />
+      {/* Connector tip dot */}
+      <motion.circle
+        cx={connectorEndX}
+        cy={node.y}
+        r={3}
+        fill="#fbbf24"
+        style={{ opacity: lineOpacity }}
+      />
+      {/* Outer pulsing halo */}
+      <motion.circle
+        cx={node.x}
+        cy={node.y}
+        r={16}
+        fill="rgba(245, 158, 11, 0.25)"
+        filter="drop-shadow(0 0 12px rgba(245,158,11,0.8))"
+        style={{ opacity: haloOpacity }}
+      />
+      {/* Node circle locked to curve */}
+      <motion.circle
+        cx={node.x}
+        cy={node.y}
+        r={8}
+        strokeWidth={2.5}
+        filter="drop-shadow(0 0 10px rgba(245,209,66,0.9))"
+        style={{
+          scale: circleScale,
+          fill: circleFill,
+          stroke: circleStroke,
+          transformOrigin: `${node.x}px ${node.y}px`,
+        }}
+      />
+      {/* Center pinpoint */}
+      <motion.circle
+        cx={node.x}
+        cy={node.y}
+        r={3}
+        fill="#ffffff"
+        style={{ opacity: lineOpacity }}
+      />
+    </g>
+  );
+}
+
+/* ====================================================================
+   SUB-COMPONENT: SvgTerminalDot (ZERO STATE / DRIVEN BY MOTIONVALUE)
+   ==================================================================== */
+
+function SvgTerminalDot({
+  scrollProgress,
+}: {
+  scrollProgress: MotionValue<number>;
+}) {
+  const dotOpacity = useTransform(scrollProgress, [0.91, 0.95], [0.25, 1]);
+  const dotScale = useTransform(scrollProgress, [0.91, 0.95], [0.8, 1.25]);
+
+  return (
+    <g>
+      <motion.circle
+        cx={468}
+        cy={2115}
+        r={14}
+        fill="rgba(245, 158, 11, 0.3)"
+        filter="drop-shadow(0 0 12px rgba(245,158,11,0.85))"
+        style={{ opacity: dotOpacity }}
+      />
+      <motion.circle
+        cx={468}
+        cy={2115}
+        r={5}
+        fill="#fbbf24"
+        stroke="#fef08a"
+        strokeWidth={2}
+        filter="drop-shadow(0 0 8px rgba(245,209,66,0.9))"
+        style={{
+          opacity: dotOpacity,
+          scale: dotScale,
+          transformOrigin: "468px 2115px",
+        }}
+      />
+      <motion.circle
+        cx={468}
+        cy={2115}
+        r={2}
+        fill="#ffffff"
+        style={{ opacity: dotOpacity }}
+      />
+    </g>
+  );
+}
+
+/* ====================================================================
+   SUB-COMPONENT: Competition Card (ZERO STATE / DRIVEN BY MOTIONVALUE)
+   ==================================================================== */
+
+function CompetitionCard({
   comp,
   node,
   idx,
-  topPercent,
-  leftPercent,
   scrollProgress,
 }: {
   comp: (typeof competitions)[0];
   node: (typeof nodePositions)[0];
   idx: number;
-  topPercent: number;
-  leftPercent: number;
-  scrollProgress: ReturnType<typeof useSpring>;
+  scrollProgress: MotionValue<number>;
 }) {
-  const isActive = useTransform(
-    scrollProgress,
-    (v: number) => v >= node.threshold
-  );
-  const [active, setActive] = useState(false);
+  const tStart = Math.max(0, node.threshold - 0.05);
+  const tEnd = node.threshold;
 
-  useEffect(() => {
-    const unsub = isActive.on("change", (v) => setActive(v as boolean));
-    return unsub;
-  }, [isActive]);
+  // Direct 60FPS GPU transforms - ZERO React re-renders on scroll
+  const cardOpacity = useTransform(scrollProgress, [tStart, tEnd], [0.25, 1]);
+  const cardScale = useTransform(scrollProgress, [tStart, tEnd], [0.92, 1]);
+
+  const topPercent = (node.y / 2300) * 100;
 
   return (
     <div
-      className="absolute flex items-center"
+      className="absolute pointer-events-auto"
       style={{
         top: `${topPercent}%`,
-        left: node.align === "right" ? `${leftPercent}%` : "auto",
-        right:
-          node.align === "left"
-            ? `${100 - leftPercent}%`
-            : "auto",
-        transform: "translate(-50%, -50%)",
+        transform: "translateY(-50%)",
+        ...(node.cardSide === "left"
+          ? { right: `calc(${100 - (node.x - 70) / 10}% + 8px)` }
+          : { left: `calc(${(node.x + 70) / 10}% + 8px)` }),
       }}
     >
-      <div
-        className={`flex items-center gap-2 md:gap-4 ${
-          node.align === "left" ? "flex-row-reverse" : "flex-row"
-        }`}
+      <motion.div
+        style={{
+          opacity: cardOpacity,
+          scale: cardScale,
+        }}
+        className="bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 rounded-2xl p-4 sm:p-5 shadow-2xl w-[210px] sm:w-[260px] md:w-[320px] transform-gpu will-change-transform"
       >
-        {/* Circle node along the path */}
-        <motion.div
-          animate={
-            active
-              ? {
-                  scale: 1.35,
-                  boxShadow: "0 0 25px rgba(245,209,66,0.9)",
-                }
-              : {
-                  scale: 1,
-                  boxShadow: "0 0 0px rgba(245,209,66,0)",
-                }
-          }
-          transition={{ duration: 0.5 }}
-          className={`w-5 h-5 md:w-6 md:h-6 rounded-full border-2 shrink-0 transition-colors duration-500 ${
-            active
-              ? "bg-amber-400 border-yellow-200"
-              : "bg-amber-950/70 border-amber-700/30"
-          }`}
-        />
-
-        {/* Extending horizontal connector line */}
-        <motion.div
-          animate={{
-            width: active ? "5rem" : "2.5rem",
-            opacity: active ? 1 : 0.25,
-          }}
-          transition={{ duration: 0.5 }}
-          className={`h-px transition-colors duration-500 ${
-            active ? "bg-amber-400" : "bg-amber-600/30"
-          } hidden md:block`}
-        />
-
-        {/* Competition Card */}
-        <motion.div
-          animate={{
-            opacity: active ? 1 : 0.25,
-            scale: active ? 1 : 0.95,
-          }}
-          transition={{ duration: 0.5 }}
-          className="bg-[#2a070c]/80 backdrop-blur-xl border border-amber-500/25 rounded-2xl p-4 md:p-5 shadow-xl max-w-[200px] md:max-w-[280px]"
-        >
-          <div className="flex items-center gap-2 mb-2">
-            <span
-              className={`transition-colors duration-500 ${
-                active ? "text-amber-300" : "text-amber-600/40"
-              }`}
-            >
-              {comp.icon}
-            </span>
-            <span className="text-amber-200/40 text-[10px]">
-              {String(idx + 1).padStart(2, "0")}
-            </span>
-          </div>
-          <h3
-            className={`text-xs md:text-sm font-semibold tracking-wide mb-1 transition-colors duration-500 ${
-              active ? "text-amber-100" : "text-amber-100/40"
-            }`}
-          >
-            {comp.title}
-          </h3>
-          <p
-            className={`text-[10px] md:text-xs transition-colors duration-500 font-light ${
-              active ? "text-amber-200/60" : "text-amber-200/25"
-            }`}
-          >
-            {comp.desc}
-          </p>
-        </motion.div>
-      </div>
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]">
+            {comp.icon}
+          </span>
+          <span className="text-[10px] font-mono tracking-widest px-2 py-0.5 rounded-full border bg-amber-500/20 text-amber-300 border-amber-400/40">
+            {String(idx + 1).padStart(2, "0")}
+          </span>
+        </div>
+        <h3 className="text-xs sm:text-sm font-semibold tracking-wide mb-1.5 text-amber-100">
+          {comp.title}
+        </h3>
+        <p className="text-[10px] sm:text-xs leading-relaxed text-amber-200/70 font-light">
+          {comp.desc}
+        </p>
+      </motion.div>
     </div>
   );
 }
 
 /* ====================================================================
-   SUB-COMPONENT: Path Finale Emblem (used at bottom of Part 5)
+   SUB-COMPONENT: Timeline Finale Emblem (ZERO STATE / DRIVEN BY MOTIONVALUE)
    ==================================================================== */
 
-function PathFinale({
+function TimelineFinale({
   scrollProgress,
 }: {
-  scrollProgress: ReturnType<typeof useSpring>;
+  scrollProgress: MotionValue<number>;
 }) {
-  const isReady = useTransform(scrollProgress, (v: number) => v >= 0.95);
-  const [lit, setLit] = useState(false);
-
-  useEffect(() => {
-    const unsub = isReady.on("change", (v) => setLit(v as boolean));
-    return unsub;
-  }, [isReady]);
+  const finaleOpacity = useTransform(scrollProgress, [0.92, 0.96], [0.35, 1]);
+  const finaleScale = useTransform(scrollProgress, [0.92, 0.96], [0.92, 1.15]);
 
   return (
-    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none">
+    <div className="absolute top-[93%] left-1/2 -translate-x-1/2 pointer-events-none select-none text-center">
       <motion.div
-        animate={
-          lit
-            ? {
-                scale: 1.25,
-                filter: "drop-shadow(0 0 24px rgba(245,209,66,0.95))",
-              }
-            : {
-                scale: 0.9,
-                filter: "drop-shadow(0 0 0px rgba(245,209,66,0))",
-              }
-        }
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="text-center"
+        style={{
+          opacity: finaleOpacity,
+          scale: finaleScale,
+        }}
+        className="transform-gpu will-change-transform"
       >
-        <span
-          className={`MilaapFont text-4xl md:text-5xl transition-all duration-700 ${
-            lit
-              ? "bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent"
-              : "text-amber-800/30"
-          }`}
-        >
+        <span className="MilaapFont text-5xl md:text-6xl tracking-wider bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_0_28px_rgba(245,209,66,0.95)]">
           milaap
         </span>
       </motion.div>

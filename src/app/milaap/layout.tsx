@@ -123,8 +123,8 @@ import CleanChakra from '@/components/CleanChakra';
 export default function MilaapLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-[#2b050a]">
-      {/* ── Fixed Background Image Layer (z-0) ── */}
-      <div className="fixed inset-0 bg-[#2b050a] bg-[url('/milaap-bg.jpeg')] bg-[length:100vw_100vh] bg-no-repeat bg-center z-0 pointer-events-none" />
+      {/* ── Fixed Background Image Layer (z-0) with GPU Layer Isolation ── */}
+      <div className="fixed inset-0 bg-[#2b050a] bg-[url('/milaap-bg.jpeg')] bg-[length:100vw_100vh] bg-no-repeat bg-center z-0 pointer-events-none transform-gpu will-change-transform backface-hidden" />
 
       {/* Dark overlay to ensure readability over the background image (z-[1]) */}
       <div className="fixed inset-0 bg-black/60 z-[1] pointer-events-none" />
@@ -141,8 +141,8 @@ export default function MilaapLayout({ children }: { children: React.ReactNode }
         <div className="absolute bottom-0 right-0 w-[600px] h-[600px] rounded-full bg-[#E60026]/[0.06] blur-[160px]" />
       </div>
 
-      {/* ── Fixed Persistent Clean Chakra (Parallax Centerpiece: z-[3]) ── */}
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[3] pointer-events-none flex items-center justify-center">
+      {/* ── Fixed Persistent Clean Chakra (Parallax Centerpiece: z-[3]) with GPU Layer Isolation ── */}
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[3] pointer-events-none flex items-center justify-center transform-gpu will-change-transform backface-hidden">
         <CleanChakra />
       </div>
 
