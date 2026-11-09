@@ -10,6 +10,7 @@ import {
   type MotionValue,
 } from "framer-motion";
 import Link from "next/link";
+import MilaapCompetitions from "@/components/MilaapCompetitions";
 import {
   ArrowLeft,
   Sparkles,
@@ -1312,6 +1313,12 @@ export default function MilaapPage() {
               ))}
             </div>
           </section>
+        </MorphTextReveal>
+
+        {/* ── Competitions at Milaap & Rulebooks Section ── */}
+        <GoldenDivider />
+        <MorphTextReveal>
+          <MilaapCompetitions />
         </MorphTextReveal>
 
         <GoldenDivider />
