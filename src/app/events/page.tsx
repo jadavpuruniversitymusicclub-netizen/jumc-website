@@ -1,216 +1,269 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
+"use client";
 
-export const metadata: Metadata = {
-  title: 'Events | JUMC & JUDW | Jadavpur University',
-  description:
-    'Discover Milaap ? Edition I, the flagship cultural fest organised by Jadavpur University Music Club (JUMC) and JU Dance Wing (JUDW). Register now.',
-  keywords: [
-    'JUMC events',
-    'JUDW events',
-    'Milaap Edition I',
-    'Jadavpur University fest',
-    'cultural fest Kolkata 2026',
-    'JUMC JUDW flagship',
-  ],
-  openGraph: {
-    title: 'Events | JUMC & JUDW',
-    description:
-      'Milaap ? Edition I. The flagship cultural fest by Jadavpur University Music Club & JU Dance Wing.',
-    url: 'https://jumc.vercel.app/events',
-    siteName: 'JUMC ? Jadavpur University Music Club',
-    type: 'website',
-  },
-};
+import React, { useState, useMemo } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Search,
+  X,
+  Sparkles,
+  ArrowLeft,
+  Filter,
+  Layers,
+  Music,
+  Calendar,
+  Compass
+} from "lucide-react";
+import { MILAAP_EVENTS, MilaapEvent } from "@/data/milaapEvents";
+import EventCard from "@/components/events/EventCard";
+import EventRulebookModal from "@/components/events/EventRulebookModal";
+
+const CATEGORIES = ["All", "Music", "Dance", "Flagship"] as const;
+type CategoryType = (typeof CATEGORIES)[number];
 
 export default function EventsPage() {
-  return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center py-28 px-4 selection:bg-amber-400/30 selection:text-white overflow-hidden">
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<CategoryType>("All");
+  const [selectedEvent, setSelectedEvent] = useState<MilaapEvent | null>(null);
 
-      {/* ?? Ambient page glows ?? */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[900px] h-[600px] rounded-full bg-amber-500/[0.07] blur-[180px]" />
-        <div className="absolute bottom-0 right-[-5%] w-[500px] h-[500px] rounded-full bg-[#E60026]/[0.06] blur-[160px]" />
+  // Compute category counts
+  const categoryCounts = useMemo(() => {
+    const counts: Record<CategoryType, number> = {
+      All: MILAAP_EVENTS.length,
+      Music: 0,
+      Dance: 0,
+      Flagship: 0,
+    };
+    MILAAP_EVENTS.forEach((ev) => {
+      if (ev.category in counts) {
+        counts[ev.category as CategoryType] += 1;
+      }
+    });
+    return counts;
+  }, []);
+
+  // Filter events by search query and category
+  const filteredEvents = useMemo(() => {
+    return MILAAP_EVENTS.filter((event) => {
+      // Category match
+      if (selectedCategory !== "All" && event.category !== selectedCategory) {
+        return false;
+      }
+
+      // Search match
+      if (searchQuery.trim() !== "") {
+        const query = searchQuery.toLowerCase();
+        const matchesTitle = event.title.toLowerCase().includes(query);
+        const matchesSubtitle = event.subtitle.toLowerCase().includes(query);
+        const matchesDesc = event.shortDescription.toLowerCase().includes(query);
+        const matchesVenue = event.venue.toLowerCase().includes(query);
+        const matchesCategory = event.category.toLowerCase().includes(query);
+
+        return (
+          matchesTitle ||
+          matchesSubtitle ||
+          matchesDesc ||
+          matchesVenue ||
+          matchesCategory
+        );
+      }
+
+      return true;
+    });
+  }, [searchQuery, selectedCategory]);
+
+  return (
+    <main className="relative min-h-screen pt-28 pb-24 px-4 sm:px-6 lg:px-8 selection:bg-amber-400/30 selection:text-white overflow-x-hidden">
+      {/* ── Ambient Background Glows ── */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute top-[-5%] left-1/2 -translate-x-1/2 w-[850px] h-[500px] rounded-full bg-amber-500/[0.08] blur-[150px]" />
+        <div className="absolute top-[40%] right-[-10%] w-[600px] h-[600px] rounded-full bg-[#E60026]/[0.06] blur-[180px]" />
+        <div className="absolute bottom-0 left-[-5%] w-[500px] h-[500px] rounded-full bg-purple-600/[0.05] blur-[160px]" />
       </div>
 
-      {/* ?? Section heading ?? */}
-      <div className="text-center mb-14 space-y-3">
-        <span className="inline-block text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-amber-400 border border-amber-400/30 rounded-full px-4 py-1.5">
-          Upcoming Event
-        </span>
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-white font-cinzel leading-tight">
-          Events & Cultural Fests
-        </h1>
-        <p className="text-sm text-slate-400 font-light max-w-md mx-auto">
-          Curated experiences by Jadavpur University Music Club &amp; Dance Wing
-        </p>
-      </div>
+      <div className="max-w-7xl mx-auto flex flex-col items-center">
+        {/* ── Back to Home / Milaap Portal Link ── */}
+        <div className="w-full flex items-center justify-between mb-8">
+          <Link
+            href="/milaap"
+            className="group inline-flex items-center gap-2 text-xs uppercase tracking-wider text-amber-200/70 hover:text-amber-100 transition-colors bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-amber-500/20 hover:border-amber-400/40 active:scale-95 touch-manipulation"
+          >
+            <ArrowLeft
+              size={14}
+              className="group-hover:-translate-x-1 transition-transform"
+            />
+            <span>Milaap Festival Portal</span>
+          </Link>
 
-      {/* ?? THE FLAGSHIP MILAAP CARD ?? */}
-      <MilaapCard />
-    </main>
-  );
-}
-
-/* ??????????????????????????????????????????? */
-/*  Self-contained Milaap flagship event card  */
-/* ??????????????????????????????????????????? */
-function MilaapCard() {
-  return (
-    <div className="w-full max-w-sm mx-auto">
-      {/*
-       * Card container:
-       * - deep gradient bg
-       * - glowing amber border
-       * - strong shadow + backdrop blur
-       */}
-      <div className="relative rounded-3xl overflow-hidden border border-amber-400/20 backdrop-blur-md
-                      bg-gradient-to-br from-[#1a1025] via-[#100a18] to-[#1a1025]
-                      shadow-[0_0_60px_rgba(245,158,11,0.12),0_20px_60px_rgba(0,0,0,0.7)]
-                      flex flex-col">
-
-        {/* Subtle inner glow at the top of the card */}
-        <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-amber-500/[0.07] to-transparent pointer-events-none" />
-
-        {/* ?? TOP BADGES ROW ?? */}
-        <div className="relative z-10 flex items-center justify-between px-4 pt-4 pb-0">
-          {/* Left: JUMC + JUDW */}
-          <div className="flex items-center gap-1.5">
-            {/* JUMC badge */}
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md
-                             bg-rose-950/60 text-red-300 border border-red-500/30">
-              JUMC
-            </span>
-            {/* JUDW badge */}
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md
-                             bg-amber-950/60 text-amber-300 border border-amber-500/30">
-              JUDW
-            </span>
-          </div>
-
-          {/* Right: OPEN */}
-          <span className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider
-                           px-3 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-white">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
-            OPEN
+          <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-mono text-amber-300/80 uppercase tracking-widest bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+            <Sparkles size={12} className="text-yellow-400" /> Nov 28 – 30, 2026
           </span>
         </div>
 
-        {/* ?? CENTRE BLOCK ?? */}
-        <div className="relative z-10 flex flex-col items-center text-center px-6 pt-7 pb-5">
-
-          {/* Tiny label */}
-          <p className="text-[9px] font-mono font-extrabold uppercase tracking-[0.3em] text-amber-400 mb-3">
-            Flagship Cultural Fest
-          </p>
-
-          {/* Golden divider with glow dots */}
-          <div className="flex items-center gap-2 w-full mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_#F59E0B] shrink-0" />
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-amber-400/70 to-transparent" />
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_6px_#F59E0B] shrink-0" />
+        {/* ── Header Section ── */}
+        <div className="text-center max-w-3xl mx-auto space-y-4 mb-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-xs font-mono font-semibold uppercase tracking-[0.2em] shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+            <Compass size={14} className="text-amber-400" />
+            Milaap 2026 Event Directory
           </div>
 
-          {/* Main title — milaap */}
-          <h2 className="font-samarkan MilaapFont lowercase leading-none tracking-tight select-none
-                         bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-600
-                         bg-clip-text text-transparent"
-              style={{ fontSize: 'clamp(3rem, 18vw, 5rem)' }}>
-            milaap
-          </h2>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white font-serif tracking-tight leading-tight">
+            Explore{" "}
+            <span className="bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+              Competitions
+            </span>{" "}
+            &amp; Stages
+          </h1>
 
-          {/* Edition */}
-          <p className="font-cinzel font-semibold tracking-[0.35em] text-amber-400/80 text-xs mt-1 mb-4 uppercase">
-            Edition&nbsp;I
+          <p className="text-sm sm:text-base text-slate-300/80 font-light leading-relaxed max-w-2xl mx-auto">
+            Discover the full roster of music, dance, and flagship cultural
+            events at Milaap Edition I. Review official rules, time limits, and
+            team constraints before taking the stage.
           </p>
+        </div>
 
-          {/* Organiser credit */}
-          <div className="flex items-center gap-2">
-            <span className="w-1 h-1 rounded-full bg-[#E60026]" />
-            <p className="text-[10px] font-bold uppercase tracking-widest text-white/80">
-              Organised by&nbsp;<span className="text-white">JUMC</span>&nbsp;&amp;&nbsp;<span className="text-amber-300">JUDW</span>
-            </p>
-            <span className="w-1 h-1 rounded-full bg-amber-400" />
+        {/* ── Top Section: Srijan-Style Centered Search Bar ── */}
+        <div className="w-full max-w-2xl mx-auto mb-8">
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-500/30 to-yellow-500/30 rounded-2xl blur-md opacity-40 group-focus-within:opacity-100 transition duration-300 pointer-events-none" />
+            <div className="relative flex items-center bg-black/60 backdrop-blur-xl border border-amber-500/25 group-focus-within:border-amber-400/60 rounded-2xl px-4 py-3.5 shadow-xl transition-all">
+              <Search
+                size={18}
+                className="text-amber-400/80 mr-3 shrink-0 group-focus-within:text-amber-300"
+              />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search events by title, genre, venue, or keyword..."
+                className="w-full bg-transparent text-white placeholder-slate-400/60 text-sm sm:text-base font-light focus:outline-none"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  aria-label="Clear search query"
+                  className="p-1 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* ?? DIVIDER ?? */}
-        <div className="mx-6 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        {/* ── Srijan-Style Category Filter Pills ── */}
+        <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-10 w-full max-w-3xl">
+          {CATEGORIES.map((cat) => {
+            const isSelected = selectedCategory === cat;
+            const count = categoryCounts[cat];
 
-        {/* ?? EVENT DETAILS ?? */}
-        <div className="relative z-10 flex flex-col gap-3 px-6 py-5">
-
-          {/* Date row */}
-          <div className="flex items-center gap-3">
-            <CalendarIcon />
-            <span className="text-sm text-slate-200 font-light">Nov 28 ? 30, 2026</span>
-          </div>
-
-          {/* Location row */}
-          <div className="flex items-center gap-3">
-            <LocationIcon />
-            <span className="text-sm text-slate-200 font-light">Jadavpur University Main Campus</span>
-          </div>
+            return (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`relative px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-medium tracking-wider transition-all duration-300 cursor-pointer flex items-center gap-2 active:scale-95 ${
+                  isSelected
+                    ? "bg-gradient-to-r from-amber-500 to-yellow-500 text-black font-bold shadow-[0_0_20px_rgba(245,158,11,0.45)] border border-yellow-300"
+                    : "bg-black/40 backdrop-blur-md text-amber-200/80 hover:text-amber-100 border border-amber-500/20 hover:border-amber-400/40 hover:bg-black/60"
+                }`}
+              >
+                <span>{cat}</span>
+                <span
+                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                    isSelected
+                      ? "bg-black/25 text-black font-extrabold"
+                      : "bg-white/10 text-amber-300"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
-        {/* ?? DIVIDER ?? */}
-        <div className="mx-6 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        {/* ── Results Info Bar ── */}
+        <div className="w-full flex items-center justify-between text-xs text-slate-400 mb-6 px-1">
+          <span>
+            Showing{" "}
+            <strong className="text-amber-300 font-mono">
+              {filteredEvents.length}
+            </strong>{" "}
+            {filteredEvents.length === 1 ? "event" : "events"}
+            {selectedCategory !== "All" && (
+              <span>
+                {" "}
+                in <span className="text-white">{selectedCategory}</span>
+              </span>
+            )}
+            {searchQuery && (
+              <span>
+                {" "}
+                matching &ldquo;<span className="text-white">{searchQuery}</span>&rdquo;
+              </span>
+            )}
+          </span>
 
-        {/* ?? TAGS + CTA ROW ?? */}
-        <div className="relative z-10 flex items-center justify-between px-5 py-4">
+          {(searchQuery || selectedCategory !== "All") && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedCategory("All");
+              }}
+              className="text-amber-400/80 hover:text-amber-300 transition-colors cursor-pointer text-xs underline underline-offset-4"
+            >
+              Reset Filters
+            </button>
+          )}
+        </div>
 
-          {/* Tags */}
-          <div className="flex gap-1.5">
-            <span className="text-[9px] font-mono font-bold uppercase tracking-wider
-                             px-2.5 py-1 rounded-full bg-rose-950/60 text-red-300 border border-red-800/40">
-              FLAGSHIP
-            </span>
-            <span className="text-[9px] font-mono font-bold uppercase tracking-wider
-                             px-2.5 py-1 rounded-full bg-amber-950/60 text-amber-300 border border-amber-800/40">
-              JUMC ? JUDW
-            </span>
-          </div>
-
-          {/* CTA */}
-          <Link
-            href="/milaap"
-            className="flex items-center gap-1.5 text-xs font-bold text-amber-400 hover:text-amber-300 transition-colors group"
+        {/* ── Responsive Event Cards Grid ── */}
+        {filteredEvents.length > 0 ? (
+          <motion.div
+            layout
+            className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7"
           >
-            <span>Explore Portal</span>
-            <span className="group-hover:translate-x-0.5 transition-transform duration-200 text-base leading-none">?</span>
-          </Link>
-        </div>
-
+            <AnimatePresence mode="popLayout">
+              {filteredEvents.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onOpenRulebook={(ev) => setSelectedEvent(ev)}
+                />
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        ) : (
+          /* Empty State */
+          <div className="w-full max-w-md mx-auto py-16 px-6 text-center rounded-3xl bg-black/40 backdrop-blur-md border border-amber-500/20 space-y-4">
+            <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-400/30 flex items-center justify-center mx-auto text-amber-300">
+              <Search size={20} />
+            </div>
+            <h3 className="text-lg font-bold text-white font-serif">
+              No matching events found
+            </h3>
+            <p className="text-xs text-slate-400 font-light">
+              We couldn&apos;t find any competitions matching your current filters.
+              Try searching for different keywords or clear your filters.
+            </p>
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setSelectedCategory("All");
+              }}
+              className="px-5 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/30 text-amber-200 text-xs font-semibold tracking-wider transition-colors cursor-pointer"
+            >
+              Clear Search &amp; Filters
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Card caption */}
-      <p className="mt-4 text-center text-[11px] text-slate-500 font-light">
-        More events announced soon &mdash; stay tuned on our social channels.
-      </p>
-    </div>
-  );
-}
-
-/* Inline SVG icons ? avoids extra react-icons dep */
-function CalendarIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-         stroke="#F59E0B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
-         className="shrink-0">
-      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-      <line x1="3" y1="10" x2="21" y2="10"/>
-    </svg>
-  );
-}
-
-function LocationIcon() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-         stroke="#E60026" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
-         className="shrink-0">
-      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-      <circle cx="12" cy="10" r="3"/>
-    </svg>
+      {/* ── Interactive Rulebook Modal ── */}
+      <EventRulebookModal
+        event={selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+      />
+    </main>
   );
 }
