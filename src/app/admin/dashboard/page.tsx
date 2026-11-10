@@ -20,7 +20,7 @@ import {
   Lock,
   Unlock,
   Megaphone,
-  Download,
+  FileDown,
   RefreshCw,
   ChevronLeft,
   ChevronRight,
@@ -36,6 +36,10 @@ import {
   EyeOff,
 } from "lucide-react";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
+import {
+  exportAdminListToPdf,
+  type AdminPdfExportOptions,
+} from "@/lib/adminPdfExport";
 
 type TabId = "overview" | "participants" | "controls" | "announcements";
 
@@ -82,6 +86,79 @@ interface AdminFestivalSetting {
 }
 
 const PAGE_SIZE = 8;
+
+const PARTICIPANT_PDF_HEADERS = [
+  "#",
+  "Participant ID",
+  "Name",
+  "Email",
+  "Phone",
+  "College / Year",
+  "Registered Events",
+  "Status",
+];
+
+function formatParticipantPdfRows(
+  list: AdminParticipant[]
+): Array<Array<string | number>> {
+  return list.map((p, idx) => {
+    const evSummary = (p.events || [])
+      .map(
+        (e) =>
+          `${e.eventName}${e.teamName ? ` [${e.teamName}]` : ""}${
+            e.role ? ` (${e.role})` : ""
+          } - ${e.status}`
+      )
+      .join("\n");
+    const overallStatus =
+      (p.events || []).length === 0 ||
+      (p.events || []).some((e) => e.status !== "Verified")
+        ? "Pending"
+        : "Verified";
+    return [
+      idx + 1,
+      p.participantId || "-",
+      p.name || "-",
+      p.email || "-",
+      p.phone || "-",
+      [p.college, p.year].filter(Boolean).join(" / ") || "-",
+      evSummary || "-",
+      overallStatus,
+    ];
+  });
+}
+
+function PdfDownloadButton({
+  onClick,
+  loading,
+  title,
+  compact = false,
+}: {
+  onClick: () => void;
+  loading?: boolean;
+  title: string;
+  compact?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={loading}
+      title={title}
+      aria-label={title}
+      className={`inline-flex items-center gap-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-400/40 text-rose-200 hover:text-white font-mono font-bold uppercase tracking-wider cursor-pointer transition-all disabled:opacity-50 active:scale-95 ${
+        compact ? "px-2.5 py-1.5 text-[11px]" : "px-3.5 py-2 text-xs"
+      }`}
+    >
+      {loading ? (
+        <Loader2 className="w-3.5 h-3.5 animate-spin text-rose-300 shrink-0" />
+      ) : (
+        <FileDown className="w-3.5 h-3.5 text-rose-300 shrink-0" />
+      )}
+      <span>PDF</span>
+    </button>
+  );
+}
 
 export default function AdminDashboardPage() {
   const { data: session, status } = useSession();
@@ -137,6 +214,9 @@ export default function AdminDashboardPage() {
 
   // Saving God Mode / Homepage settings
   const [savingSettings, setSavingSettings] = useState(false);
+
+  // Active PDF export key (shows loading spinner on clicked export button)
+  const [exportingKey, setExportingKey] = useState<string | null>(null);
 
   const role = session?.user?.role ?? session?.role;
   const isAdmin = status === "authenticated" && role === "admin";
@@ -379,54 +459,237 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Export CSV
-  const handleExportCsv = () => {
-    const headers = [
-      "Participant ID",
-      "Name",
-      "Email",
-      "Phone",
-      "College",
-      "Year",
-      "Events",
-      "Verification Status",
-    ];
-    const rows = filteredParticipants.map((p) => {
-      const evSummary = (p.events || [])
-        .map(
-          (e) =>
-            `${e.eventName}${e.teamName ? ` [${e.teamName}]` : ""} (${e.status})`
-        )
-        .join(" | ");
-      const overallStatus = (p.events || []).some(
-        (e) => e.status !== "Verified"
-      )
-        ? "Pending"
-        : "Verified";
-      return [
-        p.participantId || "",
-        p.name || "",
-        p.email || "",
-        p.phone || "",
-        p.college || "",
-        p.year || "",
-        evSummary,
-        overallStatus,
-      ]
-        .map((cell) => `"${String(cell).replace(/"/g, '""')}"`)
-        .join(",");
-    });
-    const csv = [headers.join(","), ...rows].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `milaap-participants-${new Date()
-      .toISOString()
-      .slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+  // Shared PDF export runner for every Admin Dashboard list
+  const runPdfExport = async (
+    key: string,
+    emptyMessage: string,
+    buildOptions: () => AdminPdfExportOptions
+  ) => {
+    const options = buildOptions();
+    if (options.rows.length === 0) {
+      showToast("error", emptyMessage);
+      return;
+    }
+    setExportingKey(key);
+    try {
+      await exportAdminListToPdf(options);
+      showToast("success", `Downloaded ${options.filename}`);
+    } catch {
+      showToast("error", "Failed to generate PDF report.");
+    } finally {
+      setExportingKey(null);
+    }
   };
+
+  const todayStamp = () => new Date().toISOString().slice(0, 10);
+
+  const handleExportParticipantsPdf = () =>
+    runPdfExport(
+      "participants",
+      "No participants match the current filters to export.",
+      () => {
+        const selectedComp =
+          eventFilter === "all"
+            ? "All Competitions"
+            : MILAAP_COMPETITIONS.find((c) => c.id === eventFilter)?.title ||
+              eventFilter;
+        const subtitleParts = [
+          `Status: ${statusFilter.toUpperCase()}`,
+          `Competition: ${selectedComp}`,
+        ];
+        if (searchQuery.trim()) {
+          subtitleParts.push(`Search: "${searchQuery.trim()}"`);
+        }
+        return {
+          title: "Participants Registry",
+          subtitle: subtitleParts.join("  |  "),
+          filename: `milaap-participants-${todayStamp()}.pdf`,
+          headers: PARTICIPANT_PDF_HEADERS,
+          rows: formatParticipantPdfRows(filteredParticipants),
+          orientation: "landscape",
+          columnStyles: {
+            0: { cellWidth: 9 },
+            1: { cellWidth: 26 },
+            6: { cellWidth: 70 },
+            7: { cellWidth: 22 },
+          },
+        };
+      }
+    );
+
+  const handleExportBreakdownPdf = () =>
+    runPdfExport(
+      "breakdown",
+      "No competition breakdown data available to export.",
+      () => {
+        const totalEntries = competitionBreakdown.reduce(
+          (acc, c) => acc + c.total,
+          0
+        );
+        const totalVerified = competitionBreakdown.reduce(
+          (acc, c) => acc + c.verified,
+          0
+        );
+        const totalPending = competitionBreakdown.reduce(
+          (acc, c) => acc + c.pending,
+          0
+        );
+        return {
+          title: "Registrations by Competition",
+          subtitle: `Distribution across ${competitionBreakdown.length} Milaap competitions  |  Unique Participants: ${metrics.totalRegistrations}`,
+          filename: `milaap-competition-breakdown-${todayStamp()}.pdf`,
+          headers: [
+            "#",
+            "Competition",
+            "Category",
+            "Format",
+            "Registered",
+            "Verified",
+            "Pending",
+            "Participant Share",
+          ],
+          rows: competitionBreakdown.map((c, idx) => {
+            const pct =
+              metrics.totalRegistrations > 0
+                ? Math.round((c.total / metrics.totalRegistrations) * 100)
+                : 0;
+            return [
+              idx + 1,
+              c.title,
+              c.category,
+              c.format,
+              c.total,
+              c.verified,
+              c.pending,
+              `${pct}%`,
+            ];
+          }),
+          footRow: [
+            "",
+            "TOTAL ENTRIES",
+            "-",
+            "-",
+            totalEntries,
+            totalVerified,
+            totalPending,
+            "100%",
+          ],
+          orientation: "portrait",
+          columnStyles: {
+            0: { cellWidth: 9 },
+            4: { cellWidth: 20 },
+            5: { cellWidth: 18 },
+            6: { cellWidth: 18 },
+          },
+        };
+      }
+    );
+
+  const handleExportRecentParticipantsPdf = () =>
+    runPdfExport(
+      "recent",
+      "No registered participants available to export.",
+      () => ({
+        title: "Recent Participants",
+        subtitle: `Latest ${Math.min(participants.length, 5)} Milaap registrations (sorted newest first)`,
+        filename: `milaap-recent-participants-${todayStamp()}.pdf`,
+        headers: PARTICIPANT_PDF_HEADERS,
+        rows: formatParticipantPdfRows(participants.slice(0, 5)),
+        orientation: "landscape",
+        columnStyles: {
+          0: { cellWidth: 9 },
+          1: { cellWidth: 26 },
+          6: { cellWidth: 70 },
+          7: { cellWidth: 22 },
+        },
+      })
+    );
+
+  const handleExportEventLocksPdf = () =>
+    runPdfExport(
+      "locks",
+      "No competition lock statuses available to export.",
+      () => ({
+        title: "Per-Event Registration Locks",
+        subtitle: `Global Registration Lock: ${
+          setting.registrationsLocked ? "LOCKED" : "OPEN"
+        }  |  Locked Events: ${setting.lockedEvents.length} of ${
+          MILAAP_COMPETITIONS.length
+        }`,
+        filename: `milaap-event-locks-${todayStamp()}.pdf`,
+        headers: [
+          "#",
+          "Competition",
+          "Category",
+          "Format",
+          "Registered Count",
+          "Lock Status",
+        ],
+        rows: MILAAP_COMPETITIONS.map((comp, idx) => {
+          const locked = setting.lockedEvents.includes(comp.id);
+          const count =
+            competitionBreakdown.find((c) => c.id === comp.id)?.total ?? 0;
+          return [
+            idx + 1,
+            comp.title,
+            comp.category,
+            comp.format,
+            count,
+            locked ? "Locked" : "Open",
+          ];
+        }),
+        orientation: "portrait",
+        columnStyles: {
+          0: { cellWidth: 10 },
+          4: { cellWidth: 28 },
+          5: { cellWidth: 24 },
+        },
+      })
+    );
+
+  const handleExportAnnouncementsPdf = () =>
+    runPdfExport(
+      "announcements",
+      "No announcements available to export.",
+      () => ({
+        title: "Announcement Feed",
+        subtitle: `Total Broadcasts: ${announcements.length}  |  Currently Live: ${
+          announcements.filter((a) => a.isActive).length
+        }`,
+        filename: `milaap-announcements-${todayStamp()}.pdf`,
+        headers: [
+          "#",
+          "Priority",
+          "Title",
+          "Message",
+          "Author",
+          "Date",
+          "Visibility",
+        ],
+        rows: announcements.map((a, idx) => [
+          idx + 1,
+          a.priority.toUpperCase(),
+          a.title,
+          a.message,
+          a.createdBy || "-",
+          new Date(a.createdAt).toLocaleDateString("en-IN", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          }),
+          a.isActive ? "Live" : "Hidden",
+        ]),
+        orientation: "landscape",
+        columnStyles: {
+          0: { cellWidth: 9 },
+          1: { cellWidth: 20 },
+          2: { cellWidth: 46 },
+          4: { cellWidth: 36 },
+          5: { cellWidth: 26 },
+          6: { cellWidth: 20 },
+        },
+      })
+    );
 
   // Save settings ("God Mode" & Homepage Settings)
   const saveFestivalSettings = async (
@@ -877,13 +1140,21 @@ export default function AdminDashboardPage() {
                           Distribution across all 6 Milaap stages
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => setActiveTab("participants")}
-                        className="text-xs font-mono text-amber-300 hover:underline cursor-pointer"
-                      >
-                        View Table →
-                      </button>
+                      <div className="flex items-center gap-3 shrink-0">
+                        <PdfDownloadButton
+                          compact
+                          onClick={handleExportBreakdownPdf}
+                          loading={exportingKey === "breakdown"}
+                          title="Download Competition Breakdown as PDF"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab("participants")}
+                          className="text-xs font-mono text-amber-300 hover:underline cursor-pointer"
+                        >
+                          View Table →
+                        </button>
+                      </div>
                     </div>
 
                     <div className="space-y-4">
@@ -921,9 +1192,17 @@ export default function AdminDashboardPage() {
 
                   {/* Latest Signups */}
                   <div className="lg:col-span-5 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 p-6 space-y-4">
-                    <h2 className="text-base font-bold text-white font-cinzel">
-                      Recent Participants
-                    </h2>
+                    <div className="flex items-center justify-between gap-3">
+                      <h2 className="text-base font-bold text-white font-cinzel">
+                        Recent Participants
+                      </h2>
+                      <PdfDownloadButton
+                        compact
+                        onClick={handleExportRecentParticipantsPdf}
+                        loading={exportingKey === "recent"}
+                        title="Download Recent Participants as PDF"
+                      />
+                    </div>
 
                     {participants.length === 0 ? (
                       <p className="text-xs text-slate-400 py-8 text-center">
@@ -1021,14 +1300,11 @@ export default function AdminDashboardPage() {
                       ))}
                     </select>
 
-                    <button
-                      type="button"
-                      onClick={handleExportCsv}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-400/35 text-emerald-200 text-xs font-mono uppercase tracking-wider cursor-pointer transition-all"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>CSV</span>
-                    </button>
+                    <PdfDownloadButton
+                      onClick={handleExportParticipantsPdf}
+                      loading={exportingKey === "participants"}
+                      title="Download Filtered Participants as PDF"
+                    />
                   </div>
                 </div>
 
@@ -1338,9 +1614,17 @@ export default function AdminDashboardPage() {
 
                   {/* Per-Event Registration Locks */}
                   <div className="rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 p-6 space-y-4">
-                    <h3 className="text-base font-bold text-white font-cinzel">
-                      Per-Event Registration Locks
-                    </h3>
+                    <div className="flex items-center justify-between gap-3">
+                      <h3 className="text-base font-bold text-white font-cinzel">
+                        Per-Event Registration Locks
+                      </h3>
+                      <PdfDownloadButton
+                        compact
+                        onClick={handleExportEventLocksPdf}
+                        loading={exportingKey === "locks"}
+                        title="Download Per-Event Lock Status as PDF"
+                      />
+                    </div>
                     <div className="space-y-2.5">
                       {MILAAP_COMPETITIONS.map((comp) => {
                         const locked = setting.lockedEvents.includes(comp.id);
@@ -1604,13 +1888,21 @@ export default function AdminDashboardPage() {
 
                 {/* Active & Past Announcements Feed */}
                 <div className="lg:col-span-7 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 p-6 space-y-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-3">
                     <h3 className="text-base font-bold text-white font-cinzel">
                       Announcement Feed ({announcements.length})
                     </h3>
-                    <span className="text-[11px] font-mono text-amber-300/80">
-                      {announcements.filter((a) => a.isActive).length} Live
-                    </span>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="text-[11px] font-mono text-amber-300/80">
+                        {announcements.filter((a) => a.isActive).length} Live
+                      </span>
+                      <PdfDownloadButton
+                        compact
+                        onClick={handleExportAnnouncementsPdf}
+                        loading={exportingKey === "announcements"}
+                        title="Download Announcements List as PDF"
+                      />
+                    </div>
                   </div>
 
                   {announcements.length === 0 ? (
