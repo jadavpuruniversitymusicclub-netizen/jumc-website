@@ -45,3 +45,4 @@ const Announcement: Model<IAnnouncement> =
   mongoose.model<IAnnouncement>("Announcement", AnnouncementSchema);
 
 export default Announcement;
+

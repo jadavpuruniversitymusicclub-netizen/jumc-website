@@ -16,6 +16,7 @@ export interface IParticipant extends Document {
   phone?: string;
   college?: string;
   year?: string;
+  role: "user" | "admin";
   participantId?: string;
   isRegistered: boolean;
   events: IRegisteredEvent[];
@@ -89,6 +90,11 @@ const ParticipantSchema = new Schema<IParticipant>({
     type: String,
     default: "",
     trim: true,
+  },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
   },
   participantId: {
     type: String,

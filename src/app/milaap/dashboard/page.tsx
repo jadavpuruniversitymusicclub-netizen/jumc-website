@@ -30,10 +30,10 @@ import {
   ShieldCheck,
   AlertCircle,
   ExternalLink,
-  Crown,
 } from "lucide-react";
 import MilaapBrand from "@/components/MilaapBrand";
 import MilaapAnnouncements from "@/components/MilaapAnnouncements";
+import AdminPortalBarrier from "@/components/AdminPortalBarrier";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
 
 const YEARS = [
@@ -76,17 +76,17 @@ export default function MilaapDashboardPage() {
   );
   const isAdmin = (session?.role ?? session?.user?.role) === "admin";
 
-  // Route protection
+  // Route protection (Strict Entry Separation)
   useEffect(() => {
     if (status === "unauthenticated") {
       router.replace("/milaap/sign-in");
       return;
     }
 
-    if (status === "authenticated" && !isRegistered) {
+    if (status === "authenticated" && !isAdmin && !isRegistered) {
       router.replace("/milaap/register");
     }
-  }, [status, isRegistered, router]);
+  }, [status, isAdmin, isRegistered, router]);
 
   const openProfileEditor = () => {
     if (!participant) return;
@@ -228,6 +228,10 @@ export default function MilaapDashboardPage() {
     }
   };
 
+  if (status === "authenticated" && isAdmin) {
+    return <AdminPortalBarrier email={session?.user?.email} />;
+  }
+
   if (
     status === "loading" ||
     status === "unauthenticated" ||
@@ -278,16 +282,6 @@ export default function MilaapDashboardPage() {
           </Link>
 
           <div className="flex items-center gap-3">
-            {isAdmin && (
-              <Link
-                href="/admin/dashboard"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-500/20 border border-amber-400/40 text-xs font-mono font-bold uppercase tracking-wider text-amber-200 hover:bg-amber-500/30 transition-all"
-              >
-                <Crown className="w-3.5 h-3.5 text-amber-300" />
-                <span>Admin Panel</span>
-              </Link>
-            )}
-
             <Link
               href="/milaap#competitions"
               className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-400/30 text-xs font-mono uppercase tracking-wider text-amber-300 hover:bg-amber-500/20 transition-all"

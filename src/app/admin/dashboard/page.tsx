@@ -16,7 +16,6 @@ import {
   Clock,
   Trash2,
   ShieldCheck,
-  ShieldAlert,
   Loader2,
   Lock,
   Unlock,
@@ -36,10 +35,9 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import MilaapBrand from "@/components/MilaapBrand";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
 
-type TabId = "overview" | "participants" | "controls" | "homepage";
+type TabId = "overview" | "participants" | "controls" | "announcements";
 
 interface AdminRegisteredEvent {
   eventSlug: string;
@@ -140,7 +138,7 @@ export default function AdminDashboardPage() {
   // Saving God Mode / Homepage settings
   const [savingSettings, setSavingSettings] = useState(false);
 
-  const role = session?.role ?? session?.user?.role;
+  const role = session?.user?.role ?? session?.role;
   const isAdmin = status === "authenticated" && role === "admin";
   const isDenied = status === "authenticated" && role !== "admin";
 
@@ -152,12 +150,16 @@ export default function AdminDashboardPage() {
     []
   );
 
-  // Protect route
+  // Protect route & User Barrier
   useEffect(() => {
     if (status === "unauthenticated") {
       router.replace("/admin/login");
+      return;
     }
-  }, [status, router]);
+    if (status === "authenticated" && role !== "admin") {
+      router.replace("/milaap/dashboard");
+    }
+  }, [status, role, router]);
 
   const fetchAllAdminData = useCallback(async () => {
     if (!isAdmin) return;
@@ -548,37 +550,11 @@ export default function AdminDashboardPage() {
   if (isDenied) {
     return (
       <main className="min-h-screen flex items-center justify-center px-4 text-slate-100">
-        <div className="rounded-3xl bg-white/5 border border-rose-500/35 backdrop-blur-2xl p-8 max-w-md w-full text-center space-y-5 shadow-2xl">
-          <div className="w-16 h-16 mx-auto rounded-full bg-rose-500/15 border border-rose-500/40 flex items-center justify-center text-rose-400">
-            <ShieldAlert className="w-8 h-8" />
-          </div>
-          <div>
-            <p className="text-xs font-mono font-bold uppercase tracking-widest text-rose-400">
-              403 Forbidden
-            </p>
-            <h1 className="text-xl font-bold text-white font-cinzel mt-1">
-              Administrator Access Required
-            </h1>
-            <p className="text-xs text-slate-300 font-light mt-2 leading-relaxed">
-              Your account ({session?.user?.email}) does not have admin
-              privileges for Milaap Command Center.
-            </p>
-          </div>
-          <div className="space-y-2.5 pt-2">
-            <Link
-              href="/milaap/dashboard"
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 text-black font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2"
-            >
-              <span>Go to Participant Dashboard</span>
-            </Link>
-            <button
-              type="button"
-              onClick={() => signOut({ callbackUrl: "/admin/login" })}
-              className="w-full py-3 rounded-xl bg-white/5 border border-white/15 text-slate-200 text-xs font-mono uppercase tracking-wider cursor-pointer"
-            >
-              Sign Out &amp; Switch Account
-            </button>
-          </div>
+        <div className="rounded-3xl bg-white/5 border border-amber-500/25 backdrop-blur-2xl p-8 max-w-sm w-full text-center space-y-4">
+          <Loader2 className="w-8 h-8 text-amber-400 animate-spin mx-auto" />
+          <p className="text-xs font-mono uppercase tracking-widest text-amber-200">
+            Redirecting to Participant Dashboard...
+          </p>
         </div>
       </main>
     );
@@ -597,13 +573,13 @@ export default function AdminDashboardPage() {
     },
     {
       id: "controls",
-      label: "Event Controls",
+      label: "Global Controls",
       icon: <Sliders className="w-4 h-4" />,
     },
     {
-      id: "homepage",
-      label: "Homepage Settings",
-      icon: <Globe className="w-4 h-4" />,
+      id: "announcements",
+      label: "Live Announcements",
+      icon: <Megaphone className="w-4 h-4" />,
     },
   ];
 
@@ -766,9 +742,9 @@ export default function AdminDashboardPage() {
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-white font-cinzel capitalize">
                 {activeTab === "controls"
-                  ? "Event Controls (God Mode)"
-                  : activeTab === "homepage"
-                  ? "Homepage Settings"
+                  ? "Global Controls (God Mode)"
+                  : activeTab === "announcements"
+                  ? "Live Announcements"
                   : activeTab}
               </h1>
               <p className="text-[11px] font-mono text-slate-400">
@@ -1409,8 +1385,133 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* RIGHT: Live Announcements Broadcaster */}
+                {/* RIGHT: Public Homepage Notice & Display Controls */}
                 <div className="lg:col-span-6 space-y-6">
+                  <div className="rounded-3xl bg-white/5 backdrop-blur-md border border-amber-500/25 p-6 space-y-6 shadow-xl">
+                    <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+                      <div>
+                        <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-400">
+                          Public Portal Config
+                        </span>
+                        <h2 className="text-lg font-bold text-white font-cinzel mt-1 flex items-center gap-2">
+                          <Globe className="w-4 h-4 text-amber-400" />
+                          Homepage &amp; Display Settings
+                        </h2>
+                      </div>
+                      <Link
+                        href="/milaap"
+                        target="_blank"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-200 text-xs font-mono"
+                      >
+                        <span>/milaap</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </Link>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 rounded-2xl bg-black/40 border border-white/10">
+                      <div>
+                        <p className="text-sm font-semibold text-white">
+                          Display Announcements on /milaap
+                        </p>
+                        <p className="text-xs text-slate-400 font-light mt-0.5">
+                          Shows active broadcasts beneath the Hero CTA.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          saveFestivalSettings({
+                            showAnnouncements: !setting.showAnnouncements,
+                          })
+                        }
+                        className={`relative w-14 h-7 rounded-full transition-colors p-1 cursor-pointer shrink-0 ${
+                          setting.showAnnouncements
+                            ? "bg-emerald-600"
+                            : "bg-slate-700"
+                        }`}
+                      >
+                        <span
+                          className={`block w-5 h-5 rounded-full bg-white transition-transform ${
+                            setting.showAnnouncements
+                              ? "translate-x-7"
+                              : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-300">
+                        Pinned Hero Notice Banner (Leave blank to hide)
+                      </label>
+                      <input
+                        type="text"
+                        value={setting.heroNotice}
+                        onChange={(e) =>
+                          setSetting((s) => ({
+                            ...s,
+                            heroNotice: e.target.value,
+                          }))
+                        }
+                        placeholder="e.g. Band slots closing Nov 20!"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 focus:border-amber-400 text-sm text-white outline-none"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-300">
+                        Festival Dates &amp; Venue Label
+                      </label>
+                      <input
+                        type="text"
+                        value={setting.festDatesText}
+                        onChange={(e) =>
+                          setSetting((s) => ({
+                            ...s,
+                            festDatesText: e.target.value,
+                          }))
+                        }
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/10 focus:border-amber-400 text-sm text-white outline-none"
+                      />
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={savingSettings}
+                      onClick={() =>
+                        saveFestivalSettings({
+                          heroNotice: setting.heroNotice,
+                          festDatesText: setting.festDatesText,
+                          showAnnouncements: setting.showAnnouncements,
+                        })
+                      }
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer hover:brightness-110 disabled:opacity-60"
+                    >
+                      {savingSettings ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-4 h-4" />
+                      )}
+                      <span>Save Global Homepage Config</span>
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ============================================================
+                TAB 4: LIVE ANNOUNCEMENTS
+                ============================================================ */}
+            {activeTab === "announcements" && (
+              <motion.div
+                key="announcements"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.25 }}
+                className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"
+              >
+                <div className="lg:col-span-5">
                   <form
                     onSubmit={handlePostAnnouncement}
                     className="rounded-3xl bg-white/5 backdrop-blur-md border border-amber-500/25 p-6 space-y-4 shadow-xl"
@@ -1499,205 +1600,96 @@ export default function AdminDashboardPage() {
                       <span>Publish Live Announcement</span>
                     </button>
                   </form>
+                </div>
 
-                  {/* Active & Past Announcements */}
-                  <div className="rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 p-6 space-y-4">
+                {/* Active & Past Announcements Feed */}
+                <div className="lg:col-span-7 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 p-6 space-y-4">
+                  <div className="flex items-center justify-between">
                     <h3 className="text-base font-bold text-white font-cinzel">
                       Announcement Feed ({announcements.length})
                     </h3>
-                    {announcements.length === 0 ? (
-                      <p className="text-xs text-slate-400 py-6 text-center">
-                        No announcements posted yet.
-                      </p>
-                    ) : (
-                      <div className="space-y-3">
-                        {announcements.map((a) => (
-                          <div
-                            key={a._id}
-                            className={`p-4 rounded-2xl border flex items-start justify-between gap-3 ${
-                              a.isActive
-                                ? "bg-black/45 border-amber-500/30"
-                                : "bg-black/25 border-white/5 opacity-55"
-                            }`}
-                          >
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span
-                                  className={`text-[9px] font-mono uppercase font-bold px-2 py-0.5 rounded-full ${
-                                    a.priority === "urgent"
-                                      ? "bg-rose-500/20 text-rose-300"
-                                      : a.priority === "success"
-                                      ? "bg-emerald-500/20 text-emerald-300"
-                                      : "bg-amber-500/20 text-amber-300"
-                                  }`}
-                                >
-                                  {a.priority}
-                                </span>
-                                <h4 className="text-xs sm:text-sm font-bold text-white truncate">
-                                  {a.title}
-                                </h4>
-                              </div>
-                              <p className="text-xs text-slate-300 font-light mt-1">
-                                {a.message}
-                              </p>
-                            </div>
+                    <span className="text-[11px] font-mono text-amber-300/80">
+                      {announcements.filter((a) => a.isActive).length} Live
+                    </span>
+                  </div>
 
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <button
-                                type="button"
-                                onClick={() => handleToggleAnnouncement(a)}
-                                title={
-                                  a.isActive
-                                    ? "Hide from public"
-                                    : "Show publicly"
+                  {announcements.length === 0 ? (
+                    <p className="text-xs text-slate-400 py-10 text-center">
+                      No announcements posted yet. Use the form on the left to
+                      broadcast to Milaap homepage and dashboards.
+                    </p>
+                  ) : (
+                    <div className="space-y-3">
+                      {announcements.map((a) => (
+                        <div
+                          key={a._id}
+                          className={`p-4 rounded-2xl border flex items-start justify-between gap-3 ${
+                            a.isActive
+                              ? "bg-black/45 border-amber-500/30"
+                              : "bg-black/25 border-white/5 opacity-55"
+                          }`}
+                        >
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`text-[9px] font-mono uppercase font-bold px-2 py-0.5 rounded-full ${
+                                  a.priority === "urgent"
+                                    ? "bg-rose-500/20 text-rose-300"
+                                    : a.priority === "success"
+                                    ? "bg-emerald-500/20 text-emerald-300"
+                                    : "bg-amber-500/20 text-amber-300"
+                                }`}
+                              >
+                                {a.priority}
+                              </span>
+                              <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                                {a.title}
+                              </h4>
+                            </div>
+                            <p className="text-xs text-slate-300 font-light mt-1">
+                              {a.message}
+                            </p>
+                            <p className="text-[10px] font-mono text-slate-500 mt-1.5">
+                              By {a.createdBy} •{" "}
+                              {new Date(a.createdAt).toLocaleDateString(
+                                "en-IN",
+                                {
+                                  day: "numeric",
+                                  month: "short",
                                 }
-                                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 cursor-pointer"
-                              >
-                                {a.isActive ? (
-                                  <Eye className="w-3.5 h-3.5 text-emerald-400" />
-                                ) : (
-                                  <EyeOff className="w-3.5 h-3.5 text-slate-500" />
-                                )}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteAnnouncement(a._id)}
-                                className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 text-rose-300 cursor-pointer"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            </div>
+                              )}
+                            </p>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            )}
 
-            {/* ============================================================
-                TAB 4: HOMEPAGE SETTINGS
-                ============================================================ */}
-            {activeTab === "homepage" && (
-              <motion.div
-                key="homepage"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.25 }}
-                className="max-w-3xl space-y-6"
-              >
-                <div className="rounded-3xl bg-white/5 backdrop-blur-md border border-amber-500/25 p-6 sm:p-8 space-y-6 shadow-xl">
-                  <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
-                    <div>
-                      <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-400">
-                        Public Portal Configuration
-                      </span>
-                      <h2 className="text-xl font-bold text-white font-cinzel mt-1">
-                        Milaap Homepage Settings
-                      </h2>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleAnnouncement(a)}
+                              title={
+                                a.isActive
+                                  ? "Hide from public"
+                                  : "Show publicly"
+                              }
+                              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-300 cursor-pointer"
+                            >
+                              {a.isActive ? (
+                                <Eye className="w-3.5 h-3.5 text-emerald-400" />
+                              ) : (
+                                <EyeOff className="w-3.5 h-3.5 text-slate-500" />
+                              )}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteAnnouncement(a._id)}
+                              className="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/25 text-rose-300 cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                    <Link
-                      href="/milaap"
-                      target="_blank"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-200 text-xs font-mono"
-                    >
-                      <span>Open /milaap</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-
-                  {/* Show Announcements Toggle */}
-                  <div className="flex items-center justify-between p-4 rounded-2xl bg-black/40 border border-white/10">
-                    <div>
-                      <p className="text-sm font-semibold text-white">
-                        Display Live Announcements on /milaap Homepage
-                      </p>
-                      <p className="text-xs text-slate-400 font-light mt-0.5">
-                        When enabled, active broadcasts appear directly beneath
-                        the Milaap Hero section.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        saveFestivalSettings({
-                          showAnnouncements: !setting.showAnnouncements,
-                        })
-                      }
-                      className={`relative w-14 h-7 rounded-full transition-colors p-1 cursor-pointer shrink-0 ${
-                        setting.showAnnouncements
-                          ? "bg-emerald-600"
-                          : "bg-slate-700"
-                      }`}
-                    >
-                      <span
-                        className={`block w-5 h-5 rounded-full bg-white transition-transform ${
-                          setting.showAnnouncements
-                            ? "translate-x-7"
-                            : "translate-x-0"
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  {/* Hero Notice Banner Text */}
-                  <div className="space-y-2">
-                    <label className="block text-xs font-mono uppercase tracking-wider text-slate-300">
-                      Pinned Hero Notice Banner (Leave blank to hide)
-                    </label>
-                    <input
-                      type="text"
-                      value={setting.heroNotice}
-                      onChange={(e) =>
-                        setSetting((s) => ({
-                          ...s,
-                          heroNotice: e.target.value,
-                        }))
-                      }
-                      placeholder="e.g. Early-bird band registration slots closing Nov 20!"
-                      className="w-full px-4 py-3 rounded-xl bg-black/50 border border-white/10 focus:border-amber-400 text-sm text-white outline-none"
-                    />
-                  </div>
-
-                  {/* Fest Dates & Venue Tag */}
-                  <div className="space-y-2">
-                    <label className="block text-xs font-mono uppercase tracking-wider text-slate-300">
-                      Festival Dates &amp; Venue Label
-                    </label>
-                    <input
-                      type="text"
-                      value={setting.festDatesText}
-                      onChange={(e) =>
-                        setSetting((s) => ({
-                          ...s,
-                          festDatesText: e.target.value,
-                        }))
-                      }
-                      className="w-full px-4 py-3 rounded-xl bg-black/50 border border-white/10 focus:border-amber-400 text-sm text-white outline-none"
-                    />
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={savingSettings}
-                    onClick={() =>
-                      saveFestivalSettings({
-                        heroNotice: setting.heroNotice,
-                        festDatesText: setting.festDatesText,
-                        showAnnouncements: setting.showAnnouncements,
-                      })
-                    }
-                    className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center gap-2 cursor-pointer hover:brightness-110 disabled:opacity-60"
-                  >
-                    {savingSettings ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Sparkles className="w-4 h-4" />
-                    )}
-                    <span>Save Homepage Settings</span>
-                  </button>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -1801,3 +1793,4 @@ function MetricCard({
     </div>
   );
 }
+

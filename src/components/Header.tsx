@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { User, Menu } from 'lucide-react';
+import { ShieldCheck, Menu } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Header() {
@@ -50,8 +50,8 @@ export default function Header() {
         </div>
       </Link>
 
-      {/* Right side: Nav links and Admin profile button grouped together */}
-      <div className="flex items-center justify-end gap-6 md:gap-8">
+      {/* Right side: Nav links and subtle Admin Login link at absolute top-right */}
+      <div className="flex items-center justify-end gap-4 md:gap-7">
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide">
           {['Home', 'Events', 'Memories', 'Contact'].map((item) => (
             <Link 
@@ -64,16 +64,18 @@ export default function Header() {
           ))}
         </nav>
 
-        <Link href="/admin">
-          <button className="hidden md:flex items-center gap-3 text-white hover:text-[#E60026] transition-colors uppercase tracking-wider cursor-pointer">
-            <span className="text-sm font-medium">Admin</span>
-            <span className="text-white/40 text-sm">|</span>
-            <User size={16} />
-          </button>
+        <Link
+          href="/admin/login"
+          className="hidden md:inline-flex items-center gap-1.5 text-xs font-medium text-white/75 hover:text-amber-300 transition-colors tracking-wide px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-amber-400/40 backdrop-blur-md"
+        >
+          <ShieldCheck size={14} className="text-amber-400/80" />
+          <span>Admin Login</span>
         </Link>
+
         <button 
           className="md:hidden liquid-glass p-3 rounded-xl text-white"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle Menu"
         >
           <Menu size={20} />
         </button>
@@ -81,7 +83,7 @@ export default function Header() {
 
       {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
-        <div className="absolute top-full left-0 right-0 bg-black/40 backdrop-blur-xl border-b border-white/10 p-6 flex flex-col gap-5 shadow-2xl md:hidden origin-top animate-fade-up">
+        <div className="absolute top-full left-0 right-0 bg-black/70 backdrop-blur-xl border-b border-white/10 p-6 flex flex-col gap-5 shadow-2xl md:hidden origin-top animate-fade-up">
           {['Home', 'Events', 'Memories', 'Contact'].map((item) => (
             <Link 
               key={item}
@@ -94,13 +96,12 @@ export default function Header() {
           ))}
           <div className="w-full h-px bg-white/10 my-1"></div>
           <Link 
-            href="/admin"
+            href="/admin/login"
             onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-3 text-lg font-medium text-white hover:text-[#E60026] transition-colors group"
+            className="flex items-center gap-2.5 text-base font-medium text-white/85 hover:text-amber-300 transition-colors"
           >
-            <span>Admin Portal</span>
-            <span className="text-white/40">|</span>
-            <User size={18} className="group-hover:text-[#E60026] transition-colors" />
+            <ShieldCheck size={18} className="text-amber-400" />
+            <span>Admin Login</span>
           </Link>
         </div>
       )}

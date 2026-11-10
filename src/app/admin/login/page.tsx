@@ -44,7 +44,7 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [signingIn, setSigningIn] = useState(false);
 
-  const role = session?.role ?? session?.user?.role;
+  const role = session?.user?.role ?? session?.role;
   const isAdmin = status === "authenticated" && role === "admin";
   const isDenied = status === "authenticated" && role !== "admin";
 
@@ -57,7 +57,7 @@ export default function AdminLoginPage() {
   const handleAdminSignIn = async () => {
     setSigningIn(true);
     try {
-      await signIn("google", { callbackUrl: "/admin/login" });
+      await signIn("google", { callbackUrl: "/admin/dashboard" });
     } catch {
       setSigningIn(false);
     }
@@ -84,11 +84,11 @@ export default function AdminLoginPage() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-xs font-mono font-bold uppercase tracking-widest text-slate-300 hover:text-amber-300 hover:border-amber-400/50 transition-all"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Milaap Portal</span>
+            <span>Back to Milaap Home</span>
           </Link>
         </div>
 
-        {/* Admin Card */}
+        {/* Admin Portal Card */}
         <div className="rounded-3xl bg-white/5 border border-amber-500/25 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.65)] overflow-hidden">
           <div className="h-1.5 w-full bg-gradient-to-r from-amber-300 via-yellow-400 to-rose-500" />
 
@@ -104,13 +104,14 @@ export default function AdminLoginPage() {
             </div>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-[10px] font-mono font-bold uppercase tracking-[0.22em]">
               <Crown className="w-3 h-3" />
-              Command Center Access
+              Admin Portal
             </div>
             <h1 className="text-2xl font-extrabold text-white font-cinzel">
-              Milaap Admin Portal
+              Milaap Admin Login
             </h1>
             <p className="text-xs text-slate-300/75 font-light">
-              Restricted to authorized JUMC &amp; JUDF festival administrators.
+              Dedicated coordinator authentication portal for JUMC &amp; JUDF
+              administrators.
             </p>
           </div>
 
@@ -121,12 +122,12 @@ export default function AdminLoginPage() {
                 <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
                 <p className="text-xs font-mono uppercase tracking-widest text-amber-200/80">
                   {isAdmin
-                    ? "Admin Verified — Entering Command Center..."
-                    : "Verifying session privileges..."}
+                    ? "Admin Verified — Routing to Dashboard..."
+                    : "Checking session role in MongoDB..."}
                 </p>
               </div>
             ) : isDenied ? (
-              /* 403 Access Denied View */
+              /* User Barrier on /admin/login */
               <div className="space-y-5 text-center">
                 <div className="w-16 h-16 mx-auto rounded-full bg-rose-500/15 border border-rose-500/40 flex items-center justify-center text-rose-400">
                   <ShieldAlert className="w-8 h-8" />
@@ -134,18 +135,18 @@ export default function AdminLoginPage() {
 
                 <div>
                   <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-rose-400">
-                    403 • Access Denied
+                    Access Denied • User Account
                   </span>
                   <h2 className="text-lg font-bold text-white font-cinzel mt-1">
-                    Not an Authorized Admin
+                    Admin Privileges Required
                   </h2>
                   <p className="text-xs text-slate-300/80 font-light mt-2 leading-relaxed">
                     Signed in as{" "}
                     <strong className="text-white">
                       {session?.user?.email}
-                    </strong>
-                    , which carries participant privileges (
-                    <code className="text-amber-300">role: &quot;user&quot;</code>).
+                    </strong>{" "}
+                    (<code className="text-amber-300">role: &quot;user&quot;</code>).
+                    This portal is reserved strictly for festival admins.
                   </p>
                 </div>
 
@@ -164,7 +165,7 @@ export default function AdminLoginPage() {
                     className="w-full py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-slate-200 text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
                   >
                     <LogOut className="w-4 h-4" />
-                    <span>Sign Out &amp; Use Admin Account</span>
+                    <span>Sign Out &amp; Sign in as Admin</span>
                   </button>
                 </div>
               </div>
@@ -174,12 +175,12 @@ export default function AdminLoginPage() {
                 <div className="p-4 rounded-2xl bg-black/40 border border-white/10 text-xs text-slate-300/85 font-light space-y-1.5">
                   <div className="flex items-center gap-2 text-amber-300 font-semibold font-mono text-[11px] uppercase tracking-wider">
                     <ShieldCheck className="w-4 h-4" />
-                    <span>Role-Based Security</span>
+                    <span>MongoDB RBAC Enforcement</span>
                   </div>
                   <p className="leading-relaxed">
-                    Only whitelisted JUMC coordinator Google accounts are
-                    granted access to participant verification and God Mode
-                    controls.
+                    Sign in exclusively via this Admin Portal to authenticate
+                    your organizer role and manage registrations, verification,
+                    and God Mode controls.
                   </p>
                 </div>
 
@@ -192,12 +193,12 @@ export default function AdminLoginPage() {
                   {signingIn ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin text-amber-600" />
-                      <span>Verifying Google Admin Account...</span>
+                      <span>Verifying Admin Google Account...</span>
                     </>
                   ) : (
                     <>
                       <GoogleLogo className="w-5 h-5 shrink-0" />
-                      <span>Continue with Google (Admin)</span>
+                      <span>Sign in with Google (Admin Portal)</span>
                     </>
                   )}
                 </button>

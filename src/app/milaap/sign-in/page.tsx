@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import MilaapBrand from "@/components/MilaapBrand";
+import AdminPortalBarrier from "@/components/AdminPortalBarrier";
 
 function GoogleLogo({ className = "w-5 h-5" }: { className?: string }) {
   return (
@@ -46,20 +47,30 @@ function SignInContent() {
   const [signingIn, setSigningIn] = useState(false);
 
   const authError = searchParams.get("error");
+  const role = session?.user?.role ?? session?.role;
+  const isAdmin = status === "authenticated" && role === "admin";
   const isRegistered = Boolean(
     session?.user?.isRegistered ?? session?.isRegistered
   );
 
-  // Smart routing flow once Google authentication succeeds
+  // Smart routing flow once Google authentication succeeds (strictly non-admin users only)
   useEffect(() => {
     if (status === "authenticated") {
+      if (role === "admin") {
+        // Strict Entry Separation: never route admins via /milaap/sign-in
+        return;
+      }
       if (isRegistered) {
         router.replace("/milaap/dashboard");
       } else {
         router.replace("/milaap/register");
       }
     }
-  }, [status, isRegistered, router]);
+  }, [status, role, isRegistered, router]);
+
+  if (isAdmin) {
+    return <AdminPortalBarrier email={session?.user?.email} />;
+  }
 
   const handleGoogleSignIn = async () => {
     setSigningIn(true);

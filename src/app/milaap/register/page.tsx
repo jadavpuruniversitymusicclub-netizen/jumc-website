@@ -23,6 +23,7 @@ import {
   Lock,
 } from "lucide-react";
 import MilaapBrand from "@/components/MilaapBrand";
+import AdminPortalBarrier from "@/components/AdminPortalBarrier";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
 
 const YEARS = [
@@ -62,6 +63,8 @@ export default function MilaapRegisterPage() {
   const [serverError, setServerError] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const role = session?.user?.role ?? session?.role;
+  const isAdmin = status === "authenticated" && role === "admin";
   const isRegistered = Boolean(
     session?.user?.isRegistered ?? session?.isRegistered
   );
@@ -92,6 +95,10 @@ export default function MilaapRegisterPage() {
     }
 
     if (status === "authenticated") {
+      if (role === "admin") {
+        // Strict Admin Barrier: render access denied UI below
+        return;
+      }
       if (isRegistered) {
         router.replace("/milaap/dashboard");
         return;
@@ -104,7 +111,7 @@ export default function MilaapRegisterPage() {
         setName(session.user.name);
       }
     }
-  }, [status, isRegistered, session, router, email, name]);
+  }, [status, role, isRegistered, session, router, email, name]);
 
   const toggleEvent = (slug: string, defaultFormat: string) => {
     if (lockedEvents.includes(slug)) return;
@@ -212,6 +219,10 @@ export default function MilaapRegisterPage() {
       setSubmitting(false);
     }
   };
+
+  if (isAdmin) {
+    return <AdminPortalBarrier email={session?.user?.email} />;
+  }
 
   if (status === "loading" || status === "unauthenticated" || isRegistered) {
     return (

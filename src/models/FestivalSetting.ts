@@ -61,3 +61,4 @@ const FestivalSetting: Model<IFestivalSetting> =
   mongoose.model<IFestivalSetting>("FestivalSetting", FestivalSettingSchema);
 
 export default FestivalSetting;
+
