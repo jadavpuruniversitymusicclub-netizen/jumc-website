@@ -32,7 +32,7 @@ export default function AdminPortalBarrier({
             </h1>
             <p className="text-xs sm:text-sm text-amber-100/90 font-light leading-relaxed">
               Admin accounts cannot use the participant portal. Please use the
-              Admin Login at the top right.
+              Admin Login on the JUMC Home page.
             </p>
             {email && (
               <p className="text-[11px] font-mono text-slate-400 pt-1">
@@ -64,3 +64,4 @@ export default function AdminPortalBarrier({
     </main>
   );
 }
+

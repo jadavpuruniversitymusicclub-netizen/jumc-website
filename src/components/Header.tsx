@@ -13,6 +13,8 @@ export default function Header() {
     return null;
   }
 
+  const showAdminLogin = !pathname?.startsWith('/milaap');
+
   return (
     <header className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-10 font-sans">
       <Link href="/" className="flex items-center gap-3">
@@ -64,13 +66,15 @@ export default function Header() {
           ))}
         </nav>
 
-        <Link
-          href="/admin/login"
-          className="hidden md:inline-flex items-center gap-1.5 text-xs font-medium text-white/75 hover:text-amber-300 transition-colors tracking-wide px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-amber-400/40 backdrop-blur-md"
-        >
-          <ShieldCheck size={14} className="text-amber-400/80" />
-          <span>Admin Login</span>
-        </Link>
+        {showAdminLogin && (
+          <Link
+            href="/admin/login"
+            className="hidden md:inline-flex items-center gap-1.5 text-xs font-medium text-white/75 hover:text-amber-300 transition-colors tracking-wide px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 hover:border-amber-400/40 backdrop-blur-md"
+          >
+            <ShieldCheck size={14} className="text-amber-400/80" />
+            <span>Admin Login</span>
+          </Link>
+        )}
 
         <button 
           className="md:hidden liquid-glass p-3 rounded-xl text-white"
@@ -94,15 +98,19 @@ export default function Header() {
               {item}
             </Link>
           ))}
-          <div className="w-full h-px bg-white/10 my-1"></div>
-          <Link 
-            href="/admin/login"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-2.5 text-base font-medium text-white/85 hover:text-amber-300 transition-colors"
-          >
-            <ShieldCheck size={18} className="text-amber-400" />
-            <span>Admin Login</span>
-          </Link>
+          {showAdminLogin && (
+            <>
+              <div className="w-full h-px bg-white/10 my-1"></div>
+              <Link 
+                href="/admin/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-2.5 text-base font-medium text-white/85 hover:text-amber-300 transition-colors"
+              >
+                <ShieldCheck size={18} className="text-amber-400" />
+                <span>Admin Login</span>
+              </Link>
+            </>
+          )}
         </div>
       )}
     </header>
