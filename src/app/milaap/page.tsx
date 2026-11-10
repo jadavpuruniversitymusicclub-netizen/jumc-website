@@ -11,6 +11,7 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import MilaapCompetitions from "@/components/MilaapCompetitions";
+import MilaapAnnouncements from "@/components/MilaapAnnouncements";
 import {
   ArrowLeft,
   Sparkles,
@@ -585,6 +586,9 @@ export default function MilaapPage() {
       >
         Where Melody Meets Rhythm • Two Legacies, One Heartbeat
       </motion.p>
+
+      {/* Live Organiser Announcements & Registration Status Banner */}
+      <MilaapAnnouncements compact />
 
       {/* ================================================================
           PART 3: ABOUT SECTIONS (LIGHTWEIGHT BACKDROP-BLUR & TRANSFORM-GPU)

@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import connectToDatabase from "@/lib/mongodb";
 import Participant, { type IRegisteredEvent } from "@/models/Participant";
+import FestivalSetting from "@/models/FestivalSetting";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
 
 interface EventPayloadItem {
@@ -61,7 +62,6 @@ export async function POST(req: Request) {
     const name = String(body.name || session.user.name || "").trim();
     const phone = String(body.phone || "").trim();
     const college = String(body.college || "").trim();
-    const department = String(body.department || "").trim();
     const year = String(body.year || "").trim();
     const rawEvents: EventPayloadItem[] = Array.isArray(body.events)
       ? body.events
@@ -88,13 +88,6 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!department) {
-      return NextResponse.json(
-        { error: "Department is required." },
-        { status: 400 }
-      );
-    }
-
     if (!year) {
       return NextResponse.json(
         { error: "Year of study is required." },
@@ -112,12 +105,32 @@ export async function POST(req: Request) {
     await connectToDatabase();
 
     const existing = await Participant.findOne({ email });
+    const setting = await FestivalSetting.findOne({
+      key: "milaap-edition-1",
+    }).lean();
+
+    // Enforce global registration lock on new registrations
+    if (setting?.registrationsLocked && !existing?.isRegistered) {
+      return NextResponse.json(
+        {
+          error:
+            setting.lockMessage ||
+            "Registrations for Milaap Edition I are currently locked by the organizers.",
+        },
+        { status: 403 }
+      );
+    }
+
     const existingStatusMap = new Map<string, "Pending" | "Verified">();
+    const existingSlugs = new Set<string>();
     if (existing?.events) {
       for (const ev of existing.events) {
         existingStatusMap.set(ev.eventSlug, ev.status);
+        existingSlugs.add(ev.eventSlug);
       }
     }
+
+    const lockedEventSlugs = new Set(setting?.lockedEvents || []);
 
     // Deduplicate & sanitize against canonical competitions catalog
     const seenSlugs = new Set<string>();
@@ -129,6 +142,16 @@ export async function POST(req: Request) {
 
       const comp = MILAAP_COMPETITIONS.find((c) => c.id === slug);
       if (!comp) continue;
+
+      // Prevent adding newly locked competitions unless already registered
+      if (lockedEventSlugs.has(comp.id) && !existingSlugs.has(comp.id)) {
+        return NextResponse.json(
+          {
+            error: `Registrations for "${comp.title}" are currently closed by admins.`,
+          },
+          { status: 403 }
+        );
+      }
 
       seenSlugs.add(slug);
       sanitizedEvents.push({
@@ -162,7 +185,6 @@ export async function POST(req: Request) {
           image: existing?.image || session.user.image || "",
           phone,
           college,
-          department,
           year,
           participantId,
           isRegistered: true,

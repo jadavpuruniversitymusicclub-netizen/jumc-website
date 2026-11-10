@@ -15,7 +15,6 @@ export interface IParticipant extends Document {
   image?: string;
   phone?: string;
   college?: string;
-  department?: string;
   year?: string;
   participantId?: string;
   isRegistered: boolean;
@@ -82,11 +81,6 @@ const ParticipantSchema = new Schema<IParticipant>({
     trim: true,
   },
   college: {
-    type: String,
-    default: "",
-    trim: true,
-  },
-  department: {
     type: String,
     default: "",
     trim: true,

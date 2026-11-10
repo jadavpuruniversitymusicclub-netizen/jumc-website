@@ -11,7 +11,6 @@ import {
   Mail,
   Phone,
   Building2,
-  BookOpen,
   GraduationCap,
   Sparkles,
   Loader2,
@@ -21,6 +20,7 @@ import {
   Users,
   Music,
   Footprints,
+  Lock,
 } from "lucide-react";
 import MilaapBrand from "@/components/MilaapBrand";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
@@ -48,12 +48,15 @@ export default function MilaapRegisterPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [college, setCollege] = useState("");
-  const [department, setDepartment] = useState("");
   const [year, setYear] = useState("");
   const [selectedEvents, setSelectedEvents] = useState<
     Record<string, SelectedEventMeta>
   >({});
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+
+  const [registrationsLocked, setRegistrationsLocked] = useState(false);
+  const [lockedEvents, setLockedEvents] = useState<string[]>([]);
+  const [lockMessage, setLockMessage] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState("");
@@ -62,6 +65,24 @@ export default function MilaapRegisterPage() {
   const isRegistered = Boolean(
     session?.user?.isRegistered ?? session?.isRegistered
   );
+
+  // Fetch global & per-event lock flags from God Mode settings
+  useEffect(() => {
+    fetch("/api/milaap/announcements", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.setting) {
+          setRegistrationsLocked(Boolean(data.setting.registrationsLocked));
+          setLockedEvents(
+            Array.isArray(data.setting.lockedEvents)
+              ? data.setting.lockedEvents
+              : []
+          );
+          setLockMessage(data.setting.lockMessage || "");
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Route guard + pre-fill Name & Email from Google OAuth session
   useEffect(() => {
@@ -86,6 +107,8 @@ export default function MilaapRegisterPage() {
   }, [status, isRegistered, session, router, email, name]);
 
   const toggleEvent = (slug: string, defaultFormat: string) => {
+    if (lockedEvents.includes(slug)) return;
+
     setSelectedEvents((prev) => {
       const next = { ...prev };
       if (next[slug]) {
@@ -129,8 +152,6 @@ export default function MilaapRegisterPage() {
     }
     if (!college.trim())
       newErrors.college = "University / College name is required.";
-    if (!department.trim())
-      newErrors.department = "Department / Stream is required.";
     if (!year) newErrors.year = "Please select your year of study.";
     if (Object.keys(selectedEvents).length === 0) {
       newErrors.events = "Select at least one Milaap competition.";
@@ -171,7 +192,6 @@ export default function MilaapRegisterPage() {
           name: name.trim(),
           phone: phone.trim(),
           college: college.trim(),
-          department: department.trim(),
           year,
           events: eventsPayload,
         }),
@@ -302,323 +322,343 @@ export default function MilaapRegisterPage() {
             </div>
           </div>
 
-          {/* Form Body */}
-          <form
-            onSubmit={handleSubmit}
-            noValidate
-            className="px-6 sm:px-8 py-8 space-y-6"
-          >
-            {serverError && (
-              <div className="p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs flex items-start gap-2.5">
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <span>{serverError}</span>
+          {/* Global Registration Lock Banner ("God Mode") */}
+          {registrationsLocked ? (
+            <div className="px-6 sm:px-8 py-12 text-center space-y-5">
+              <div className="w-16 h-16 mx-auto rounded-full bg-rose-500/15 border border-rose-500/40 flex items-center justify-center text-rose-400">
+                <Lock className="w-8 h-8" />
               </div>
-            )}
-
-            {/* Grid of Identity & College Inputs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              {/* Name (Pre-filled) */}
-              <Field
-                label="Full Name"
-                required
-                error={errors.name}
-                icon={<User className="w-4 h-4" />}
-              >
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => {
-                    setName(e.target.value);
-                    if (errors.name)
-                      setErrors((p) => ({ ...p, name: "" }));
-                  }}
-                  placeholder="Your full name"
-                  className={inputCls(!!errors.name)}
-                />
-              </Field>
-
-              {/* Email (Locked from Google) */}
-              <Field
-                label="Google Email (Locked)"
-                required
-                icon={<Mail className="w-4 h-4" />}
-              >
-                <input
-                  type="email"
-                  value={email}
-                  readOnly
-                  disabled
-                  className={`${inputCls(false)} opacity-70 cursor-not-allowed`}
-                />
-              </Field>
-
-              {/* Phone Number */}
-              <Field
-                label="Phone / WhatsApp Number"
-                required
-                error={errors.phone}
-                icon={<Phone className="w-4 h-4" />}
-              >
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => {
-                    setPhone(e.target.value);
-                    if (errors.phone)
-                      setErrors((p) => ({ ...p, phone: "" }));
-                  }}
-                  placeholder="+91 98300 00000"
-                  className={inputCls(!!errors.phone)}
-                />
-              </Field>
-
-              {/* Year */}
-              <Field
-                label="Year of Study"
-                required
-                error={errors.year}
-                icon={<GraduationCap className="w-4 h-4" />}
-              >
-                <select
-                  value={year}
-                  onChange={(e) => {
-                    setYear(e.target.value);
-                    if (errors.year)
-                      setErrors((p) => ({ ...p, year: "" }));
-                  }}
-                  className={selectCls(!!errors.year)}
-                >
-                  <option value="" disabled>
-                    Select year...
-                  </option>
-                  {YEARS.map((yr) => (
-                    <option key={yr} value={yr}>
-                      {yr}
-                    </option>
-                  ))}
-                </select>
-              </Field>
-            </div>
-
-            {/* University / College */}
-            <div>
-              <Field
-                label="University / College"
-                required
-                error={errors.college}
-                icon={<Building2 className="w-4 h-4" />}
-              >
-                <input
-                  type="text"
-                  value={college}
-                  onChange={(e) => {
-                    setCollege(e.target.value);
-                    if (errors.college)
-                      setErrors((p) => ({ ...p, college: "" }));
-                  }}
-                  placeholder="e.g. Jadavpur University"
-                  className={inputCls(!!errors.college)}
-                />
-              </Field>
-              <div className="mt-2 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setCollege("Jadavpur University");
-                    if (errors.college)
-                      setErrors((p) => ({ ...p, college: "" }));
-                  }}
-                  className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-400/25 text-amber-300 hover:bg-amber-500/20 transition-colors cursor-pointer"
-                >
-                  + Jadavpur University
-                </button>
+              <div className="space-y-2 max-w-md mx-auto">
+                <h2 className="text-xl font-bold text-white font-cinzel">
+                  Registrations Temporarily Locked
+                </h2>
+                <p className="text-xs sm:text-sm text-rose-200/85 font-light leading-relaxed">
+                  {lockMessage ||
+                    "Registrations for Milaap Edition I are currently paused by the organising committee."}
+                </p>
               </div>
+              <Link
+                href="/milaap"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-200 text-xs font-bold uppercase tracking-wider hover:bg-amber-500/30 transition-all"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Return to Milaap Portal</span>
+              </Link>
             </div>
-
-            {/* Department */}
-            <Field
-              label="Department / Discipline"
-              required
-              error={errors.department}
-              icon={<BookOpen className="w-4 h-4" />}
+          ) : (
+            /* Form Body */
+            <form
+              onSubmit={handleSubmit}
+              noValidate
+              className="px-6 sm:px-8 py-8 space-y-6"
             >
-              <input
-                type="text"
-                value={department}
-                onChange={(e) => {
-                  setDepartment(e.target.value);
-                  if (errors.department)
-                    setErrors((p) => ({ ...p, department: "" }));
-                }}
-                placeholder="e.g. Computer Science & Engineering, Comparative Literature"
-                className={inputCls(!!errors.department)}
-              />
-            </Field>
+              {serverError && (
+                <div className="p-3.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs flex items-start gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <span>{serverError}</span>
+                </div>
+              )}
 
-            {/* Competitions Multi-Select Checkboxes */}
-            <div className="pt-2">
-              <div className="flex items-center justify-between mb-3">
-                <label className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
-                  Select Milaap Edition I Competitions
-                  <span className="text-amber-400">*</span>
-                </label>
-                <span className="text-[11px] font-mono text-amber-300">
-                  {Object.keys(selectedEvents).length} selected
-                </span>
+              {/* Grid of Identity & College Inputs */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* Name (Pre-filled) */}
+                <Field
+                  label="Full Name"
+                  required
+                  error={errors.name}
+                  icon={<User className="w-4 h-4" />}
+                >
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (errors.name) setErrors((p) => ({ ...p, name: "" }));
+                    }}
+                    placeholder="Your full name"
+                    className={inputCls(!!errors.name)}
+                  />
+                </Field>
+
+                {/* Email (Locked from Google) */}
+                <Field
+                  label="Google Email (Locked)"
+                  required
+                  icon={<Mail className="w-4 h-4" />}
+                >
+                  <input
+                    type="email"
+                    value={email}
+                    readOnly
+                    disabled
+                    className={`${inputCls(false)} opacity-70 cursor-not-allowed`}
+                  />
+                </Field>
+
+                {/* Phone Number */}
+                <Field
+                  label="Phone / WhatsApp Number"
+                  required
+                  error={errors.phone}
+                  icon={<Phone className="w-4 h-4" />}
+                >
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      if (errors.phone) setErrors((p) => ({ ...p, phone: "" }));
+                    }}
+                    placeholder="+91 98300 00000"
+                    className={inputCls(!!errors.phone)}
+                  />
+                </Field>
+
+                {/* Year */}
+                <Field
+                  label="Year of Study"
+                  required
+                  error={errors.year}
+                  icon={<GraduationCap className="w-4 h-4" />}
+                >
+                  <select
+                    value={year}
+                    onChange={(e) => {
+                      setYear(e.target.value);
+                      if (errors.year) setErrors((p) => ({ ...p, year: "" }));
+                    }}
+                    className={selectCls(!!errors.year)}
+                  >
+                    <option value="" disabled>
+                      Select year...
+                    </option>
+                    {YEARS.map((yr) => (
+                      <option key={yr} value={yr}>
+                        {yr}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
               </div>
 
-              <div className="space-y-3">
-                {MILAAP_COMPETITIONS.map((comp) => {
-                  const isChecked = Boolean(selectedEvents[comp.id]);
-                  const meta = selectedEvents[comp.id];
+              {/* University / College */}
+              <div>
+                <Field
+                  label="University / College"
+                  required
+                  error={errors.college}
+                  icon={<Building2 className="w-4 h-4" />}
+                >
+                  <input
+                    type="text"
+                    value={college}
+                    onChange={(e) => {
+                      setCollege(e.target.value);
+                      if (errors.college)
+                        setErrors((p) => ({ ...p, college: "" }));
+                    }}
+                    placeholder="e.g. Jadavpur University"
+                    className={inputCls(!!errors.college)}
+                  />
+                </Field>
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCollege("Jadavpur University");
+                      if (errors.college)
+                        setErrors((p) => ({ ...p, college: "" }));
+                    }}
+                    className="text-[11px] font-mono px-2.5 py-1 rounded-full bg-amber-500/10 border border-amber-400/25 text-amber-300 hover:bg-amber-500/20 transition-colors cursor-pointer"
+                  >
+                    + Jadavpur University
+                  </button>
+                </div>
+              </div>
 
-                  return (
-                    <div
-                      key={comp.id}
-                      className={`rounded-2xl border transition-all duration-200 ${
-                        isChecked
-                          ? "bg-amber-500/[0.09] border-amber-400/60 shadow-[0_0_20px_rgba(245,158,11,0.12)]"
-                          : "bg-black/30 border-white/10 hover:border-amber-500/30"
-                      }`}
-                    >
-                      <label className="flex items-start gap-3.5 p-4 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => toggleEvent(comp.id, comp.format)}
-                          className="mt-1 w-4 h-4 accent-amber-400 shrink-0 cursor-pointer"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap items-center justify-between gap-2">
-                            <span className="text-sm font-bold text-white">
-                              {comp.title}
-                            </span>
-                            <div className="flex items-center gap-1.5">
-                              <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-black/50 text-amber-300 border border-amber-400/25">
-                                {comp.category === "Music" ? (
-                                  <Music className="w-2.5 h-2.5" />
-                                ) : (
-                                  <Footprints className="w-2.5 h-2.5" />
+              {/* Competitions Multi-Select Checkboxes */}
+              <div className="pt-2">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+                    Select Milaap Edition I Competitions
+                    <span className="text-amber-400">*</span>
+                  </label>
+                  <span className="text-[11px] font-mono text-amber-300">
+                    {Object.keys(selectedEvents).length} selected
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {MILAAP_COMPETITIONS.map((comp) => {
+                    const isChecked = Boolean(selectedEvents[comp.id]);
+                    const isLocked = lockedEvents.includes(comp.id);
+                    const meta = selectedEvents[comp.id];
+
+                    return (
+                      <div
+                        key={comp.id}
+                        className={`rounded-2xl border transition-all duration-200 ${
+                          isLocked
+                            ? "bg-black/25 border-rose-500/25 opacity-60"
+                            : isChecked
+                            ? "bg-amber-500/[0.09] border-amber-400/60 shadow-[0_0_20px_rgba(245,158,11,0.12)]"
+                            : "bg-black/30 border-white/10 hover:border-amber-500/30"
+                        }`}
+                      >
+                        <label
+                          className={`flex items-start gap-3.5 p-4 ${
+                            isLocked ? "cursor-not-allowed" : "cursor-pointer"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            disabled={isLocked}
+                            onChange={() => toggleEvent(comp.id, comp.format)}
+                            className="mt-1 w-4 h-4 accent-amber-400 shrink-0 cursor-pointer disabled:cursor-not-allowed"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <span className="text-sm font-bold text-white flex items-center gap-2">
+                                {comp.title}
+                                {isLocked && (
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                                    <Lock className="w-2.5 h-2.5" />
+                                    Locked
+                                  </span>
                                 )}
-                                {comp.category}
                               </span>
-                              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-white/10 text-yellow-200 border border-white/10">
-                                {comp.format}
-                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-black/50 text-amber-300 border border-amber-400/25">
+                                  {comp.category === "Music" ? (
+                                    <Music className="w-2.5 h-2.5" />
+                                  ) : (
+                                    <Footprints className="w-2.5 h-2.5" />
+                                  )}
+                                  {comp.category}
+                                </span>
+                                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-white/10 text-yellow-200 border border-white/10">
+                                  {comp.format}
+                                </span>
+                              </div>
                             </div>
+                            <p className="text-[11px] text-slate-400 font-light mt-1">
+                              {comp.date} • {comp.venue} • {comp.teamSize}
+                            </p>
                           </div>
-                          <p className="text-[11px] text-slate-400 font-light mt-1">
-                            {comp.date} • {comp.venue} • {comp.teamSize}
-                          </p>
-                        </div>
-                      </label>
+                        </label>
 
-                      {/* Optional Team Name & Role inputs when selected */}
-                      {isChecked && meta && (
-                        <div className="px-4 pb-4 pt-2 border-t border-amber-500/20 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-[10px] font-mono uppercase tracking-wider text-amber-200/80 mb-1">
-                              Team / Band / Crew Name (Optional)
-                            </label>
-                            <div className="relative">
-                              <Users className="w-3.5 h-3.5 text-amber-400/70 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        {/* Optional Team Name & Role inputs when selected */}
+                        {isChecked && meta && !isLocked && (
+                          <div className="px-4 pb-4 pt-2 border-t border-amber-500/20 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-[10px] font-mono uppercase tracking-wider text-amber-200/80 mb-1">
+                                Team / Band / Crew Name (Optional)
+                              </label>
+                              <div className="relative">
+                                <Users className="w-3.5 h-3.5 text-amber-400/70 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <input
+                                  type="text"
+                                  value={meta.teamName}
+                                  onChange={(e) =>
+                                    updateEventMeta(
+                                      comp.id,
+                                      "teamName",
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder={
+                                    comp.format === "Solo"
+                                      ? "Leave blank for Solo"
+                                      : "e.g. Riffwalkers / Crew Name"
+                                  }
+                                  className="w-full pl-8 pr-3 py-2 rounded-xl text-xs text-white bg-black/50 border border-amber-500/25 focus:border-amber-400 outline-none placeholder:text-slate-500"
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] font-mono uppercase tracking-wider text-amber-200/80 mb-1">
+                                Role / Style / Instrument
+                              </label>
                               <input
                                 type="text"
-                                value={meta.teamName}
+                                value={meta.role}
                                 onChange={(e) =>
                                   updateEventMeta(
                                     comp.id,
-                                    "teamName",
+                                    "role",
                                     e.target.value
                                   )
                                 }
-                                placeholder={
-                                  comp.format === "Solo"
-                                    ? "Leave blank for Solo"
-                                    : "e.g. Riffwalkers / Crew Name"
-                                }
-                                className="w-full pl-8 pr-3 py-2 rounded-xl text-xs text-white bg-black/50 border border-amber-500/25 focus:border-amber-400 outline-none placeholder:text-slate-500"
+                                placeholder="e.g. Vocalist / Guitarist / Dancer"
+                                className="w-full px-3 py-2 rounded-xl text-xs text-white bg-black/50 border border-amber-500/25 focus:border-amber-400 outline-none placeholder:text-slate-500"
                               />
                             </div>
                           </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
 
-                          <div>
-                            <label className="block text-[10px] font-mono uppercase tracking-wider text-amber-200/80 mb-1">
-                              Role / Style / Instrument
-                            </label>
-                            <input
-                              type="text"
-                              value={meta.role}
-                              onChange={(e) =>
-                                updateEventMeta(comp.id, "role", e.target.value)
-                              }
-                              placeholder="e.g. Vocalist / Guitarist / Dancer"
-                              className="w-full px-3 py-2 rounded-xl text-xs text-white bg-black/50 border border-amber-500/25 focus:border-amber-400 outline-none placeholder:text-slate-500"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                {errors.events && (
+                  <p className="mt-2 text-[11px] text-rose-400">
+                    {errors.events}
+                  </p>
+                )}
               </div>
 
-              {errors.events && (
-                <p className="mt-2 text-[11px] text-rose-400">
-                  {errors.events}
-                </p>
-              )}
-            </div>
+              {/* Terms Confirmation */}
+              <div className="pt-1">
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={agreeToTerms}
+                    onChange={(e) => {
+                      setAgreeToTerms(e.target.checked);
+                      if (errors.agreeToTerms) {
+                        setErrors((p) => ({ ...p, agreeToTerms: "" }));
+                      }
+                    }}
+                    className="mt-0.5 w-4 h-4 accent-amber-400 shrink-0 cursor-pointer"
+                  />
+                  <span className="text-xs text-slate-300/80 font-light leading-relaxed group-hover:text-white transition-colors">
+                    I confirm I am a registered college/university student and
+                    agree to abide by the official{" "}
+                    <span className="text-amber-300 font-semibold">
+                      Milaap Edition I
+                    </span>{" "}
+                    rulebooks and carry a valid Student ID on fest day.
+                  </span>
+                </label>
+                {errors.agreeToTerms && (
+                  <p className="mt-1.5 ml-7 text-[11px] text-rose-400">
+                    {errors.agreeToTerms}
+                  </p>
+                )}
+              </div>
 
-            {/* Terms Confirmation */}
-            <div className="pt-1">
-              <label className="flex items-start gap-3 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  checked={agreeToTerms}
-                  onChange={(e) => {
-                    setAgreeToTerms(e.target.checked);
-                    if (errors.agreeToTerms) {
-                      setErrors((p) => ({ ...p, agreeToTerms: "" }));
-                    }
-                  }}
-                  className="mt-0.5 w-4 h-4 accent-amber-400 shrink-0 cursor-pointer"
-                />
-                <span className="text-xs text-slate-300/80 font-light leading-relaxed group-hover:text-white transition-colors">
-                  I confirm I am a registered college/university student and
-                  agree to abide by the official{" "}
-                  <span className="text-amber-300 font-semibold">
-                    Milaap Edition I
-                  </span>{" "}
-                  rulebooks and carry a valid Student ID on fest day.
-                </span>
-              </label>
-              {errors.agreeToTerms && (
-                <p className="mt-1.5 ml-7 text-[11px] text-rose-400">
-                  {errors.agreeToTerms}
-                </p>
-              )}
-            </div>
-
-            {/* Submit CTA */}
-            <button
-              type="submit"
-              disabled={submitting}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-extrabold text-sm tracking-wider uppercase transition-all duration-300 hover:brightness-110 hover:scale-[1.01] active:scale-95 shadow-[0_0_30px_rgba(245,158,11,0.35)] flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Creating Your Milaap Pass...</span>
-                </>
-              ) : (
-                <>
-                  <span>Complete Registration &amp; Open Dashboard</span>
-                  <ArrowRight className="w-4 h-4" />
-                </>
-              )}
-            </button>
-          </form>
+              {/* Submit CTA */}
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-extrabold text-sm tracking-wider uppercase transition-all duration-300 hover:brightness-110 hover:scale-[1.01] active:scale-95 shadow-[0_0_30px_rgba(245,158,11,0.35)] flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Creating Your Milaap Pass...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Complete Registration &amp; Open Dashboard</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </main>

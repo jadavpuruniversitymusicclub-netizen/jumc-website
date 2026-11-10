@@ -2,7 +2,27 @@ import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import connectToDatabase from "@/lib/mongodb";
 import Participant from "@/models/Participant";
-import type { SessionParticipant } from "@/types/next-auth";
+import type { SessionParticipant, UserRole } from "@/types/next-auth";
+
+const DEFAULT_ADMIN_EMAILS = [
+  "maxjoy146@gmail.com",
+  "jadavpuruniversitymusicclub@gmail.com",
+  "jumusicclub@gmail.com",
+];
+
+const ENV_ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+export const ADMIN_EMAILS = Array.from(
+  new Set([...DEFAULT_ADMIN_EMAILS, ...ENV_ADMIN_EMAILS])
+);
+
+export function getRoleForEmail(email?: string | null): UserRole {
+  if (!email) return "user";
+  return ADMIN_EMAILS.includes(email.toLowerCase().trim()) ? "admin" : "user";
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -45,15 +65,17 @@ export const authOptions: NextAuthOptions = {
         return true;
       } catch (error) {
         console.error("[NextAuth signIn error]:", error);
-        // Allow sign-in to proceed so session callback can handle fallback safely,
-        // or inspect server logs if DB connection needs whitelisting.
         return true;
       }
     },
 
     async jwt({ token, user }) {
       if (user?.email) {
-        token.email = user.email.toLowerCase().trim();
+        const normalizedEmail = user.email.toLowerCase().trim();
+        token.email = normalizedEmail;
+        token.role = getRoleForEmail(normalizedEmail);
+      } else if (token.email) {
+        token.role = getRoleForEmail(token.email);
       }
       return token;
     },
@@ -62,6 +84,12 @@ export const authOptions: NextAuthOptions = {
       const email = (session.user?.email || token.email || "")
         .toLowerCase()
         .trim();
+      const role: UserRole = getRoleForEmail(email);
+
+      session.role = role;
+      if (session.user) {
+        session.user.role = role;
+      }
 
       if (!email) {
         session.isRegistered = false;
@@ -85,7 +113,6 @@ export const authOptions: NextAuthOptions = {
             image: doc.image || session.user?.image || "",
             phone: doc.phone || "",
             college: doc.college || "",
-            department: doc.department || "",
             year: doc.year || "",
             participantId: doc.participantId || undefined,
             isRegistered: Boolean(doc.isRegistered),

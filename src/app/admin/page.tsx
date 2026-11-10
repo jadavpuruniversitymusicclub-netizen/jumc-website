@@ -1,5 +1,5 @@
-import ComingSoon from "@/components/ComingSoon";
+import { redirect } from "next/navigation";
 
-export default function AdminPage() {
-  return <ComingSoon pageName="Admin Portal" />;
+export default function AdminRootPage() {
+  redirect("/admin/login");
 }

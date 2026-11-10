@@ -59,3 +59,4 @@ export async function connectToDatabase(): Promise<Mongoose> {
 }
 
 export default connectToDatabase;
+

@@ -15,7 +15,6 @@ import {
   Mail,
   Phone,
   Building2,
-  BookOpen,
   GraduationCap,
   Calendar,
   MapPin,
@@ -31,8 +30,10 @@ import {
   ShieldCheck,
   AlertCircle,
   ExternalLink,
+  Crown,
 } from "lucide-react";
 import MilaapBrand from "@/components/MilaapBrand";
+import MilaapAnnouncements from "@/components/MilaapAnnouncements";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
 
 const YEARS = [
@@ -59,7 +60,6 @@ export default function MilaapDashboardPage() {
   const [pName, setPName] = useState("");
   const [pPhone, setPPhone] = useState("");
   const [pCollege, setPCollege] = useState("");
-  const [pDepartment, setPDepartment] = useState("");
   const [pYear, setPYear] = useState("");
 
   // Events editor map
@@ -74,6 +74,7 @@ export default function MilaapDashboardPage() {
   const isRegistered = Boolean(
     session?.user?.isRegistered ?? session?.isRegistered
   );
+  const isAdmin = (session?.role ?? session?.user?.role) === "admin";
 
   // Route protection
   useEffect(() => {
@@ -92,7 +93,6 @@ export default function MilaapDashboardPage() {
     setPName(participant.name || "");
     setPPhone(participant.phone || "");
     setPCollege(participant.college || "");
-    setPDepartment(participant.department || "");
     setPYear(participant.year || "");
     setSaveError("");
     setEditProfileOpen(true);
@@ -132,8 +132,8 @@ export default function MilaapDashboardPage() {
     if (!pPhone.replace(/[\s-]/g, "").match(/^\+?[0-9]{10,14}$/)) {
       return setSaveError("Enter a valid 10-digit phone number.");
     }
-    if (!pCollege.trim() || !pDepartment.trim() || !pYear) {
-      return setSaveError("College, department, and year are required.");
+    if (!pCollege.trim() || !pYear) {
+      return setSaveError("College and year of study are required.");
     }
 
     setSaving(true);
@@ -145,7 +145,6 @@ export default function MilaapDashboardPage() {
           name: pName.trim(),
           phone: pPhone.trim(),
           college: pCollege.trim(),
-          department: pDepartment.trim(),
           year: pYear,
           events: participant.events,
         }),
@@ -210,7 +209,6 @@ export default function MilaapDashboardPage() {
           name: participant.name,
           phone: participant.phone,
           college: participant.college,
-          department: participant.department,
           year: participant.year,
           events: eventsPayload,
         }),
@@ -280,6 +278,16 @@ export default function MilaapDashboardPage() {
           </Link>
 
           <div className="flex items-center gap-3">
+            {isAdmin && (
+              <Link
+                href="/admin/dashboard"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-500/20 border border-amber-400/40 text-xs font-mono font-bold uppercase tracking-wider text-amber-200 hover:bg-amber-500/30 transition-all"
+              >
+                <Crown className="w-3.5 h-3.5 text-amber-300" />
+                <span>Admin Panel</span>
+              </Link>
+            )}
+
             <Link
               href="/milaap#competitions"
               className="hidden sm:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-400/30 text-xs font-mono uppercase tracking-wider text-amber-300 hover:bg-amber-500/20 transition-all"
@@ -327,8 +335,7 @@ export default function MilaapDashboardPage() {
                   {participant.name}
                 </h1>
                 <p className="text-xs sm:text-sm text-amber-200/75 font-light mt-1">
-                  {participant.college} • {participant.department} (
-                  {participant.year})
+                  {participant.college} • {participant.year}
                 </p>
               </div>
             </div>
@@ -378,6 +385,9 @@ export default function MilaapDashboardPage() {
           </div>
         </section>
 
+        {/* Live Organiser Announcements Feed */}
+        <MilaapAnnouncements />
+
         {/* Split Content: Profile Card + Registered Events */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* LEFT: Participant Profile Card */}
@@ -414,11 +424,6 @@ export default function MilaapDashboardPage() {
                 icon={<Building2 className="w-4 h-4 text-amber-400" />}
                 label="University / College"
                 value={participant.college || "Not set"}
-              />
-              <ProfileItem
-                icon={<BookOpen className="w-4 h-4 text-amber-400" />}
-                label="Department"
-                value={participant.department || "Not set"}
               />
               <ProfileItem
                 icon={<GraduationCap className="w-4 h-4 text-amber-400" />}
@@ -616,11 +621,6 @@ export default function MilaapDashboardPage() {
                   label="University / College"
                   value={pCollege}
                   onChange={setPCollege}
-                />
-                <ModalInput
-                  label="Department"
-                  value={pDepartment}
-                  onChange={setPDepartment}
                 />
                 <div>
                   <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-300 mb-1.5">
