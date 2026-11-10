@@ -4,26 +4,6 @@ import connectToDatabase from "@/lib/mongodb";
 import Participant from "@/models/Participant";
 import type { SessionParticipant, UserRole } from "@/types/next-auth";
 
-const BOOTSTRAP_ADMIN_EMAILS = [
-  "maxjoy146@gmail.com",
-  "jadavpuruniversitymusicclub@gmail.com",
-  "jumusicclub@gmail.com",
-];
-
-const ENV_ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
-  .split(",")
-  .map((e) => e.trim().toLowerCase())
-  .filter(Boolean);
-
-export const ADMIN_EMAILS = Array.from(
-  new Set([...BOOTSTRAP_ADMIN_EMAILS, ...ENV_ADMIN_EMAILS])
-);
-
-function isBootstrapAdmin(email?: string | null): boolean {
-  if (!email) return false;
-  return ADMIN_EMAILS.includes(email.toLowerCase().trim());
-}
-
 export const authOptions: NextAuthOptions = {
   providers: [
     GoogleProvider({
@@ -54,7 +34,7 @@ export const authOptions: NextAuthOptions = {
             name: user.name || "Milaap Participant",
             email,
             image: user.image || "",
-            role: isBootstrapAdmin(email) ? "admin" : "user",
+            role: "user",
             isRegistered: false,
             events: [],
           });
@@ -64,9 +44,8 @@ export const authOptions: NextAuthOptions = {
             existing.image = user.image;
             dirty = true;
           }
-          // Ensure legacy docs created prior to role field have a valid role
           if (!existing.role) {
-            existing.role = isBootstrapAdmin(email) ? "admin" : "user";
+            existing.role = "user";
             dirty = true;
           }
           if (dirty) {
@@ -90,18 +69,10 @@ export const authOptions: NextAuthOptions = {
           const doc = await Participant.findOne({ email })
             .select("role isRegistered")
             .lean();
-          token.role =
-            doc?.role === "admin"
-              ? "admin"
-              : doc?.role === "user"
-              ? "user"
-              : isBootstrapAdmin(email)
-              ? "admin"
-              : "user";
+          token.role = doc?.role === "admin" ? "admin" : "user";
           token.isRegistered = Boolean(doc?.isRegistered);
         } catch {
-          token.role =
-            token.role || (isBootstrapAdmin(email) ? "admin" : "user");
+          token.role = token.role === "admin" ? "admin" : "user";
         }
       }
       return token;
@@ -129,13 +100,7 @@ export const authOptions: NextAuthOptions = {
         const doc = await Participant.findOne({ email }).lean();
 
         const resolvedRole: UserRole =
-          doc?.role === "admin"
-            ? "admin"
-            : doc?.role === "user"
-            ? "user"
-            : isBootstrapAdmin(email)
-            ? "admin"
-            : "user";
+          doc?.role === "admin" ? "admin" : "user";
 
         if (doc) {
           const participantData: SessionParticipant = {
@@ -150,13 +115,13 @@ export const authOptions: NextAuthOptions = {
             isRegistered: Boolean(doc.isRegistered),
             events: Array.isArray(doc.events)
               ? doc.events.map((ev) => ({
-                  eventSlug: ev.eventSlug,
-                  eventName: ev.eventName,
-                  category: ev.category,
-                  teamName: ev.teamName || "",
-                  role: ev.role || "Participant",
-                  status: ev.status === "Verified" ? "Verified" : "Pending",
-                }))
+                eventSlug: ev.eventSlug,
+                eventName: ev.eventName,
+                category: ev.category,
+                teamName: ev.teamName || "",
+                role: ev.role || "Participant",
+                status: ev.status === "Verified" ? "Verified" : "Pending",
+              }))
               : [],
             createdAt: doc.createdAt
               ? new Date(doc.createdAt).toISOString()
@@ -176,25 +141,22 @@ export const authOptions: NextAuthOptions = {
             }
           }
         } else {
-          session.role = resolvedRole;
+          session.role = "user";
           session.isRegistered = false;
           session.participant = null;
           if (session.user) {
-            session.user.role = resolvedRole;
+            session.user.role = "user";
             session.user.isRegistered = false;
             session.user.participant = null;
           }
         }
       } catch (error) {
         console.error("[NextAuth session error]:", error);
-        const fallbackRole: UserRole = isBootstrapAdmin(email)
-          ? "admin"
-          : "user";
-        session.role = fallbackRole;
+        session.role = "user";
         session.isRegistered = false;
         session.participant = null;
         if (session.user) {
-          session.user.role = fallbackRole;
+          session.user.role = "user";
           session.user.isRegistered = false;
           session.user.participant = null;
         }

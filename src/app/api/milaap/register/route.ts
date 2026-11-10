@@ -191,6 +191,7 @@ export async function POST(req: Request) {
           events: sanitizedEvents,
         },
         $setOnInsert: {
+          role: "user",
           createdAt: new Date(),
         },
       },

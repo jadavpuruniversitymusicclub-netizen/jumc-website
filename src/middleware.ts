@@ -52,3 +52,4 @@ export const config = {
     "/milaap/register/:path*",
   ],
 };
+
