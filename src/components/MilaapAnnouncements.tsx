@@ -82,11 +82,12 @@ export default function MilaapAnnouncements({
     <motion.section
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45 }}
+      transition={{ type: "spring", stiffness: 100, damping: 20 }}
+      style={{ willChange: "transform, opacity" }}
       className={
         compact
-          ? "w-full max-w-4xl mx-auto px-2 mb-8 relative z-10 space-y-3"
-          : "rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xl p-6 sm:p-8 shadow-xl space-y-4"
+          ? "w-full max-w-4xl mx-auto px-2 mb-8 relative z-10 space-y-3 transform-gpu"
+          : "rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xl p-6 sm:p-8 shadow-xl space-y-4 transform-gpu"
       }
     >
       {!compact && (

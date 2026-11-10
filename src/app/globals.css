@@ -18,6 +18,59 @@
 
 html {
   font-family: 'Helvetica Regular', sans-serif;
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
+/* Official Lenis compatibility: prevent double smooth interpolation when Lenis is active */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+
+/* Sleek Dark Glassmorphic Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(251, 191, 36, 0.32) rgba(10, 5, 10, 0.45);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(10, 5, 10, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    rgba(251, 191, 36, 0.35) 0%,
+    rgba(245, 158, 11, 0.22) 100%
+  );
+  border-radius: 9999px;
+  border: 2px solid rgba(10, 5, 10, 0.55);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(251, 191, 36, 0.65) 0%,
+    rgba(245, 158, 11, 0.45) 100%
+  );
 }
 
 .font-rozha {
@@ -87,6 +140,7 @@ html {
 body {
   color: #F8FAFC;
   background-color: #030712;
+  overflow-x: clip;
 }
 
 .liquid-glass {

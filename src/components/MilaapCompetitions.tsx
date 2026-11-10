@@ -104,11 +104,13 @@ export default function MilaapCompetitions() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.15 }}
             transition={{
-              duration: 0.45,
-              delay: idx * 0.08,
-              ease: [0.22, 1, 0.36, 1],
+              type: "spring",
+              stiffness: 100,
+              damping: 20,
+              delay: idx * 0.06,
             }}
             whileHover={{ y: -6 }}
+            style={{ willChange: "transform, opacity" }}
             className="group relative flex flex-col justify-between rounded-3xl overflow-hidden bg-white/5 backdrop-blur-md border border-amber-500/20 hover:border-amber-400/60 shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_0_35px_rgba(245,158,11,0.22)] transition-all duration-300 transform-gpu"
           >
             {/* Top Gradient Header */}
@@ -201,15 +203,19 @@ export default function MilaapCompetitions() {
           ================================================================ */}
       <AnimatePresence>
         {selectedComp && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto">
+          <div
+            data-lenis-prevent
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto"
+          >
             {/* Deep Dim/Blur Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.2 }}
+              style={{ willChange: "opacity" }}
               onClick={() => setSelectedComp(null)}
-              className="fixed inset-0 bg-black/85 backdrop-blur-xl -z-10"
+              className="fixed inset-0 bg-black/85 backdrop-blur-xl -z-10 transform-gpu"
             />
 
             {/* Central Glassmorphic Modal Container */}
@@ -218,7 +224,8 @@ export default function MilaapCompetitions() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.93, y: 24 }}
               transition={{ type: "spring", stiffness: 320, damping: 28 }}
-              className="relative w-full max-w-2xl max-h-[88vh] bg-[#160407]/95 border border-amber-500/40 rounded-3xl shadow-[0_0_60px_rgba(245,158,11,0.25)] overflow-hidden flex flex-col my-auto"
+              style={{ willChange: "transform, opacity" }}
+              className="relative w-full max-w-2xl max-h-[88vh] bg-[#160407]/95 border border-amber-500/40 rounded-3xl shadow-[0_0_60px_rgba(245,158,11,0.25)] overflow-hidden flex flex-col my-auto transform-gpu"
               role="dialog"
               aria-modal="true"
               aria-labelledby="rulebook-title"
@@ -263,7 +270,10 @@ export default function MilaapCompetitions() {
               </div>
 
               {/* Scrollable Rulebook Content */}
-              <div className="p-6 overflow-y-auto space-y-6 text-sm text-slate-200 font-light selection:bg-amber-400/30">
+              <div
+                data-lenis-prevent
+                className="p-6 overflow-y-auto space-y-6 text-sm text-slate-200 font-light selection:bg-amber-400/30"
+              >
                 {/* Quick Info Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl bg-white/[0.03] border border-amber-500/20 text-xs">
                   <div className="flex items-center gap-2 text-amber-200">

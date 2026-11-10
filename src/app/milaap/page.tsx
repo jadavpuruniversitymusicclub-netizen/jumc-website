@@ -65,7 +65,7 @@ function YouTubeIcon({ className = "w-5 h-5" }: { className?: string }) {
    PART 2: 60FPS HARDWARE-ACCELERATED MOTION WRAPPERS
    ==================================================================== */
 
-// 2.1 — MorphTextReveal: Pure opacity/y GPU transform with once: true
+// 2.1 — MorphTextReveal: Pure opacity/y GPU transform with spring physics (once: true)
 function MorphTextReveal({
   children,
   className = "",
@@ -77,22 +77,24 @@ function MorphTextReveal({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.18 }}
+      viewport={{ once: true, amount: 0.15 }}
       transition={{
-        duration: 0.65,
-        ease: [0.22, 1, 0.36, 1],
+        type: "spring",
+        stiffness: 100,
+        damping: 20,
         delay,
       }}
-      className={`transform-gpu will-change-transform ${className}`}
+      style={{ willChange: "transform, opacity" }}
+      className={`transform-gpu ${className}`}
     >
       {children}
     </motion.div>
   );
 }
 
-// 2.2 — SvgMorphFrame: Gentle 3D float + one-time scroll reveal
+// 2.2 — SvgMorphFrame: Pure GPU scale/opacity spring reveal + smooth gentle float (no clipPath repaint)
 function SvgMorphFrame({
   children,
   className = "",
@@ -102,31 +104,25 @@ function SvgMorphFrame({
 }) {
   return (
     <motion.div
-      initial={{
-        opacity: 0,
-        scale: 0.88,
-        clipPath: "inset(15% 15% 15% 15% round 24px)",
-      }}
-      whileInView={{
-        opacity: 1,
-        scale: 1,
-        clipPath: "inset(0% 0% 0% 0% round 24px)",
-      }}
-      viewport={{ once: true, amount: 0.18 }}
-      transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-      className={`relative transform-gpu will-change-transform ${className}`}
+      initial={{ opacity: 0, scale: 0.94, y: 20 }}
+      whileInView={{ opacity: 1, scale: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ type: "spring", stiffness: 100, damping: 20 }}
+      style={{ willChange: "transform, opacity" }}
+      className={`relative transform-gpu ${className}`}
     >
       <motion.div
         animate={{
-          y: [0, -10, 0],
-          rotateZ: [0, 0.8, 0, -0.8, 0],
+          y: [0, -8, 0],
+          rotateZ: [0, 0.6, 0, -0.6, 0],
         }}
         transition={{
           duration: 6,
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="border border-amber-400/30 bg-gradient-to-b from-amber-500/10 to-transparent p-3 rounded-2xl shadow-[0_0_40px_rgba(245,158,11,0.15)] relative overflow-hidden transform-gpu will-change-transform"
+        style={{ willChange: "transform" }}
+        className="border border-amber-400/30 bg-gradient-to-b from-amber-500/10 to-transparent p-3 rounded-2xl shadow-[0_0_40px_rgba(245,158,11,0.15)] relative overflow-hidden transform-gpu"
       >
         <span className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-amber-400/50 rounded-tl-xl pointer-events-none" />
         <span className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-amber-400/50 rounded-tr-xl pointer-events-none" />
@@ -476,7 +472,7 @@ export default function MilaapPage() {
     );
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center pt-28 pb-0 px-4 overflow-x-hidden">
+    <main className="relative min-h-screen flex flex-col items-center pt-28 pb-0 px-4 overflow-x-clip">
       {/* ================================================================
           PART 1: HERO SECTION
           ================================================================ */}
@@ -497,8 +493,9 @@ export default function MilaapPage() {
       <motion.div
         initial={{ opacity: 0, y: -15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2, duration: 0.6 }}
-        className="flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-amber-300/90 mb-4 relative z-10"
+        transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
+        style={{ willChange: "transform, opacity" }}
+        className="flex items-center gap-2 text-[11px] uppercase tracking-[0.25em] text-amber-300/90 mb-4 relative z-10 transform-gpu"
       >
         <Sparkles size={14} className="text-yellow-400" />
         INAUGURAL FLAGSHIP EDITION • 2026
@@ -512,9 +509,10 @@ export default function MilaapPage() {
       {/* Main Title */}
       <motion.div
         aria-hidden="true"
-        initial={{ opacity: 0, scale: 0.85 }}
+        initial={{ opacity: 0, scale: 0.88 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.9, ease: "easeOut" }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        style={{ willChange: "transform, opacity" }}
         className="MilaapFont text-7xl sm:text-8xl md:text-9xl bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_4px_32px_rgba(245,158,11,0.35)] mb-2 select-none transform-gpu relative z-10 px-4"
       >
         milaap
@@ -524,8 +522,9 @@ export default function MilaapPage() {
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.7 }}
-        className="tracking-[0.45em] text-yellow-400 text-sm font-serif mb-3 relative z-10"
+        transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
+        style={{ willChange: "transform, opacity" }}
+        className="tracking-[0.45em] text-yellow-400 text-sm font-serif mb-3 relative z-10 transform-gpu"
       >
         EDITION I
       </motion.p>
@@ -534,8 +533,9 @@ export default function MilaapPage() {
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8, duration: 0.6 }}
-        className="text-amber-100/80 font-medium tracking-[0.28em] text-xs md:text-sm uppercase flex items-center justify-center gap-2.5 sm:gap-3 mb-8 flex-wrap relative z-10 px-4"
+        transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.25 }}
+        style={{ willChange: "transform, opacity" }}
+        className="text-amber-100/80 font-medium tracking-[0.28em] text-xs md:text-sm uppercase flex items-center justify-center gap-2.5 sm:gap-3 mb-8 flex-wrap relative z-10 px-4 transform-gpu"
       >
         <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 shadow-[0_0_8px_rgba(245,158,11,0.5)] shrink-0" />
         <span>ORGANISED BY</span>
@@ -553,8 +553,9 @@ export default function MilaapPage() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.0, duration: 0.6 }}
-        className="flex flex-col sm:flex-row items-center gap-3 mb-4 relative z-10"
+        transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.35 }}
+        style={{ willChange: "transform, opacity" }}
+        className="flex flex-col sm:flex-row items-center gap-3 mb-4 relative z-10 transform-gpu"
       >
         <Link
           href="/milaap/sign-in"
@@ -581,8 +582,9 @@ export default function MilaapPage() {
       <motion.p
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.8 }}
-        className="mt-3 mb-16 px-4 text-center text-xs sm:text-sm md:text-base tracking-[0.25em] sm:tracking-[0.3em] uppercase font-light bg-gradient-to-r from-amber-200/40 via-amber-300/90 to-amber-200/40 bg-clip-text text-transparent select-none max-w-3xl mx-auto relative z-10"
+        transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.45 }}
+        style={{ willChange: "transform, opacity" }}
+        className="mt-3 mb-16 px-4 text-center text-xs sm:text-sm md:text-base tracking-[0.25em] sm:tracking-[0.3em] uppercase font-light bg-gradient-to-r from-amber-200/40 via-amber-300/90 to-amber-200/40 bg-clip-text text-transparent select-none max-w-3xl mx-auto relative z-10 transform-gpu"
       >
         Where Melody Meets Rhythm • Two Legacies, One Heartbeat
       </motion.p>
@@ -892,13 +894,21 @@ export default function MilaapPage() {
               fill="none"
             />
 
+            {/* Soft ambient glow halo (replaces heavy per-frame SVG drop-shadow filter) */}
+            <motion.path
+              d={windingPath}
+              stroke="rgba(245, 180, 40, 0.22)"
+              strokeWidth="12"
+              fill="none"
+              style={{ pathLength: smoothTimelineProgress }}
+            />
+
             {/* Active Scroll-Drawn Glowing Path */}
             <motion.path
               d={windingPath}
               stroke="url(#goldGradient)"
               strokeWidth="4"
               fill="none"
-              filter="drop-shadow(0 0 10px rgba(245,209,66,0.85))"
               style={{ pathLength: smoothTimelineProgress }}
             />
 
@@ -952,6 +962,8 @@ export default function MilaapPage() {
             <MorphTextReveal key={slab.tier} delay={idx * 0.08}>
               <motion.div
                 whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                style={{ willChange: "transform" }}
                 className={`relative bg-[#24060a]/80 backdrop-blur-md border rounded-3xl p-6 md:p-8 shadow-2xl h-full flex flex-col transition-all duration-300 transform-gpu ${
                   slab.isFeatured
                     ? "border-amber-400/50 shadow-[0_0_40px_rgba(245,158,11,0.2)]"
@@ -1466,11 +1478,12 @@ export default function MilaapPage() {
         {/* ── Massive Rising Watermark (once: true) ── */}
         <div className="relative w-full overflow-hidden">
           <motion.div
-            initial={{ y: 80, opacity: 0 }}
+            initial={{ y: 60, opacity: 0 }}
             whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true, amount: 0.18 }}
-            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full text-center select-none pointer-events-none transform-gpu will-change-transform"
+            viewport={{ once: true, amount: 0.15 }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            style={{ willChange: "transform, opacity" }}
+            className="w-full text-center select-none pointer-events-none transform-gpu"
           >
             <span className="MilaapFont text-[26vw] leading-[0.75] tracking-tight bg-gradient-to-t from-amber-500/10 via-amber-300/40 to-yellow-200/80 bg-clip-text text-transparent inline-block">
               milaap
@@ -1515,7 +1528,6 @@ function SvgTimelineNode({
         stroke="url(#goldGradient)"
         strokeWidth={2.5}
         style={{ opacity: lineOpacity }}
-        filter="drop-shadow(0 0 6px rgba(245,209,66,0.7))"
       />
       {/* Connector tip dot */}
       <motion.circle
@@ -1529,9 +1541,8 @@ function SvgTimelineNode({
       <motion.circle
         cx={node.x}
         cy={node.y}
-        r={16}
+        r={18}
         fill="rgba(245, 158, 11, 0.25)"
-        filter="drop-shadow(0 0 12px rgba(245,158,11,0.8))"
         style={{ opacity: haloOpacity }}
       />
       {/* Node circle locked to curve */}
@@ -1540,7 +1551,6 @@ function SvgTimelineNode({
         cy={node.y}
         r={8}
         strokeWidth={2.5}
-        filter="drop-shadow(0 0 10px rgba(245,209,66,0.9))"
         style={{
           scale: circleScale,
           fill: circleFill,
@@ -1577,9 +1587,8 @@ function SvgTerminalDot({
       <motion.circle
         cx={468}
         cy={2115}
-        r={14}
-        fill="rgba(245, 158, 11, 0.3)"
-        filter="drop-shadow(0 0 12px rgba(245,158,11,0.85))"
+        r={16}
+        fill="rgba(245, 158, 11, 0.28)"
         style={{ opacity: dotOpacity }}
       />
       <motion.circle
@@ -1589,7 +1598,6 @@ function SvgTerminalDot({
         fill="#fbbf24"
         stroke="#fef08a"
         strokeWidth={2}
-        filter="drop-shadow(0 0 8px rgba(245,209,66,0.9))"
         style={{
           opacity: dotOpacity,
           scale: dotScale,
@@ -1646,8 +1654,9 @@ function CompetitionCard({
         style={{
           opacity: cardOpacity,
           scale: cardScale,
+          willChange: "transform, opacity",
         }}
-        className="bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 rounded-2xl p-4 sm:p-5 shadow-2xl w-[210px] sm:w-[260px] md:w-[320px] transform-gpu will-change-transform"
+        className="bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 rounded-2xl p-4 sm:p-5 shadow-2xl w-[210px] sm:w-[260px] md:w-[320px] transform-gpu"
       >
         <div className="flex items-center justify-between gap-2 mb-2">
           <span className="text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]">
@@ -1686,8 +1695,9 @@ function TimelineFinale({
         style={{
           opacity: finaleOpacity,
           scale: finaleScale,
+          willChange: "transform, opacity",
         }}
-        className="transform-gpu will-change-transform"
+        className="transform-gpu"
       >
         <span className="MilaapFont text-5xl md:text-6xl tracking-wider bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_0_28px_rgba(245,209,66,0.95)]">
           milaap

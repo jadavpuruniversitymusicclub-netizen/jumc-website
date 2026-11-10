@@ -121,11 +121,11 @@ const STARS = [
 
 export default function MilaapClientLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#2b050a]">
+    <div className="relative min-h-screen overflow-x-clip bg-[#2b050a]">
       {/* ── Fixed Background Image Layer (z-0) with Direct Image Style & GPU Acceleration ── */}
       <div
-        className="fixed inset-0 bg-[#2b050a] bg-cover md:bg-[length:100vw_100vh] bg-no-repeat bg-center z-0 pointer-events-none transform-gpu will-change-transform backface-hidden"
-        style={{ backgroundImage: "url('/milaap-bg.jpeg')" }}
+        className="fixed inset-0 bg-[#2b050a] bg-cover md:bg-[length:100vw_100vh] bg-no-repeat bg-center z-0 pointer-events-none transform-gpu backface-hidden"
+        style={{ backgroundImage: "url('/milaap-bg.jpeg')", contain: "strict" }}
       />
 
       {/* Dark overlay to ensure crisp contrast over the background image (z-[1]) */}

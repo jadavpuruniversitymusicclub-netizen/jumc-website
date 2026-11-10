@@ -482,8 +482,9 @@ export default function EventsPage() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         whileHover={{ y: -5 }}
-                        transition={{ duration: 0.25 }}
-                        className="group relative flex flex-col justify-between rounded-3xl overflow-hidden bg-black/40 backdrop-blur-md border border-white/10 hover:border-amber-400/50 shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_0_35px_rgba(245,158,11,0.2)] transition-all duration-300"
+                        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                        style={{ willChange: "transform, opacity" }}
+                        className="group relative flex flex-col justify-between rounded-3xl overflow-hidden bg-black/40 backdrop-blur-md border border-white/10 hover:border-amber-400/50 shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_0_35px_rgba(245,158,11,0.2)] transition-all duration-300 transform-gpu"
                       >
                         {/* Top Banner Gradient */}
                         <div
@@ -629,15 +630,19 @@ export default function EventsPage() {
       {/* ================================================================ */}
       <AnimatePresence>
         {selectedEvent && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
+          <div
+            data-lenis-prevent
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+          >
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.2 }}
+              style={{ willChange: "opacity" }}
               onClick={() => setSelectedEvent(null)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-xl -z-10"
+              className="fixed inset-0 bg-black/80 backdrop-blur-xl -z-10 transform-gpu"
             />
 
             {/* Modal Body */}
@@ -646,7 +651,10 @@ export default function EventsPage() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: 20 }}
               transition={{ type: "spring", stiffness: 320, damping: 30 }}
-              className="relative w-full max-w-2xl max-h-[85vh] bg-[#160407]/95 border border-amber-500/30 rounded-3xl shadow-[0_0_60px_rgba(245,158,11,0.25)] overflow-hidden flex flex-col my-auto"
+              style={{ willChange: "transform, opacity" }}
+              role="dialog"
+              aria-modal="true"
+              className="relative w-full max-w-2xl max-h-[85vh] bg-[#160407]/95 border border-amber-500/30 rounded-3xl shadow-[0_0_60px_rgba(245,158,11,0.25)] overflow-hidden flex flex-col my-auto transform-gpu"
             >
               {/* Gold Top Accent Line */}
               <div className="h-1.5 w-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600 shrink-0 shadow-[0_0_12px_rgba(245,158,11,0.6)]" />
@@ -680,7 +688,10 @@ export default function EventsPage() {
               </div>
 
               {/* Modal Scrollable Content */}
-              <div className="p-6 overflow-y-auto space-y-6 text-sm text-slate-300 font-light">
+              <div
+                data-lenis-prevent
+                className="p-6 overflow-y-auto space-y-6 text-sm text-slate-300 font-light"
+              >
                 {/* Meta Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-2xl bg-white/[0.03] border border-white/5 text-xs">
                   <div className="flex items-center gap-2 text-amber-200">
