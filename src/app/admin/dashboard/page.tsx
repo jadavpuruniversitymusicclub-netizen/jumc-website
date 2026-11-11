@@ -78,6 +78,7 @@ interface AdminAnnouncement {
 
 interface AdminFestivalSetting {
   registrationsLocked: boolean;
+  isEventEditingOpen: boolean;
   lockedEvents: string[];
   lockMessage: string;
   showAnnouncements: boolean;
@@ -178,6 +179,7 @@ export default function AdminDashboardPage() {
   const [announcements, setAnnouncements] = useState<AdminAnnouncement[]>([]);
   const [setting, setSetting] = useState<AdminFestivalSetting>({
     registrationsLocked: false,
+    isEventEditingOpen: true,
     lockedEvents: [],
     lockMessage:
       "Registrations for Milaap Edition I are temporarily paused by the organising committee.",
@@ -271,6 +273,7 @@ export default function AdminDashboardPage() {
         if (setData.setting) {
           setSetting({
             registrationsLocked: Boolean(setData.setting.registrationsLocked),
+            isEventEditingOpen: setData.setting.isEventEditingOpen !== false,
             lockedEvents: Array.isArray(setData.setting.lockedEvents)
               ? setData.setting.lockedEvents
               : [],
@@ -1583,7 +1586,55 @@ export default function AdminDashboardPage() {
                       </button>
                     </div>
 
-                    <div className="space-y-2">
+                    {/* Global Participant Edit & Cancel Lock */}
+                    <div className="pt-4 border-t border-white/10 flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm sm:text-base font-bold text-white font-cinzel">
+                            Participant Event Editing
+                          </h3>
+                          <span
+                            className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded-full border ${
+                              setting.isEventEditingOpen
+                                ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/35"
+                                : "bg-rose-500/20 text-rose-300 border-rose-500/40"
+                            }`}
+                          >
+                            {setting.isEventEditingOpen ? "Open" : "Locked"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-slate-300/80 font-light mt-1">
+                          Allow or lock participants from editing details or
+                          withdrawing registrations in their dashboard.
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={savingSettings}
+                        onClick={() =>
+                          saveFestivalSettings({
+                            isEventEditingOpen: !setting.isEventEditingOpen,
+                          })
+                        }
+                        className={`relative w-16 h-8 rounded-full transition-colors p-1 cursor-pointer shrink-0 ${
+                          setting.isEventEditingOpen
+                            ? "bg-emerald-600"
+                            : "bg-rose-600"
+                        }`}
+                        aria-label="Toggle participant event editing lock"
+                      >
+                        <span
+                          className={`block w-6 h-6 rounded-full bg-white shadow transition-transform ${
+                            setting.isEventEditingOpen
+                              ? "translate-x-8"
+                              : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    <div className="space-y-2 pt-2 border-t border-white/10">
                       <label className="block text-[11px] font-mono uppercase tracking-wider text-slate-300">
                         Lock Screen Message
                       </label>

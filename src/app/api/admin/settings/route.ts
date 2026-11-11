@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import connectToDatabase from "@/lib/mongodb";
+import { getGlobalSettings } from "@/lib/settings";
 import FestivalSetting from "@/models/FestivalSetting";
 
 async function ensureAdmin() {
@@ -27,18 +29,7 @@ export async function GET() {
   }
 
   try {
-    await connectToDatabase();
-    let setting = await FestivalSetting.findOne({
-      key: "milaap-edition-1",
-    }).lean();
-
-    if (!setting) {
-      const created = await FestivalSetting.create({
-        key: "milaap-edition-1",
-      });
-      setting = created.toObject();
-    }
-
+    const setting = await getGlobalSettings();
     return NextResponse.json({ setting });
   } catch (error) {
     console.error("[GET /api/admin/settings error]:", error);
@@ -67,6 +58,9 @@ export async function PATCH(req: Request) {
     if (typeof body.registrationsLocked === "boolean") {
       updateFields.registrationsLocked = body.registrationsLocked;
     }
+    if (typeof body.isEventEditingOpen === "boolean") {
+      updateFields.isEventEditingOpen = body.isEventEditingOpen;
+    }
     if (Array.isArray(body.lockedEvents)) {
       updateFields.lockedEvents = body.lockedEvents.map(String);
     }
@@ -88,6 +82,9 @@ export async function PATCH(req: Request) {
       { $set: updateFields },
       { new: true, upsert: true }
     ).lean();
+
+    revalidatePath("/milaap/dashboard");
+    revalidatePath("/admin/dashboard");
 
     return NextResponse.json({ success: true, setting: updated });
   } catch (error) {

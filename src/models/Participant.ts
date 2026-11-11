@@ -8,6 +8,7 @@ export interface IRegisteredEvent {
   role?: string;
   status: "Pending" | "Verified";
   registeredAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IParticipant extends Document {
@@ -22,6 +23,7 @@ export interface IParticipant extends Document {
   isRegistered: boolean;
   events: IRegisteredEvent[];
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const RegisteredEventSchema = new Schema<IRegisteredEvent>(
@@ -60,66 +62,68 @@ const RegisteredEventSchema = new Schema<IRegisteredEvent>(
       type: Date,
       default: Date.now,
     },
+    updatedAt: {
+      type: Date,
+    },
   },
   { _id: false }
 );
 
-const ParticipantSchema = new Schema<IParticipant>({
-  name: {
-    type: String,
-    required: [true, "Participant name is required"],
-    trim: true,
+const ParticipantSchema = new Schema<IParticipant>(
+  {
+    name: {
+      type: String,
+      required: [true, "Participant name is required"],
+      trim: true,
+    },
+    email: {
+      type: String,
+      required: [true, "Participant email is required"],
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+    image: {
+      type: String,
+      default: "",
+    },
+    phone: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    college: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    year: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    participantId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+    },
+    isRegistered: {
+      type: Boolean,
+      default: false,
+    },
+    events: {
+      type: [RegisteredEventSchema],
+      default: [],
+    },
   },
-  email: {
-    type: String,
-    required: [true, "Participant email is required"],
-    unique: true,
-    lowercase: true,
-    trim: true,
-  },
-  image: {
-    type: String,
-    default: "",
-  },
-  phone: {
-    type: String,
-    default: "",
-    trim: true,
-  },
-  college: {
-    type: String,
-    default: "",
-    trim: true,
-  },
-  year: {
-    type: String,
-    default: "",
-    trim: true,
-  },
-  role: {
-    type: String,
-    enum: ["user", "admin"],
-    default: "user",
-  },
-  participantId: {
-    type: String,
-    unique: true,
-    sparse: true,
-    trim: true,
-  },
-  isRegistered: {
-    type: Boolean,
-    default: false,
-  },
-  events: {
-    type: [RegisteredEventSchema],
-    default: [],
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  { timestamps: true }
+);
 
 const Participant: Model<IParticipant> =
   mongoose.models.Participant ||

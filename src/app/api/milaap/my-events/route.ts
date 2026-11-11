@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import connectToDatabase from "@/lib/mongodb";
+import { getGlobalSettings } from "@/lib/settings";
 import Participant from "@/models/Participant";
 
 export interface MyEventItem {
+  registrationId: string;
   eventSlug: string;
   eventName: string;
   category: string;
@@ -12,13 +14,17 @@ export interface MyEventItem {
   role: string;
   status: "Pending" | "Verified";
   registeredAt: string;
+  updatedAt?: string;
   participantId?: string;
+  phone: string;
+  college: string;
+  year: string;
 }
 
 /**
  * GET /api/milaap/my-events
  * Fetches all registered competition entries from MongoDB matching the
- * authenticated NextAuth user's Google email.
+ * authenticated NextAuth user's Google email alongside the global edit lock.
  */
 export async function GET() {
   try {
@@ -33,9 +39,10 @@ export async function GET() {
     const email = session.user.email.toLowerCase().trim();
     await connectToDatabase();
 
-    const registrationDocs = await Participant.find({ email })
-      .sort({ createdAt: -1 })
-      .lean();
+    const [settings, registrationDocs] = await Promise.all([
+      getGlobalSettings(),
+      Participant.find({ email }).sort({ createdAt: -1 }).lean(),
+    ]);
 
     const events: MyEventItem[] = [];
     for (const doc of registrationDocs) {
@@ -46,6 +53,7 @@ export async function GET() {
 
       for (const ev of docEvents) {
         events.push({
+          registrationId: String(doc._id),
           eventSlug: ev.eventSlug,
           eventName: ev.eventName,
           category: ev.category,
@@ -55,12 +63,22 @@ export async function GET() {
           registeredAt: ev.registeredAt
             ? new Date(ev.registeredAt).toISOString()
             : fallbackDate,
+          updatedAt: ev.updatedAt
+            ? new Date(ev.updatedAt).toISOString()
+            : undefined,
           participantId: doc.participantId || undefined,
+          phone: doc.phone || "",
+          college: doc.college || "",
+          year: doc.year || "",
         });
       }
     }
 
-    return NextResponse.json({ email, events });
+    return NextResponse.json({
+      email,
+      isEventEditingOpen: settings.isEventEditingOpen,
+      events,
+    });
   } catch (error) {
     console.error("[GET /api/milaap/my-events error]:", error);
     return NextResponse.json(
@@ -69,4 +87,3 @@ export async function GET() {
     );
   }
 }
-

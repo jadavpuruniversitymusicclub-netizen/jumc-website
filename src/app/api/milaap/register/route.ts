@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import connectToDatabase from "@/lib/mongodb";
+import { getGlobalSettings } from "@/lib/settings";
 import Participant, { type IRegisteredEvent } from "@/models/Participant";
-import FestivalSetting from "@/models/FestivalSetting";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
 
 interface EventPayloadItem {
@@ -105,17 +105,26 @@ export async function POST(req: Request) {
     await connectToDatabase();
 
     const existing = await Participant.findOne({ email });
-    const setting = await FestivalSetting.findOne({
-      key: "milaap-edition-1",
-    }).lean();
+    const setting = await getGlobalSettings();
 
     // Enforce global registration lock on new registrations
-    if (setting?.registrationsLocked && !existing?.isRegistered) {
+    if (setting.registrationsLocked && !existing?.isRegistered) {
       return NextResponse.json(
         {
           error:
             setting.lockMessage ||
             "Registrations for Milaap Edition I are currently locked by the organizers.",
+        },
+        { status: 403 }
+      );
+    }
+
+    // Enforce global edit lock when already-registered participants modify entries
+    if (existing?.isRegistered && !setting.isEventEditingOpen) {
+      return NextResponse.json(
+        {
+          error:
+            "Registration editing is currently locked by the administrators.",
         },
         { status: 403 }
       );
