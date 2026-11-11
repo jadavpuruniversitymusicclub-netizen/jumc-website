@@ -28,7 +28,15 @@ import MilaapBrand from "@/components/MilaapBrand";
 import MilaapAnnouncements from "@/components/MilaapAnnouncements";
 import MyEventsSection from "@/components/MyEventsSection";
 import AdminPortalBarrier from "@/components/AdminPortalBarrier";
+import TeamMembersFieldArray from "@/components/TeamMembersFieldArray";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
+import {
+  createEmptyTeamMembers,
+  isAlwaysGroupCompetition,
+  sanitizeAndValidateTeamMembers,
+  supportsGroupEntryOption,
+  type TeamMemberInput,
+} from "@/lib/teamValidation";
 
 const YEARS = [
   "1st Year (UG)",
@@ -58,7 +66,15 @@ export default function MilaapDashboardPage() {
 
   // Events editor map
   const [eventMap, setEventMap] = useState<
-    Record<string, { teamName: string; role: string }>
+    Record<
+      string,
+      {
+        teamName: string;
+        role: string;
+        teamMode: "Solo" | "Group";
+        teamMembers: TeamMemberInput[];
+      }
+    >
   >({});
 
   const [saving, setSaving] = useState(false);
@@ -95,13 +111,35 @@ export default function MilaapDashboardPage() {
 
   const openEventsEditor = () => {
     if (!participant) return;
-    const activeSlugs = new Set(MILAAP_COMPETITIONS.map((c) => c.id));
-    const map: Record<string, { teamName: string; role: string }> = {};
+    const compMap = new Map(MILAAP_COMPETITIONS.map((c) => [c.id, c]));
+    const map: Record<
+      string,
+      {
+        teamName: string;
+        role: string;
+        teamMode: "Solo" | "Group";
+        teamMembers: TeamMemberInput[];
+      }
+    > = {};
     for (const ev of participant.events || []) {
-      if (!activeSlugs.has(ev.eventSlug)) continue;
+      const comp = compMap.get(ev.eventSlug);
+      if (!comp) continue;
+      const existingMembers = Array.isArray(ev.teamMembers)
+        ? ev.teamMembers.map((m) => ({ name: m.name, phone: m.phone }))
+        : [];
+      const isGroupDefault = isAlwaysGroupCompetition(comp.format);
+      const isGroupEntry =
+        isGroupDefault ||
+        (supportsGroupEntryOption(comp.format) && existingMembers.length > 0);
       map[ev.eventSlug] = {
         teamName: ev.teamName || "",
         role: ev.role || "Participant",
+        teamMode: isGroupEntry ? "Group" : "Solo",
+        teamMembers: isGroupEntry
+          ? existingMembers.length >= 2
+            ? existingMembers
+            : createEmptyTeamMembers()
+          : existingMembers,
       };
     }
     setEventMap(map);
@@ -161,7 +199,11 @@ export default function MilaapDashboardPage() {
     }
   };
 
-  const toggleEventChoice = (slug: string, format: string) => {
+  const toggleEventChoice = (
+    slug: string,
+    format: "Solo" | "Solo/Duet" | "Group" | "Group/Solo"
+  ) => {
+    const isGroupDefault = isAlwaysGroupCompetition(format);
     setEventMap((prev) => {
       const next = { ...prev };
       if (next[slug]) {
@@ -170,6 +212,8 @@ export default function MilaapDashboardPage() {
         next[slug] = {
           teamName: "",
           role: format === "Solo" ? "Solo Performer" : "Participant",
+          teamMode: isGroupDefault ? "Group" : "Solo",
+          teamMembers: isGroupDefault ? createEmptyTeamMembers() : [],
         };
       }
       return next;
@@ -186,6 +230,27 @@ export default function MilaapDashboardPage() {
       return setSaveError("Please keep at least one registered event.");
     }
 
+    for (const [slug, meta] of entries) {
+      const comp = MILAAP_COMPETITIONS.find((c) => c.id === slug);
+      if (!comp) continue;
+      const requiresTeam =
+        isAlwaysGroupCompetition(comp.format) ||
+        (supportsGroupEntryOption(comp.format) && meta.teamMode === "Group");
+      if (requiresTeam || meta.teamMembers.length > 0) {
+        const check = sanitizeAndValidateTeamMembers(
+          meta.teamMembers,
+          requiresTeam,
+          comp.title
+        );
+        if (!check.valid) {
+          return setSaveError(
+            check.error ||
+              "At least 2 team members with Names and Phone Numbers are required."
+          );
+        }
+      }
+    }
+
     setSaving(true);
     try {
       const eventsPayload = entries.map(([eventSlug, meta]) => {
@@ -196,6 +261,11 @@ export default function MilaapDashboardPage() {
           category: comp ? `${comp.category} (${comp.format})` : "Event",
           teamName: meta.teamName.trim(),
           role: meta.role.trim() || "Participant",
+          teamMode: meta.teamMode,
+          teamMembers: meta.teamMembers.map((m) => ({
+            name: m.name.trim(),
+            phone: m.phone.trim(),
+          })),
         };
       });
 
@@ -639,37 +709,98 @@ export default function MilaapDashboardPage() {
                         </label>
 
                         {checked && meta && (
-                          <div className="px-4 pb-4 pt-2 border-t border-amber-500/20 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <input
-                              type="text"
-                              value={meta.teamName}
-                              onChange={(e) =>
-                                setEventMap((prev) => ({
-                                  ...prev,
-                                  [comp.id]: {
-                                    ...prev[comp.id],
-                                    teamName: e.target.value,
-                                  },
-                                }))
-                              }
-                              placeholder="Team / Band / Crew Name (optional)"
-                              className="w-full px-3 py-2 rounded-xl text-xs text-white bg-black/50 border border-amber-500/25 focus:border-amber-400 outline-none placeholder:text-slate-500"
-                            />
-                            <input
-                              type="text"
-                              value={meta.role}
-                              onChange={(e) =>
-                                setEventMap((prev) => ({
-                                  ...prev,
-                                  [comp.id]: {
-                                    ...prev[comp.id],
-                                    role: e.target.value,
-                                  },
-                                }))
-                              }
-                              placeholder="Role / Style / Instrument"
-                              className="w-full px-3 py-2 rounded-xl text-xs text-white bg-black/50 border border-amber-500/25 focus:border-amber-400 outline-none placeholder:text-slate-500"
-                            />
+                          <div className="px-4 pb-4 pt-3 border-t border-amber-500/20 space-y-3">
+                            {supportsGroupEntryOption(comp.format) && (
+                              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-black/40 border border-white/10 px-3 py-2">
+                                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-300">
+                                  Entry Format
+                                </span>
+                                <div className="inline-flex items-center gap-1.5">
+                                  {(["Solo", "Group"] as const).map((mode) => (
+                                    <button
+                                      key={mode}
+                                      type="button"
+                                      onClick={() =>
+                                        setEventMap((prev) => ({
+                                          ...prev,
+                                          [comp.id]: {
+                                            ...prev[comp.id],
+                                            teamMode: mode,
+                                            teamMembers:
+                                              mode === "Group"
+                                                ? prev[comp.id].teamMembers
+                                                    .length >= 2
+                                                  ? prev[comp.id].teamMembers
+                                                  : createEmptyTeamMembers()
+                                                : [],
+                                          },
+                                        }))
+                                      }
+                                      className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                                        meta.teamMode === mode
+                                          ? "bg-amber-500 text-black"
+                                          : "bg-white/5 text-slate-300 hover:bg-white/10"
+                                      }`}
+                                    >
+                                      {mode === "Solo"
+                                        ? "Solo (1v1)"
+                                        : "Group / Crew (2+)"}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <input
+                                type="text"
+                                value={meta.teamName}
+                                onChange={(e) =>
+                                  setEventMap((prev) => ({
+                                    ...prev,
+                                    [comp.id]: {
+                                      ...prev[comp.id],
+                                      teamName: e.target.value,
+                                    },
+                                  }))
+                                }
+                                placeholder="Team / Band / Crew Name (optional)"
+                                className="w-full px-3 py-2 rounded-xl text-xs text-white bg-black/50 border border-amber-500/25 focus:border-amber-400 outline-none placeholder:text-slate-500"
+                              />
+                              <input
+                                type="text"
+                                value={meta.role}
+                                onChange={(e) =>
+                                  setEventMap((prev) => ({
+                                    ...prev,
+                                    [comp.id]: {
+                                      ...prev[comp.id],
+                                      role: e.target.value,
+                                    },
+                                  }))
+                                }
+                                placeholder="Role / Style / Instrument"
+                                className="w-full px-3 py-2 rounded-xl text-xs text-white bg-black/50 border border-amber-500/25 focus:border-amber-400 outline-none placeholder:text-slate-500"
+                              />
+                            </div>
+
+                            {(isAlwaysGroupCompetition(comp.format) ||
+                              meta.teamMode === "Group") && (
+                              <TeamMembersFieldArray
+                                members={meta.teamMembers}
+                                onChange={(members) =>
+                                  setEventMap((prev) => ({
+                                    ...prev,
+                                    [comp.id]: {
+                                      ...prev[comp.id],
+                                      teamMembers: members,
+                                    },
+                                  }))
+                                }
+                                required
+                                disabled={saving}
+                              />
+                            )}
                           </div>
                         )}
                       </div>

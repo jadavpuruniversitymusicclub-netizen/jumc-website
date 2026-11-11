@@ -24,7 +24,15 @@ import {
 } from "lucide-react";
 import MilaapBrand from "@/components/MilaapBrand";
 import AdminPortalBarrier from "@/components/AdminPortalBarrier";
+import TeamMembersFieldArray from "@/components/TeamMembersFieldArray";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
+import {
+  createEmptyTeamMembers,
+  isAlwaysGroupCompetition,
+  sanitizeAndValidateTeamMembers,
+  supportsGroupEntryOption,
+  type TeamMemberInput,
+} from "@/lib/teamValidation";
 
 const YEARS = [
   "1st Year (UG)",
@@ -39,14 +47,17 @@ const YEARS = [
 interface SelectedEventMeta {
   teamName: string;
   role: string;
+  teamMode: "Solo" | "Group";
+  teamMembers: TeamMemberInput[];
 }
 
 export default function MilaapRegisterPage() {
   const { data: session, status, update } = useSession();
   const router = useRouter();
 
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [nameInput, setNameInput] = useState<string | null>(null);
+  const name = nameInput ?? session?.user?.name ?? "";
+  const email = session?.user?.email ?? "";
   const [phone, setPhone] = useState("");
   const [college, setCollege] = useState("");
   const [year, setYear] = useState("");
@@ -87,7 +98,7 @@ export default function MilaapRegisterPage() {
       .catch(() => {});
   }, []);
 
-  // Route guard + pre-fill Name & Email from Google OAuth session
+  // Route guard for unauthenticated, admin, or already-registered users
   useEffect(() => {
     if (status === "unauthenticated") {
       router.replace("/milaap/sign-in");
@@ -101,21 +112,14 @@ export default function MilaapRegisterPage() {
       }
       if (isRegistered) {
         router.replace("/milaap/dashboard");
-        return;
-      }
-
-      if (session?.user?.email && !email) {
-        setEmail(session.user.email);
-      }
-      if (session?.user?.name && !name) {
-        setName(session.user.name);
       }
     }
-  }, [status, role, isRegistered, session, router, email, name]);
+  }, [status, role, isRegistered, router]);
 
-  const toggleEvent = (slug: string, defaultFormat: string) => {
+  const toggleEvent = (slug: string, defaultFormat: "Solo" | "Solo/Duet" | "Group" | "Group/Solo") => {
     if (lockedEvents.includes(slug)) return;
 
+    const isGroupDefault = isAlwaysGroupCompetition(defaultFormat);
     setSelectedEvents((prev) => {
       const next = { ...prev };
       if (next[slug]) {
@@ -124,14 +128,17 @@ export default function MilaapRegisterPage() {
         next[slug] = {
           teamName: "",
           role: defaultFormat === "Solo" ? "Solo Performer" : "Participant",
+          teamMode: isGroupDefault ? "Group" : "Solo",
+          teamMembers: isGroupDefault ? createEmptyTeamMembers() : [],
         };
       }
       return next;
     });
-    if (errors.events) {
+    if (errors.events || errors[`members_${slug}`]) {
       setErrors((prev) => {
         const copy = { ...prev };
         delete copy.events;
+        delete copy[`members_${slug}`];
         return copy;
       });
     }
@@ -139,16 +146,69 @@ export default function MilaapRegisterPage() {
 
   const updateEventMeta = (
     slug: string,
-    field: keyof SelectedEventMeta,
+    field: "teamName" | "role",
     val: string
   ) => {
     setSelectedEvents((prev) => ({
       ...prev,
       [slug]: {
-        ...(prev[slug] || { teamName: "", role: "Participant" }),
+        ...(prev[slug] || {
+          teamName: "",
+          role: "Participant",
+          teamMode: "Solo",
+          teamMembers: [],
+        }),
         [field]: val,
       },
     }));
+  };
+
+  const setEventTeamMode = (slug: string, mode: "Solo" | "Group") => {
+    setSelectedEvents((prev) => {
+      const cur = prev[slug];
+      if (!cur) return prev;
+      return {
+        ...prev,
+        [slug]: {
+          ...cur,
+          teamMode: mode,
+          teamMembers:
+            mode === "Group"
+              ? cur.teamMembers.length >= 2
+                ? cur.teamMembers
+                : createEmptyTeamMembers()
+              : [],
+        },
+      };
+    });
+    if (errors[`members_${slug}`]) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy[`members_${slug}`];
+        return copy;
+      });
+    }
+  };
+
+  const updateEventTeamMembers = (slug: string, members: TeamMemberInput[]) => {
+    setSelectedEvents((prev) => {
+      const cur = prev[slug];
+      if (!cur) return prev;
+      return {
+        ...prev,
+        [slug]: {
+          ...cur,
+          teamMembers: members,
+        },
+      };
+    });
+    if (errors[`members_${slug}`]) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy[`members_${slug}`];
+        return copy;
+      });
+    }
   };
 
   const validate = (): boolean => {
@@ -163,6 +223,25 @@ export default function MilaapRegisterPage() {
     if (Object.keys(selectedEvents).length === 0) {
       newErrors.events = "Select at least one Milaap competition.";
     }
+
+    for (const [slug, meta] of Object.entries(selectedEvents)) {
+      const comp = MILAAP_COMPETITIONS.find((c) => c.id === slug);
+      if (!comp) continue;
+      const requiresTeam =
+        isAlwaysGroupCompetition(comp.format) ||
+        (supportsGroupEntryOption(comp.format) && meta.teamMode === "Group");
+      if (requiresTeam || meta.teamMembers.length > 0) {
+        const memberCheck = sanitizeAndValidateTeamMembers(
+          meta.teamMembers,
+          requiresTeam,
+          comp.title
+        );
+        if (!memberCheck.valid && memberCheck.error) {
+          newErrors[`members_${slug}`] = memberCheck.error;
+        }
+      }
+    }
+
     if (!agreeToTerms) {
       newErrors.agreeToTerms = "Please confirm student ID and festival rules.";
     }
@@ -188,6 +267,11 @@ export default function MilaapRegisterPage() {
             category: comp ? `${comp.category} (${comp.format})` : "Event",
             teamName: meta.teamName.trim(),
             role: meta.role.trim() || "Participant",
+            teamMode: meta.teamMode,
+            teamMembers: meta.teamMembers.map((m) => ({
+              name: m.name.trim(),
+              phone: m.phone.trim(),
+            })),
           };
         }
       );
@@ -383,7 +467,7 @@ export default function MilaapRegisterPage() {
                     type="text"
                     value={name}
                     onChange={(e) => {
-                      setName(e.target.value);
+                      setNameInput(e.target.value);
                       if (errors.name) setErrors((p) => ({ ...p, name: "" }));
                     }}
                     placeholder="Your full name"
@@ -559,53 +643,100 @@ export default function MilaapRegisterPage() {
                           </div>
                         </label>
 
-                        {/* Optional Team Name & Role inputs when selected */}
+                        {/* Team Name, Role & Mandatory Team Members when selected */}
                         {isChecked && meta && !isLocked && (
-                          <div className="px-4 pb-4 pt-2 border-t border-amber-500/20 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-[10px] font-mono uppercase tracking-wider text-amber-200/80 mb-1">
-                                Team / Band / Crew Name (Optional)
-                              </label>
-                              <div className="relative">
-                                <Users className="w-3.5 h-3.5 text-amber-400/70 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <div className="px-4 pb-4 pt-3 border-t border-amber-500/20 space-y-3">
+                            {supportsGroupEntryOption(comp.format) && (
+                              <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-black/35 border border-white/10 px-3 py-2">
+                                <span className="text-[10px] font-mono uppercase tracking-wider text-slate-300">
+                                  Entry Format
+                                </span>
+                                <div className="inline-flex items-center gap-1.5">
+                                  {(["Solo", "Group"] as const).map((mode) => (
+                                    <button
+                                      key={mode}
+                                      type="button"
+                                      onClick={() =>
+                                        setEventTeamMode(comp.id, mode)
+                                      }
+                                      className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                                        meta.teamMode === mode
+                                          ? "bg-amber-500 text-black"
+                                          : "bg-white/5 text-slate-300 hover:bg-white/10"
+                                      }`}
+                                    >
+                                      {mode === "Solo"
+                                        ? "Solo (1v1)"
+                                        : "Group / Crew (2+)"}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[10px] font-mono uppercase tracking-wider text-amber-200/80 mb-1">
+                                  Team / Band / Crew Name{" "}
+                                  {isAlwaysGroupCompetition(comp.format) ||
+                                  meta.teamMode === "Group"
+                                    ? "(Recommended)"
+                                    : "(Optional)"}
+                                </label>
+                                <div className="relative">
+                                  <Users className="w-3.5 h-3.5 text-amber-400/70 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                  <input
+                                    type="text"
+                                    value={meta.teamName}
+                                    onChange={(e) =>
+                                      updateEventMeta(
+                                        comp.id,
+                                        "teamName",
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder={
+                                      comp.format === "Solo"
+                                        ? "Leave blank for Solo"
+                                        : "e.g. Riffwalkers / Crew Name"
+                                    }
+                                    className="w-full pl-8 pr-3 py-2 rounded-xl text-xs text-white bg-black/50 border border-amber-500/25 focus:border-amber-400 outline-none placeholder:text-slate-500"
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-[10px] font-mono uppercase tracking-wider text-amber-200/80 mb-1">
+                                  Role / Style / Instrument
+                                </label>
                                 <input
                                   type="text"
-                                  value={meta.teamName}
+                                  value={meta.role}
                                   onChange={(e) =>
                                     updateEventMeta(
                                       comp.id,
-                                      "teamName",
+                                      "role",
                                       e.target.value
                                     )
                                   }
-                                  placeholder={
-                                    comp.format === "Solo"
-                                      ? "Leave blank for Solo"
-                                      : "e.g. Riffwalkers / Crew Name"
-                                  }
-                                  className="w-full pl-8 pr-3 py-2 rounded-xl text-xs text-white bg-black/50 border border-amber-500/25 focus:border-amber-400 outline-none placeholder:text-slate-500"
+                                  placeholder="e.g. Vocalist / Guitarist / Dancer"
+                                  className="w-full px-3 py-2 rounded-xl text-xs text-white bg-black/50 border border-amber-500/25 focus:border-amber-400 outline-none placeholder:text-slate-500"
                                 />
                               </div>
                             </div>
 
-                            <div>
-                              <label className="block text-[10px] font-mono uppercase tracking-wider text-amber-200/80 mb-1">
-                                Role / Style / Instrument
-                              </label>
-                              <input
-                                type="text"
-                                value={meta.role}
-                                onChange={(e) =>
-                                  updateEventMeta(
-                                    comp.id,
-                                    "role",
-                                    e.target.value
-                                  )
+                            {(isAlwaysGroupCompetition(comp.format) ||
+                              meta.teamMode === "Group") && (
+                              <TeamMembersFieldArray
+                                members={meta.teamMembers}
+                                onChange={(members) =>
+                                  updateEventTeamMembers(comp.id, members)
                                 }
-                                placeholder="e.g. Vocalist / Guitarist / Dancer"
-                                className="w-full px-3 py-2 rounded-xl text-xs text-white bg-black/50 border border-amber-500/25 focus:border-amber-400 outline-none placeholder:text-slate-500"
+                                required
+                                disabled={submitting}
+                                error={errors[`members_${comp.id}`]}
                               />
-                            </div>
+                            )}
                           </div>
                         )}
                       </div>

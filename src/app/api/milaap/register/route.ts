@@ -5,6 +5,12 @@ import connectToDatabase from "@/lib/mongodb";
 import { getGlobalSettings } from "@/lib/settings";
 import Participant, { type IRegisteredEvent } from "@/models/Participant";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
+import {
+  isAlwaysGroupCompetition,
+  sanitizeAndValidateTeamMembers,
+  supportsGroupEntryOption,
+  type TeamMemberInput,
+} from "@/lib/teamValidation";
 
 interface EventPayloadItem {
   eventSlug: string;
@@ -12,6 +18,8 @@ interface EventPayloadItem {
   category?: string;
   teamName?: string;
   role?: string;
+  teamMode?: "Solo" | "Group";
+  teamMembers?: TeamMemberInput[];
 }
 
 async function generateUniqueParticipantId(): Promise<string> {
@@ -171,6 +179,24 @@ export async function POST(req: Request) {
         );
       }
 
+      const requiresTeam =
+        isAlwaysGroupCompetition(comp.format) ||
+        (supportsGroupEntryOption(comp.format) &&
+          (item.teamMode === "Group" ||
+            (Array.isArray(item.teamMembers) && item.teamMembers.length > 0)));
+
+      const memberValidation = sanitizeAndValidateTeamMembers(
+        item.teamMembers,
+        requiresTeam,
+        comp.title
+      );
+      if (!memberValidation.valid) {
+        return NextResponse.json(
+          { error: memberValidation.error },
+          { status: 400 }
+        );
+      }
+
       seenSlugs.add(slug);
       sanitizedEvents.push({
         eventSlug: comp.id,
@@ -180,6 +206,7 @@ export async function POST(req: Request) {
         role:
           String(item.role || "").trim() ||
           (comp.format === "Solo" ? "Solo Performer" : "Participant"),
+        teamMembers: memberValidation.members,
         status: existingStatusMap.get(comp.id) ?? "Pending",
         registeredAt: existingDateMap.get(comp.id) ?? new Date(),
       });

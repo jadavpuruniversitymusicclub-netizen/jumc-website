@@ -7,11 +7,20 @@ import { authOptions } from "@/lib/auth";
 import connectToDatabase from "@/lib/mongodb";
 import { getGlobalSettings } from "@/lib/settings";
 import Participant from "@/models/Participant";
+import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
+import {
+  isAlwaysGroupCompetition,
+  sanitizeAndValidateTeamMembers,
+  supportsGroupEntryOption,
+  type TeamMemberInput,
+} from "@/lib/teamValidation";
 
 export interface UpdateRegistrationInput {
   eventSlug: string;
   teamName?: string;
   role?: string;
+  teamMode?: "Solo" | "Group";
+  teamMembers?: TeamMemberInput[];
   phone?: string;
   college?: string;
   year?: string;
@@ -154,6 +163,38 @@ export async function updateEventRegistration(
 
     // Mutate only permitted competition metadata; email, eventSlug, eventName,
     // category, and verification status remain strictly immutable.
+    const catalogComp = MILAAP_COMPETITIONS.find((c) => c.id === targetSlug);
+    const requiresTeam = Boolean(
+      catalogComp &&
+        (isAlwaysGroupCompetition(catalogComp.format) ||
+          (supportsGroupEntryOption(catalogComp.format) &&
+            (updatedData.teamMode === "Group" ||
+              (Array.isArray(updatedData.teamMembers) &&
+                updatedData.teamMembers.length > 0))))
+    );
+
+    if (requiresTeam || updatedData.teamMembers !== undefined) {
+      const membersToValidate =
+        updatedData.teamMembers !== undefined
+          ? updatedData.teamMembers
+          : targetEvent.teamMembers;
+      const memberCheck = sanitizeAndValidateTeamMembers(
+        membersToValidate,
+        requiresTeam,
+        targetEvent.eventName
+      );
+      if (!memberCheck.valid) {
+        return {
+          success: false,
+          status: 400,
+          error:
+            memberCheck.error ||
+            "Please enter at least 2 valid team members (Name and Phone).",
+        };
+      }
+      targetEvent.teamMembers = memberCheck.members;
+    }
+
     if (typeof updatedData.teamName === "string") {
       targetEvent.teamName = updatedData.teamName.trim();
     }

@@ -23,6 +23,14 @@ import {
   X,
 } from "lucide-react";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
+import TeamMembersFieldArray from "@/components/TeamMembersFieldArray";
+import {
+  createEmptyTeamMembers,
+  isAlwaysGroupCompetition,
+  sanitizeAndValidateTeamMembers,
+  supportsGroupEntryOption,
+  type TeamMemberInput,
+} from "@/lib/teamValidation";
 import type { MyEventItem } from "@/app/api/milaap/my-events/route";
 import {
   cancelEventRegistration,
@@ -90,6 +98,8 @@ export default function MyEventsSection({
   const [editTarget, setEditTarget] = useState<MyEventItem | null>(null);
   const [editTeamName, setEditTeamName] = useState("");
   const [editRole, setEditRole] = useState("");
+  const [editTeamMode, setEditTeamMode] = useState<"Solo" | "Group">("Solo");
+  const [editTeamMembers, setEditTeamMembers] = useState<TeamMemberInput[]>([]);
   const [editPhone, setEditPhone] = useState("");
   const [editCollege, setEditCollege] = useState("");
   const [editYear, setEditYear] = useState("");
@@ -180,9 +190,26 @@ export default function MyEventsSection({
   };
 
   const openEditModal = (ev: MyEventItem) => {
+    const comp = MILAAP_COMPETITIONS.find((c) => c.id === ev.eventSlug);
+    const existingMembers = Array.isArray(ev.teamMembers)
+      ? ev.teamMembers.map((m) => ({ name: m.name, phone: m.phone }))
+      : [];
+    const isGroupDefault = comp ? isAlwaysGroupCompetition(comp.format) : false;
+    const isGroupEntry =
+      isGroupDefault ||
+      (comp ? supportsGroupEntryOption(comp.format) && existingMembers.length > 0 : false);
+
     setEditTarget(ev);
     setEditTeamName(ev.teamName || "");
     setEditRole(ev.role || "");
+    setEditTeamMode(isGroupEntry ? "Group" : "Solo");
+    setEditTeamMembers(
+      isGroupEntry
+        ? existingMembers.length >= 2
+          ? existingMembers
+          : createEmptyTeamMembers()
+        : existingMembers
+    );
     setEditPhone(ev.phone || "");
     setEditCollege(ev.college || "");
     setEditYear(ev.year || STUDY_YEARS[0]);
@@ -198,6 +225,29 @@ export default function MyEventsSection({
     e.preventDefault();
     if (!editTarget) return;
     setModalError("");
+
+    const comp = MILAAP_COMPETITIONS.find((c) => c.id === editTarget.eventSlug);
+    const requiresTeam = Boolean(
+      comp &&
+        (isAlwaysGroupCompetition(comp.format) ||
+          (supportsGroupEntryOption(comp.format) && editTeamMode === "Group"))
+    );
+
+    if (requiresTeam || editTeamMembers.length > 0) {
+      const check = sanitizeAndValidateTeamMembers(
+        editTeamMembers,
+        requiresTeam,
+        editTarget.eventName
+      );
+      if (!check.valid) {
+        setModalError(
+          check.error ||
+            "At least 2 team members with Names and Phone Numbers are required."
+        );
+        return;
+      }
+    }
+
     setSubmittingEdit(true);
 
     try {
@@ -205,6 +255,11 @@ export default function MyEventsSection({
         eventSlug: editTarget.eventSlug,
         teamName: editTeamName,
         role: editRole,
+        teamMode: editTeamMode,
+        teamMembers: editTeamMembers.map((m) => ({
+          name: m.name.trim(),
+          phone: m.phone.trim(),
+        })),
         phone: editPhone,
         college: editCollege,
         year: editYear,
@@ -474,6 +529,30 @@ export default function MyEventsSection({
                         )}
                       </div>
                     )}
+
+                    {ev.teamMembers && ev.teamMembers.length > 0 && (
+                      <div className="mt-3 rounded-xl bg-white/[0.03] border border-white/10 p-3 space-y-1.5">
+                        <p className="text-[10px] font-mono uppercase tracking-wider text-amber-300/90 flex items-center justify-between">
+                          <span>Team Roster</span>
+                          <span>{ev.teamMembers.length} Members</span>
+                        </p>
+                        <ul className="space-y-1">
+                          {ev.teamMembers.map((member, mIdx) => (
+                            <li
+                              key={`${member.name}-${mIdx}`}
+                              className="flex items-center justify-between gap-2 text-[11px] text-slate-300"
+                            >
+                              <span className="truncate font-medium text-white">
+                                {mIdx + 1}. {member.name}
+                              </span>
+                              <span className="font-mono text-amber-200/80 shrink-0">
+                                {member.phone}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-3">
@@ -577,11 +656,11 @@ export default function MyEventsSection({
               role="dialog"
               aria-modal="true"
               aria-labelledby="edit-registration-title"
-              className="relative w-full max-w-lg bg-[#160407]/95 border border-amber-500/40 rounded-3xl shadow-[0_0_60px_rgba(245,158,11,0.22)] overflow-hidden my-auto transform-gpu"
+              className="relative w-full max-w-xl max-h-[90vh] bg-[#160407]/95 border border-amber-500/40 rounded-3xl shadow-[0_0_60px_rgba(245,158,11,0.22)] overflow-hidden flex flex-col my-auto transform-gpu"
             >
-              <div className="h-1.5 w-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600" />
+              <div className="h-1.5 w-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600 shrink-0" />
 
-              <div className="px-6 py-5 border-b border-amber-500/20 flex items-start justify-between gap-4">
+              <div className="px-6 py-5 border-b border-amber-500/20 flex items-start justify-between gap-4 shrink-0">
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-400/35">
@@ -614,13 +693,77 @@ export default function MyEventsSection({
                 </button>
               </div>
 
-              <form onSubmit={handleSaveEdit} className="p-6 space-y-4">
+              <form
+                onSubmit={handleSaveEdit}
+                className="flex-1 overflow-y-auto p-6 space-y-4"
+              >
                 {modalError && (
                   <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-200 text-xs flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
                     <span>{modalError}</span>
                   </div>
                 )}
+
+                {(() => {
+                  const catalogComp = MILAAP_COMPETITIONS.find(
+                    (c) => c.id === editTarget.eventSlug
+                  );
+                  if (!catalogComp) return null;
+                  const showTeamFields =
+                    isAlwaysGroupCompetition(catalogComp.format) ||
+                    (supportsGroupEntryOption(catalogComp.format) &&
+                      editTeamMode === "Group");
+
+                  return (
+                    <>
+                      {supportsGroupEntryOption(catalogComp.format) && (
+                        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-black/40 border border-white/10 px-3.5 py-2.5">
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-slate-300">
+                            Entry Format
+                          </span>
+                          <div className="inline-flex items-center gap-1.5">
+                            {(["Solo", "Group"] as const).map((mode) => (
+                              <button
+                                key={mode}
+                                type="button"
+                                disabled={submittingEdit}
+                                onClick={() => {
+                                  setEditTeamMode(mode);
+                                  if (
+                                    mode === "Group" &&
+                                    editTeamMembers.length < 2
+                                  ) {
+                                    setEditTeamMembers(createEmptyTeamMembers());
+                                  } else if (mode === "Solo") {
+                                    setEditTeamMembers([]);
+                                  }
+                                }}
+                                className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider transition-all cursor-pointer disabled:opacity-50 ${
+                                  editTeamMode === mode
+                                    ? "bg-amber-500 text-black"
+                                    : "bg-white/5 text-slate-300 hover:bg-white/10"
+                                }`}
+                              >
+                                {mode === "Solo"
+                                  ? "Solo (1v1)"
+                                  : "Group / Crew (2+)"}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {showTeamFields && (
+                        <TeamMembersFieldArray
+                          members={editTeamMembers}
+                          onChange={setEditTeamMembers}
+                          required
+                          disabled={submittingEdit}
+                        />
+                      )}
+                    </>
+                  );
+                })()}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>

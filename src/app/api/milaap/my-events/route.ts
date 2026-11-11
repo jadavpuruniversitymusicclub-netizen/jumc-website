@@ -12,6 +12,7 @@ export interface MyEventItem {
   category: string;
   teamName: string;
   role: string;
+  teamMembers: Array<{ name: string; phone: string }>;
   status: "Pending" | "Verified";
   registeredAt: string;
   updatedAt?: string;
@@ -59,6 +60,9 @@ export async function GET() {
           category: ev.category,
           teamName: ev.teamName || "",
           role: ev.role || "Participant",
+          teamMembers: Array.isArray(ev.teamMembers)
+            ? ev.teamMembers.map((m) => ({ name: m.name, phone: m.phone }))
+            : [],
           status: ev.status === "Verified" ? "Verified" : "Pending",
           registeredAt: ev.registeredAt
             ? new Date(ev.registeredAt).toISOString()

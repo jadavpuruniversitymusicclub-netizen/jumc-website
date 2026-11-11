@@ -120,6 +120,12 @@ export const authOptions: NextAuthOptions = {
                 category: ev.category,
                 teamName: ev.teamName || "",
                 role: ev.role || "Participant",
+                teamMembers: Array.isArray(ev.teamMembers)
+                  ? ev.teamMembers.map((m) => ({
+                      name: m.name,
+                      phone: m.phone,
+                    }))
+                  : [],
                 status: ev.status === "Verified" ? "Verified" : "Pending",
                 registeredAt: ev.registeredAt
                   ? new Date(ev.registeredAt).toISOString()

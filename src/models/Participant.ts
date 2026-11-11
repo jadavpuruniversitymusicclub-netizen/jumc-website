@@ -1,11 +1,17 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
+export interface ITeamMember {
+  name: string;
+  phone: string;
+}
+
 export interface IRegisteredEvent {
   eventSlug: string;
   eventName: string;
   category: string;
   teamName?: string;
   role?: string;
+  teamMembers?: ITeamMember[];
   status: "Pending" | "Verified";
   registeredAt?: Date;
   updatedAt?: Date;
@@ -25,6 +31,22 @@ export interface IParticipant extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+const TeamMemberSchema = new Schema<ITeamMember>(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  { _id: false }
+);
 
 const RegisteredEventSchema = new Schema<IRegisteredEvent>(
   {
@@ -52,6 +74,10 @@ const RegisteredEventSchema = new Schema<IRegisteredEvent>(
       type: String,
       default: "Solo / Participant",
       trim: true,
+    },
+    teamMembers: {
+      type: [TeamMemberSchema],
+      default: [],
     },
     status: {
       type: String,

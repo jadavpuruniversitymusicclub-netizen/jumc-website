@@ -2,12 +2,18 @@ import { DefaultSession } from "next-auth";
 
 export type UserRole = "admin" | "user";
 
+export interface SessionTeamMember {
+  name: string;
+  phone: string;
+}
+
 export interface SessionRegisteredEvent {
   eventSlug: string;
   eventName: string;
   category: string;
   teamName?: string;
   role?: string;
+  teamMembers?: SessionTeamMember[];
   status: "Pending" | "Verified";
   registeredAt?: string;
 }

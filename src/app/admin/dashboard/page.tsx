@@ -49,6 +49,7 @@ interface AdminRegisteredEvent {
   category: string;
   teamName?: string;
   role?: string;
+  teamMembers?: Array<{ name: string; phone: string }>;
   status: "Pending" | "Verified";
 }
 
@@ -104,12 +105,17 @@ function formatParticipantPdfRows(
 ): Array<Array<string | number>> {
   return list.map((p, idx) => {
     const evSummary = (p.events || [])
-      .map(
-        (e) =>
-          `${e.eventName}${e.teamName ? ` [${e.teamName}]` : ""}${
-            e.role ? ` (${e.role})` : ""
-          } - ${e.status}`
-      )
+      .map((e) => {
+        const membersText =
+          e.teamMembers && e.teamMembers.length > 0
+            ? ` | Members: ${e.teamMembers
+                .map((m) => `${m.name} (${m.phone})`)
+                .join(", ")}`
+            : "";
+        return `${e.eventName}${e.teamName ? ` [${e.teamName}]` : ""}${
+          e.role ? ` (${e.role})` : ""
+        }${membersText} - ${e.status}`;
+      })
       .join("\n");
     const overallStatus =
       (p.events || []).length === 0 ||
@@ -1423,6 +1429,10 @@ export default function AdminDashboardPage() {
                                             {ev.eventName}
                                             {ev.teamName
                                               ? ` • ${ev.teamName}`
+                                              : ""}
+                                            {ev.teamMembers &&
+                                            ev.teamMembers.length > 0
+                                              ? ` (${ev.teamMembers.length} members)`
                                               : ""}
                                           </span>
                                           <span className="font-mono text-[9px] uppercase font-bold shrink-0">
