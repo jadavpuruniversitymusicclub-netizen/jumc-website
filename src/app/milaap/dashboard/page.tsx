@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { QRCodeSVG } from "qrcode.react";
 import {
   ArrowLeft,
   LogOut,
@@ -23,13 +24,19 @@ import {
   ShieldCheck,
   AlertCircle,
   ExternalLink,
-  QrCode,
-  FileDown,
+  Download,
+  Maximize2,
 } from "lucide-react";
 import MilaapBrand from "@/components/MilaapBrand";
 import MilaapAnnouncements from "@/components/MilaapAnnouncements";
 import MyEventsSection from "@/components/MyEventsSection";
-import MilaapMasterPassModal from "@/components/MilaapMasterPassModal";
+import MilaapMasterPassModal, {
+  MilaapMasterPassCard,
+} from "@/components/MilaapMasterPassModal";
+import {
+  downloadMasterPassPdf,
+  getMilaapPassBgDataUrl,
+} from "@/lib/masterPassPdf";
 import AdminPortalBarrier from "@/components/AdminPortalBarrier";
 import TeamMembersFieldArray from "@/components/TeamMembersFieldArray";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
@@ -89,6 +96,25 @@ export default function MilaapDashboardPage() {
   const [liveEvents, setLiveEvents] = useState<MyEventItem[] | undefined>(
     undefined
   );
+  const [directDownloading, setDirectDownloading] = useState(false);
+  const [directDownloadFeedback, setDirectDownloadFeedback] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
+  const [passBgDataUrl, setPassBgDataUrl] = useState<string | undefined>(
+    undefined
+  );
+  const directTicketRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    getMilaapPassBgDataUrl().then((url) => {
+      if (active && url) setPassBgDataUrl(url);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const participant = session?.participant ?? session?.user?.participant;
   const isRegistered = Boolean(
@@ -169,6 +195,52 @@ export default function MilaapDashboardPage() {
       setTimeout(() => setCopiedId(false), 2000);
     } catch {
       // Clipboard API fallback ignored
+    }
+  };
+
+  const qrPayload = participant
+    ? JSON.stringify({
+        email: participant.email,
+        participantId: effectiveParticipantId,
+        app: "MILAAP_26",
+      })
+    : "";
+
+  const handleDirectDownloadPDF = async () => {
+    if (!participant || directDownloading) return;
+    setDirectDownloading(true);
+    setDirectDownloadFeedback(null);
+
+    try {
+      if (!passBgDataUrl) {
+        const bg = await getMilaapPassBgDataUrl();
+        if (bg) setPassBgDataUrl(bg);
+      }
+
+      for (let frame = 0; frame < 6; frame += 1) {
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => resolve())
+        );
+        if (directTicketRef.current) break;
+      }
+
+      if (!directTicketRef.current) {
+        throw new Error("Pass container unavailable for PDF generation.");
+      }
+
+      await downloadMasterPassPdf(directTicketRef.current, participant.name);
+      setDirectDownloadFeedback({
+        type: "success",
+        text: "Master Pass PDF downloaded!",
+      });
+    } catch (error) {
+      console.error("[Direct MasterPass PDF download error]:", error);
+      setDirectDownloadFeedback({
+        type: "error",
+        text: "Could not download PDF. Click Mini QR to retry.",
+      });
+    } finally {
+      setDirectDownloading(false);
     }
   };
 
@@ -416,11 +488,11 @@ export default function MilaapDashboardPage() {
               </div>
             </div>
 
-            {/* Right Unique Milaap Participant ID Pass */}
-            <div className="rounded-2xl bg-black/55 border border-amber-400/40 p-5 sm:min-w-[290px] shadow-[0_0_30px_rgba(245,158,11,0.18)] flex flex-col justify-between gap-3">
+            {/* Right Unique Participant ID Box with Mini QR & Direct PDF Pass Download */}
+            <div className="rounded-2xl bg-[#190509]/85 border border-amber-400/40 p-4 sm:p-5 sm:min-w-[340px] shadow-[0_0_32px_rgba(245,158,11,0.2)] flex flex-col justify-between gap-3.5">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[10px] font-mono uppercase tracking-[0.22em] text-amber-300/80">
-                  Milaap Participant ID
+                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.22em] text-amber-300/85">
+                  UNIQUE PARTICIPANT ID
                 </span>
                 <MilaapBrand
                   size="sm"
@@ -430,33 +502,92 @@ export default function MilaapDashboardPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-between gap-3 pt-1">
-                <span className="text-2xl sm:text-3xl font-mono font-black tracking-wider text-amber-300">
-                  {effectiveParticipantId || "MLP-2026"}
-                </span>
+              <div className="flex items-center justify-between gap-4">
+                <div className="min-w-0 space-y-2">
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <span className="text-xl sm:text-2xl font-mono font-black tracking-wider text-amber-300">
+                      {effectiveParticipantId || "MLP-2026"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleCopyId}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/30 text-amber-200 text-[11px] font-mono transition-all cursor-pointer active:scale-95"
+                      aria-label="Copy Participant ID"
+                    >
+                      {copiedId ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-400" />
+                          <span>Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setMasterPassOpen(true)}
+                    className="inline-flex items-center gap-1.5 text-[11px] font-mono text-amber-200/80 hover:text-amber-300 transition-colors cursor-pointer"
+                  >
+                    <Maximize2 className="w-3 h-3 text-amber-400 shrink-0" />
+                    <span>Tap Mini QR to preview Official Pass</span>
+                  </button>
+                </div>
+
+                {/* Compact Live Mini QR Code Preview (Click to open full modal) */}
                 <button
                   type="button"
-                  onClick={handleCopyId}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/30 text-amber-200 text-xs font-mono transition-all cursor-pointer active:scale-95"
-                  aria-label="Copy Participant ID"
+                  onClick={() => setMasterPassOpen(true)}
+                  title="Click to preview full Master Pass"
+                  aria-label="Open Official Master Pass Preview"
+                  className="bg-[#fdf8f0] p-1.5 rounded-xl border-2 border-amber-400/75 shadow-[0_0_20px_rgba(245,158,11,0.28)] hover:scale-105 active:scale-95 transition-transform shrink-0 cursor-pointer"
                 >
-                  {copiedId ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                      <span>Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="w-3.5 h-3.5" />
-                      <span>Copy</span>
-                    </>
-                  )}
+                  <QRCodeSVG
+                    value={qrPayload}
+                    size={64}
+                    bgColor="#fdf8f0"
+                    fgColor="#1a0b07"
+                    level="M"
+                  />
                 </button>
               </div>
 
-              <p className="text-[10px] text-slate-400 font-light">
-                Show this ID pass along with your College ID at fest check-in.
-              </p>
+              <div className="pt-1 space-y-1.5">
+                <button
+                  type="button"
+                  disabled={directDownloading}
+                  onClick={handleDirectDownloadPDF}
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 hover:brightness-110 active:scale-[0.98] text-black font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(245,158,11,0.3)] cursor-pointer disabled:opacity-60"
+                >
+                  {directDownloading ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+                      <span>Generating PDF...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3.5 h-3.5 shrink-0" />
+                      <span>Download Pass (PDF)</span>
+                    </>
+                  )}
+                </button>
+
+                {directDownloadFeedback && (
+                  <p
+                    className={`text-[10px] font-mono text-center ${
+                      directDownloadFeedback.type === "success"
+                        ? "text-emerald-300"
+                        : "text-rose-300"
+                    }`}
+                  >
+                    {directDownloadFeedback.text}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </section>
@@ -506,34 +637,6 @@ export default function MilaapDashboardPage() {
                 label="Year of Study"
                 value={participant.year || "Not set"}
               />
-            </div>
-
-            {/* Unified Participant ID & Master PDF Pass Block */}
-            <div className="bg-[#1a0b07]/90 border border-amber-500/30 rounded-xl p-4 space-y-3 shadow-[0_0_25px_rgba(245,158,11,0.12)]">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-amber-300">
-                  PARTICIPANT ID &amp; ENTRY PASS
-                </span>
-                <QrCode className="w-4 h-4 text-amber-400 shrink-0" />
-              </div>
-
-              <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-black/50 border border-amber-500/20">
-                <span className="text-xs sm:text-sm font-mono font-bold tracking-wider text-amber-300">
-                  {effectiveParticipantId}
-                </span>
-                <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-300 px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30">
-                  Master QR
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setMasterPassOpen(true)}
-                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 hover:brightness-110 active:scale-[0.98] text-black font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_22px_rgba(245,158,11,0.35)] cursor-pointer"
-              >
-                <FileDown className="w-4 h-4 shrink-0" />
-                <span>VIEW / DOWNLOAD OFFICIAL PASS (PDF)</span>
-              </button>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-amber-500/[0.06] border border-amber-400/20 text-[11px] text-amber-100/80 leading-relaxed">
@@ -873,6 +976,35 @@ export default function MilaapDashboardPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Offscreen Pass Card mounted temporarily for instant header PDF download */}
+      {directDownloading && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "fixed",
+            left: "-10000px",
+            top: 0,
+            pointerEvents: "none",
+            zIndex: -1,
+          }}
+        >
+          <MilaapMasterPassCard
+            ref={directTicketRef}
+            participant={{
+              name: participant.name,
+              email: participant.email,
+              phone: participant.phone,
+              college: participant.college,
+              year: participant.year,
+              participantId: effectiveParticipantId,
+              events: participant.events || [],
+            }}
+            liveEvents={liveEvents}
+            bgDataUrl={passBgDataUrl}
+          />
+        </div>
+      )}
 
       {/* Unified Milaap Master Pass PDF Modal */}
       <MilaapMasterPassModal

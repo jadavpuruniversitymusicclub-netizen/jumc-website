@@ -1120,7 +1120,7 @@ export default function AdminDashboardPage() {
         </AnimatePresence>
 
         {/* Tab Views */}
-        <main className="p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-8">
+        <main className="flex-1 flex flex-col p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-8 min-w-0">
           <AnimatePresence mode="wait">
             {/* ============================================================
                 TAB 1: OVERVIEW
@@ -1591,11 +1591,7 @@ export default function AdminDashboardPage() {
                 TAB: QR SCANNER & PER-EVENT ATTENDANCE TRACKING
                 ============================================================ */}
             {activeTab === "scanner" && (
-              <AdminQrScanner
-                attendanceStats={attendanceStats}
-                loadingStats={loadingData}
-                onRefreshStats={fetchAllAdminData}
-              />
+              <AdminQrScanner onRefreshStats={fetchAllAdminData} />
             )}
 
             {/* ============================================================

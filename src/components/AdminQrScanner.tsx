@@ -18,24 +18,19 @@ import {
   Music,
   Phone,
   QrCode,
-  RefreshCw,
   ScanLine,
+  Search,
   StopCircle,
-  Upload,
   Users,
 } from "lucide-react";
-import EventAttendanceCounterBar from "@/components/EventAttendanceCounterBar";
 import {
   getParticipantByQR,
   markEventAttendance,
-  type EventAttendanceStat,
   type ScannedParticipantProfile,
   type ScannedRegistrationItem,
 } from "@/app/admin/dashboard/actions";
 
 interface AdminQrScannerProps {
-  attendanceStats: EventAttendanceStat[];
-  loadingStats?: boolean;
   onRefreshStats: () => Promise<void> | void;
 }
 
@@ -110,96 +105,10 @@ function ActionButton({
   );
 }
 
-/**
- * Renders PDF page 1 onto an offscreen canvas using pdfjs-dist and converts it
- * to crisp PNG Files (full page + zoomed QR crop fallback) so Html5Qrcode can
- * reliably decode QR passes uploaded as PDFs.
- */
-async function convertPdfFirstPageToPngFiles(
-  pdfFile: File
-): Promise<{ fullFile: File; qrCropFile: File | null }> {
-  const buffer = await pdfFile.arrayBuffer();
-  const pdfjsLib = await import("pdfjs-dist");
-  pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
-
-  const loadingTask = pdfjsLib.getDocument({
-    data: new Uint8Array(buffer),
-  });
-  const pdf = await loadingTask.promise;
-  const page = await pdf.getPage(1);
-  const viewport = page.getViewport({ scale: 3 });
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  if (!ctx) {
-    throw new Error("Canvas context unavailable for PDF rendering.");
-  }
-  canvas.width = Math.ceil(viewport.width);
-  canvas.height = Math.ceil(viewport.height);
-
-  await page.render({
-    canvas,
-    canvasContext: ctx,
-    viewport,
-  }).promise;
-
-  const fullBlob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, "image/png", 1)
-  );
-  if (!fullBlob) {
-    throw new Error("Could not convert rendered PDF pass into image.");
-  }
-  const fullFile = new File([fullBlob], "milaap-pass-page1.png", {
-    type: "image/png",
-  });
-
-  // Also extract zoomed bottom-half QR region as a fallback if full-page scan
-  // has surrounding pass typography that confuses ZXing at low contrasts.
-  let qrCropFile: File | null = null;
-  const cropX = Math.floor(canvas.width * 0.12);
-  const cropY = Math.floor(canvas.height * 0.45);
-  const cropW = Math.floor(canvas.width * 0.76);
-  const cropH = Math.floor(canvas.height * 0.48);
-
-  if (cropW > 60 && cropH > 60) {
-    const cropCanvas = document.createElement("canvas");
-    cropCanvas.width = cropW;
-    cropCanvas.height = cropH;
-    const cropCtx = cropCanvas.getContext("2d");
-    if (cropCtx) {
-      cropCtx.drawImage(
-        canvas,
-        cropX,
-        cropY,
-        cropW,
-        cropH,
-        0,
-        0,
-        cropW,
-        cropH
-      );
-      const cropBlob = await new Promise<Blob | null>((resolve) =>
-        cropCanvas.toBlob(resolve, "image/png", 1)
-      );
-      if (cropBlob) {
-        qrCropFile = new File([cropBlob], "milaap-pass-qr-crop.png", {
-          type: "image/png",
-        });
-      }
-    }
-  }
-
-  return { fullFile, qrCropFile };
-}
-
-export default function AdminQrScanner({
-  attendanceStats,
-  loadingStats = false,
-  onRefreshStats,
-}: AdminQrScannerProps) {
+export default function AdminQrScanner({ onRefreshStats }: AdminQrScannerProps) {
   const [isScanning, setIsScanning] = useState(false);
-  const [isProcessingFile, setIsProcessingFile] = useState(false);
   const [lookingUp, setLookingUp] = useState(false);
+  const [manualId, setManualId] = useState("");
   const [busyRegId, setBusyRegId] = useState<string | null>(null);
   const [scannedParticipant, setScannedParticipant] =
     useState<ScannedParticipantState | null>(null);
@@ -209,7 +118,6 @@ export default function AdminQrScanner({
   } | null>(null);
 
   const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const showFlash = useCallback(
@@ -243,7 +151,7 @@ export default function AdminQrScanner({
         ctx.close().catch(() => {});
       }, 250);
     } catch {
-      // Audio playback skipped cleanly if blocked by browser autoplay policy
+      // Ignore Web Audio restriction when autoplay is blocked
     }
   }, []);
 
@@ -255,12 +163,12 @@ export default function AdminQrScanner({
           await instance.stop();
         }
       } catch {
-        // Ignore scanner stop race when camera stream already closed
+        // Ignore camera stop race when stream is already closed
       }
       try {
         instance.clear();
       } catch {
-        // Ignore clear errors on detached DOM
+        // Ignore clear errors on unmounted container
       }
       html5QrCodeRef.current = null;
     }
@@ -277,19 +185,19 @@ export default function AdminQrScanner({
     };
   }, []);
 
-  const processDecodedQR = useCallback(
-    async (decodedText: string) => {
-      playBeep();
+  const lookupParticipant = useCallback(
+    async (rawPayload: string) => {
       await stopScanner();
       setLookingUp(true);
       setFlashMessage(null);
 
       try {
-        const res = await getParticipantByQR(decodedText);
+        const res = await getParticipantByQR(rawPayload);
         if (!res.success || !res.profile) {
           showFlash(
             "error",
-            res.error || "Could not locate participant for this QR pass."
+            res.error ||
+              "Could not locate participant for this Master Pass or ID."
           );
           return;
         }
@@ -303,12 +211,20 @@ export default function AdminQrScanner({
           `Master Pass Verified: ${res.profile.name} (${res.profile.participantId})`
         );
       } catch {
-        showFlash("error", "Error looking up Master Pass in MongoDB.");
+        showFlash("error", "Error looking up participant in MongoDB.");
       } finally {
         setLookingUp(false);
       }
     },
-    [playBeep, showFlash, stopScanner]
+    [showFlash, stopScanner]
+  );
+
+  const processDecodedQR = useCallback(
+    async (decodedText: string) => {
+      playBeep();
+      await lookupParticipant(decodedText);
+    },
+    [lookupParticipant, playBeep]
   );
 
   const startScanner = useCallback(async () => {
@@ -328,7 +244,7 @@ export default function AdminQrScanner({
           void processDecodedQR(decodedText);
         },
         () => {
-          // Per-frame non-match callbacks intentionally ignored
+          // Per-frame scan misses are intentionally ignored
         }
       );
 
@@ -338,79 +254,31 @@ export default function AdminQrScanner({
       setIsScanning(false);
       showFlash(
         "error",
-        "Unable to access camera. Check permissions or upload the participant's PDF pass directly."
+        "Unable to access camera. Allow camera permissions or use the Manual Participant ID lookup below."
       );
     }
   }, [processDecodedQR, showFlash, stopScanner]);
 
-  const resetScanner = useCallback(async () => {
-    setScannedParticipant(null);
-    setFlashMessage(null);
-    await startScanner();
-  }, [startScanner]);
-
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-
-    setIsProcessingFile(true);
-    setFlashMessage(null);
-
-    try {
-      await stopScanner();
-      const isPdf =
-        file.type === "application/pdf" ||
-        file.name.toLowerCase().endsWith(".pdf");
-
-      const { Html5Qrcode: Html5QrcodeCtor } = await import("html5-qrcode");
-      const qr = new Html5QrcodeCtor("reader");
-      html5QrCodeRef.current = qr;
-
-      let decodedText = "";
-      if (isPdf) {
-        const { fullFile, qrCropFile } = await convertPdfFirstPageToPngFiles(
-          file
-        );
-        try {
-          decodedText = await qr.scanFile(fullFile, false);
-        } catch (firstErr) {
-          if (qrCropFile) {
-            decodedText = await qr.scanFile(qrCropFile, false);
-          } else {
-            throw firstErr;
-          }
-        }
-      } else {
-        decodedText = await qr.scanFile(file, false);
-      }
-
-      try {
-        qr.clear();
-      } catch {
-        // Ignore clear on file scan
-      }
-      html5QrCodeRef.current = null;
-
-      await processDecodedQR(decodedText);
-    } catch (err) {
-      if (html5QrCodeRef.current) {
-        try {
-          html5QrCodeRef.current.clear();
-        } catch {
-          // Ignore clear errors
-        }
-        html5QrCodeRef.current = null;
-      }
-      console.error("[QR File scan error]:", err);
+  const handleManualSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = manualId.trim();
+    if (!trimmed) {
       showFlash(
         "error",
-        "No valid Milaap Master Pass QR code found in the uploaded PDF/image."
+        "Enter a Participant ID (e.g. MIL-2026-7979 or 7979) to search."
       );
-    } finally {
-      setIsProcessingFile(false);
+      return;
     }
+
+    await lookupParticipant(trimmed);
   };
+
+  const resetToScannerView = useCallback(async () => {
+    await stopScanner();
+    setScannedParticipant(null);
+    setFlashMessage(null);
+    setManualId("");
+  }, [stopScanner]);
 
   const handleMarkAttendance = async (registrationId: string) => {
     if (!scannedParticipant) return;
@@ -466,330 +334,333 @@ export default function AdminQrScanner({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.25 }}
-      className="space-y-8"
+      className="max-w-xl w-full mx-auto my-auto p-4 sm:p-6"
     >
-      {/* Per-Event Registration vs Attendance Stats Bar */}
-      <EventAttendanceCounterBar stats={attendanceStats} loading={loadingStats} />
-
-      {/* Flash Message Overlay / Banner */}
-      <AnimatePresence>
-        {flashMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className={`rounded-2xl border px-5 py-3.5 flex items-center gap-3 text-xs sm:text-sm font-medium shadow-xl backdrop-blur-xl ${
-              flashMessage.type === "success"
-                ? "bg-emerald-950/90 border-emerald-500/50 text-emerald-200"
-                : flashMessage.type === "error"
-                ? "bg-rose-950/90 border-rose-500/50 text-rose-200"
-                : "bg-amber-950/90 border-amber-500/50 text-amber-200"
-            }`}
-          >
-            {flashMessage.type === "success" ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            ) : flashMessage.type === "error" ? (
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-            ) : (
-              <ScanLine className="w-4 h-4 text-amber-400 shrink-0" />
-            )}
-            <span>{flashMessage.text}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Main Scanner & Verification Container */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* LEFT COLUMN: Camera Feed & PDF Upload Control */}
-        <div className="lg:col-span-5 rounded-3xl bg-gradient-to-b from-[#24100a]/90 to-[#140704]/95 border border-amber-500/30 p-6 space-y-5 shadow-2xl">
-          <div className="flex items-center justify-between border-b border-amber-500/20 pb-4">
-            <div>
-              <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-400 block">
-                Registration Desk Gate
-              </span>
-              <h2 className="text-lg font-bold text-white font-cinzel mt-0.5 flex items-center gap-2">
-                <QrCode className="w-4 h-4 text-amber-400" />
-                <span>Master Pass Scanner</span>
-              </h2>
-            </div>
-
-            {isScanning && (
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                Live
-              </span>
-            )}
+      <div className="rounded-3xl bg-gradient-to-b from-[#24100a]/95 to-[#140704]/98 border border-amber-500/30 p-5 sm:p-6 space-y-5 shadow-2xl">
+        {/* Card Header */}
+        <div className="flex items-center justify-between border-b border-amber-500/20 pb-4">
+          <div>
+            <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-400 block">
+              Registration Desk Gate
+            </span>
+            <h2 className="text-lg sm:text-xl font-bold text-white font-cinzel mt-0.5 flex items-center gap-2 uppercase tracking-wide">
+              <QrCode className="w-5 h-5 text-amber-400" />
+              <span>MASTER PASS SCANNER</span>
+            </h2>
           </div>
 
-          {/* Mounted Html5Qrcode Target Container */}
-          <div className="relative rounded-2xl overflow-hidden bg-black/70 border border-amber-500/25 min-h-[260px] flex flex-col items-center justify-center">
-            <div id="reader" className="w-full" />
-
-            {!isScanning && !lookingUp && !isProcessingFile && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-3 pointer-events-none">
-                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-400/35 flex items-center justify-center text-amber-300">
-                  <Camera className="w-7 h-7" />
-                </div>
-                <p className="text-xs text-slate-300 max-w-xs leading-relaxed">
-                  Point the desk camera at a participant&apos;s{" "}
-                  <strong className="text-amber-300">
-                    Milaap Master Pass
-                  </strong>{" "}
-                  or upload their downloaded PDF pass below.
-                </p>
-              </div>
-            )}
-
-            {(lookingUp || isProcessingFile) && (
-              <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-10">
-                <Loader2 className="w-7 h-7 text-amber-400 animate-spin" />
-                <p className="text-xs font-mono uppercase tracking-wider text-amber-200">
-                  {isProcessingFile
-                    ? "Decoding Uploaded PDF Pass..."
-                    : "Fetching Participant Registrations..."}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-3">
-            {isScanning ? (
-              <button
-                type="button"
-                onClick={() => void stopScanner()}
-                className="w-full py-3 rounded-xl bg-rose-600/25 hover:bg-rose-600/35 border border-rose-500/50 text-rose-200 font-bold text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all"
-              >
-                <StopCircle className="w-4 h-4" />
-                <span>STOP CAMERA</span>
-              </button>
-            ) : (
-              <button
-                type="button"
-                disabled={lookingUp || isProcessingFile}
-                onClick={() => void startScanner()}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 hover:brightness-110 text-black font-extrabold text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all shadow-[0_0_25px_rgba(245,158,11,0.35)] active:scale-[0.98] disabled:opacity-60"
-              >
-                <Camera className="w-4 h-4" />
-                <span>START SCANNING</span>
-              </button>
-            )}
-
-            <button
-              type="button"
-              disabled={lookingUp || isProcessingFile}
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full py-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-400/35 text-amber-200 hover:text-white font-bold text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all disabled:opacity-60"
-            >
-              <Upload className="w-4 h-4" />
-              <span>Upload Pass (PDF / Image)</span>
-            </button>
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,image/*"
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-          </div>
-        </div>
-
-        {/* RIGHT COLUMN: Scanned Participant & Interactive Event Action Buttons */}
-        <div className="lg:col-span-7 rounded-3xl bg-white/5 backdrop-blur-md border border-amber-500/25 p-6 sm:p-7 space-y-6 shadow-2xl">
-          {!scannedParticipant ? (
-            <div className="py-16 px-4 text-center flex flex-col items-center justify-center space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-400/30 flex items-center justify-center text-amber-300">
-                <ScanLine className="w-7 h-7" />
-              </div>
-              <div className="space-y-1.5 max-w-md">
-                <h3 className="text-base sm:text-lg font-bold text-white font-cinzel">
-                  Ready for Check-In
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-400 font-light leading-relaxed">
-                  Scan a participant&apos;s Master Pass QR code or upload their
-                  PDF pass to view all registered competitions, verify team
-                  rosters, and mark stage attendance.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {/* Scanned Participant Identity Header */}
-              <div className="rounded-2xl bg-[#1a0b07]/95 border border-amber-500/35 p-5 space-y-4">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    {scannedParticipant.profile.image ? (
-                      <img
-                        src={scannedParticipant.profile.image}
-                        alt={scannedParticipant.profile.name}
-                        referrerPolicy="no-referrer"
-                        className="w-14 h-14 rounded-2xl border-2 border-amber-400/60 object-cover shrink-0"
-                      />
-                    ) : (
-                      <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border-2 border-amber-400/50 flex items-center justify-center text-amber-300 text-xl font-cinzel font-bold shrink-0">
-                        {scannedParticipant.profile.name.charAt(0)}
-                      </div>
-                    )}
-
-                    <div className="min-w-0">
-                      <span className="inline-block text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/35 text-amber-300 mb-1">
-                        {scannedParticipant.profile.participantId}
-                      </span>
-                      <h3 className="text-lg sm:text-xl font-bold text-white font-cinzel truncate">
-                        {scannedParticipant.profile.name}
-                      </h3>
-                    </div>
-                  </div>
-
-                  <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/35 text-emerald-300">
-                    {
-                      scannedParticipant.registrations.filter((r) => r.attended)
-                        .length
-                    }{" "}
-                    / {scannedParticipant.registrations.length} Attended
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-amber-500/15 text-xs text-slate-300">
-                  <p className="flex items-center gap-2 truncate">
-                    <Mail className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                    <span className="truncate">
-                      {scannedParticipant.profile.email}
-                    </span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                    <span className="font-mono">
-                      {scannedParticipant.profile.phone || "No phone"}
-                    </span>
-                  </p>
-                  <p className="flex items-center gap-2 truncate">
-                    <Building2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                    <span className="truncate">
-                      {scannedParticipant.profile.college || "—"}
-                    </span>
-                  </p>
-                  <p className="flex items-center gap-2">
-                    <GraduationCap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                    <span>{scannedParticipant.profile.year || "—"}</span>
-                  </p>
-                </div>
-              </div>
-
-              {/* Dynamic Registered Event Cards + Interactive Attendance Action Buttons */}
-              <div className="space-y-4">
-                <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-300">
-                  Registered Events &amp; Stage Check-In (
-                  {scannedParticipant.registrations.length})
-                </h4>
-
-                {scannedParticipant.registrations.length === 0 ? (
-                  <p className="text-xs text-slate-400 p-4 rounded-2xl bg-black/40 border border-white/10">
-                    This participant has no active event entries.
-                  </p>
-                ) : (
-                  <div className="space-y-3.5">
-                    {scannedParticipant.registrations.map((reg) => (
-                      <div
-                        key={reg._id}
-                        className={`rounded-2xl border p-4 sm:p-5 space-y-3.5 transition-all ${
-                          reg.attended
-                            ? "bg-emerald-950/25 border-emerald-500/40"
-                            : "bg-black/45 border-amber-500/25"
-                        }`}
-                      >
-                        <div className="flex flex-wrap items-start justify-between gap-2">
-                          <div className="flex items-start gap-2.5 min-w-0">
-                            <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-400/30 shrink-0">
-                              <EventStageIcon
-                                eventName={reg.eventName}
-                                category={reg.category}
-                              />
-                            </div>
-                            <div className="min-w-0">
-                              <h5 className="text-sm sm:text-base font-bold text-white font-serif leading-snug">
-                                {reg.eventName}
-                              </h5>
-                              <p className="text-[11px] font-mono text-amber-200/80 mt-0.5">
-                                {reg.category} • Role: {reg.role}
-                              </p>
-                            </div>
-                          </div>
-
-                          <span
-                            className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full border shrink-0 ${
-                              reg.status === "Verified"
-                                ? "bg-emerald-500/15 text-emerald-300 border-emerald-400/35"
-                                : "bg-amber-500/15 text-amber-300 border-amber-400/35"
-                            }`}
-                          >
-                            {reg.status}
-                          </span>
-                        </div>
-
-                        {/* Team / Band Roster Verification Box */}
-                        {(reg.teamName || reg.teamMembers.length > 0) && (
-                          <div className="rounded-xl bg-[#1a0b07]/90 border border-amber-500/20 p-3 space-y-2">
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
-                                <Users className="w-3.5 h-3.5" />
-                                Team / Band Details
-                              </span>
-                              {reg.teamName && (
-                                <span className="text-xs font-bold text-white">
-                                  {reg.teamName}
-                                </span>
-                              )}
-                            </div>
-
-                            {reg.teamMembers.length > 0 && (
-                              <ul className="space-y-1 pt-1 border-t border-amber-500/15">
-                                {reg.teamMembers.map((member, mIdx) => (
-                                  <li
-                                    key={`${member.name}-${mIdx}`}
-                                    className="flex items-center justify-between gap-2 text-xs text-slate-200"
-                                  >
-                                    <span className="font-medium truncate">
-                                      {mIdx + 1}. {member.name}
-                                    </span>
-                                    <span className="font-mono text-amber-300 shrink-0">
-                                      {member.phone}
-                                    </span>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                        )}
-
-                        <ActionButton
-                          registration={reg}
-                          busy={busyRegId === reg._id}
-                          onMark={(id) => void handleMarkAttendance(id)}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Scan Next Participant CTA */}
-              <div className="pt-3 border-t border-white/10">
-                <button
-                  type="button"
-                  onClick={() => void resetScanner()}
-                  className="w-full py-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 text-amber-200 hover:text-white font-bold text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99]"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  <span>SCAN NEXT PARTICIPANT</span>
-                </button>
-              </div>
-            </div>
+          {!scannedParticipant && isScanning && (
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/40 text-emerald-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Live
+            </span>
           )}
         </div>
+
+        {/* Flash Message Overlay Banner */}
+        <AnimatePresence>
+          {flashMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className={`rounded-2xl border px-4 py-3 flex items-center gap-2.5 text-xs sm:text-sm font-medium shadow-xl backdrop-blur-xl ${
+                flashMessage.type === "success"
+                  ? "bg-emerald-950/90 border-emerald-500/50 text-emerald-200"
+                  : flashMessage.type === "error"
+                  ? "bg-rose-950/90 border-rose-500/50 text-rose-200"
+                  : "bg-amber-950/90 border-amber-500/50 text-amber-200"
+              }`}
+            >
+              {flashMessage.type === "success" ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              ) : flashMessage.type === "error" ? (
+                <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+              ) : (
+                <ScanLine className="w-4 h-4 text-amber-400 shrink-0" />
+              )}
+              <span>{flashMessage.text}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {!scannedParticipant ? (
+          /* ================================================================
+             CAMERA VIEWPORT + MANUAL PARTICIPANT ID LOOKUP
+             ================================================================ */
+          <div className="space-y-5">
+            {/* Larger Mobile-Responsive Square Viewfinder */}
+            <div className="relative w-full max-w-[340px] sm:max-w-[420px] aspect-square mx-auto rounded-2xl overflow-hidden bg-black/75 border border-amber-500/30 flex flex-col items-center justify-center shadow-[0_0_30px_rgba(0,0,0,0.65)]">
+              <div
+                id="reader"
+                className="w-full h-full [&_video]:w-full [&_video]:h-full [&_video]:object-cover"
+              />
+
+              {!isScanning && !lookingUp && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-3 pointer-events-none">
+                  <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-400/35 flex items-center justify-center text-amber-300">
+                    <Camera className="w-8 h-8" />
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-300 max-w-xs leading-relaxed">
+                    Tap <strong className="text-amber-300">START SCANNING</strong>{" "}
+                    and hold a participant&apos;s Master Pass QR inside the
+                    frame, or enter their ID below.
+                  </p>
+                </div>
+              )}
+
+              {lookingUp && (
+                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center gap-3 z-10">
+                  <Loader2 className="w-8 h-8 text-amber-400 animate-spin" />
+                  <p className="text-xs font-mono uppercase tracking-wider text-amber-200">
+                    Verifying Participant Record...
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Camera Controls */}
+            <div>
+              {isScanning ? (
+                <button
+                  type="button"
+                  onClick={() => void stopScanner()}
+                  className="w-full py-3.5 rounded-xl bg-rose-600/25 hover:bg-rose-600/35 border border-rose-500/50 text-rose-200 font-bold text-xs sm:text-sm font-mono uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all"
+                >
+                  <StopCircle className="w-4 h-4" />
+                  <span>STOP CAMERA</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={lookingUp}
+                  onClick={() => void startScanner()}
+                  className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 hover:brightness-110 text-black font-extrabold text-xs sm:text-sm font-mono uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all shadow-[0_0_25px_rgba(245,158,11,0.35)] active:scale-[0.98] disabled:opacity-60"
+                >
+                  <Camera className="w-4 h-4" />
+                  <span>START SCANNING</span>
+                </button>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-amber-500/20" />
+              <span className="text-[10px] font-mono uppercase tracking-[0.22em] text-amber-300/75">
+                OR MANUAL PARTICIPANT ID
+              </span>
+              <div className="h-px flex-1 bg-amber-500/20" />
+            </div>
+
+            {/* Manual Participant ID Lookup Form */}
+            <form onSubmit={handleManualSearch} className="space-y-3">
+              <div className="flex flex-col sm:flex-row gap-2.5">
+                <input
+                  type="text"
+                  value={manualId}
+                  onChange={(e) => setManualId(e.target.value)}
+                  disabled={lookingUp}
+                  placeholder="Enter Participant ID (e.g. MIL-2026-7979)"
+                  aria-label="Manual Participant ID lookup"
+                  className="w-full sm:flex-1 bg-[#140705] border border-amber-500/30 focus:border-amber-400 text-amber-100 placeholder:text-amber-200/35 rounded-xl px-4 py-3 uppercase font-mono text-xs sm:text-sm outline-none disabled:opacity-60"
+                />
+                <button
+                  type="submit"
+                  disabled={lookingUp || !manualId.trim()}
+                  className="px-5 py-3 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-200 hover:text-white font-bold text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0 disabled:opacity-50"
+                >
+                  {lookingUp ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Search className="w-4 h-4" />
+                  )}
+                  <span>Search / Check-In</span>
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-400 text-center sm:text-left">
+                Supports full IDs (e.g. <code className="text-amber-300">MLP-2026-7979</code>{" "}
+                / <code className="text-amber-300">MIL-2026-7979</code>) or the 4-digit
+                suffix (<code className="text-amber-300">7979</code>).
+              </p>
+            </form>
+          </div>
+        ) : (
+          /* ================================================================
+             SCANNED / SEARCHED PARTICIPANT DETAILS & ATTENDANCE PANEL
+             ================================================================ */
+          <div className="space-y-5">
+            {/* Identity Header */}
+            <div className="rounded-2xl bg-[#1a0b07]/95 border border-amber-500/35 p-4 sm:p-5 space-y-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="flex items-center gap-3.5 min-w-0">
+                  {scannedParticipant.profile.image ? (
+                    <img
+                      src={scannedParticipant.profile.image}
+                      alt={scannedParticipant.profile.name}
+                      referrerPolicy="no-referrer"
+                      className="w-14 h-14 rounded-2xl border-2 border-amber-400/60 object-cover shrink-0"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-2xl bg-amber-500/20 border-2 border-amber-400/50 flex items-center justify-center text-amber-300 text-xl font-cinzel font-bold shrink-0">
+                      {scannedParticipant.profile.name.charAt(0)}
+                    </div>
+                  )}
+
+                  <div className="min-w-0">
+                    <span className="inline-block text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/15 border border-amber-400/35 text-amber-300 mb-1">
+                      {scannedParticipant.profile.participantId}
+                    </span>
+                    <h3 className="text-lg sm:text-xl font-bold text-white font-cinzel truncate">
+                      {scannedParticipant.profile.name}
+                    </h3>
+                  </div>
+                </div>
+
+                <span className="text-[11px] font-mono px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-400/35 text-emerald-300">
+                  {
+                    scannedParticipant.registrations.filter((r) => r.attended)
+                      .length
+                  }{" "}
+                  / {scannedParticipant.registrations.length} Attended
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-3 border-t border-amber-500/15 text-xs text-slate-300">
+                <p className="flex items-center gap-2 truncate">
+                  <Mail className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span className="truncate">
+                    {scannedParticipant.profile.email}
+                  </span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span className="font-mono">
+                    {scannedParticipant.profile.phone || "No phone"}
+                  </span>
+                </p>
+                <p className="flex items-center gap-2 truncate">
+                  <Building2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span className="truncate">
+                    {scannedParticipant.profile.college || "—"}
+                  </span>
+                </p>
+                <p className="flex items-center gap-2">
+                  <GraduationCap className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>{scannedParticipant.profile.year || "—"}</span>
+                </p>
+              </div>
+            </div>
+
+            {/* Registered Event Action Buttons */}
+            <div className="space-y-3.5">
+              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-amber-300">
+                Registered Events &amp; Stage Check-In (
+                {scannedParticipant.registrations.length})
+              </h4>
+
+              {scannedParticipant.registrations.length === 0 ? (
+                <p className="text-xs text-slate-400 p-4 rounded-2xl bg-black/40 border border-white/10">
+                  This participant has no active event entries.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {scannedParticipant.registrations.map((reg) => (
+                    <div
+                      key={reg._id}
+                      className={`rounded-2xl border p-4 space-y-3 transition-all ${
+                        reg.attended
+                          ? "bg-emerald-950/25 border-emerald-500/40"
+                          : "bg-black/45 border-amber-500/25"
+                      }`}
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div className="flex items-start gap-2.5 min-w-0">
+                          <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-400/30 shrink-0">
+                            <EventStageIcon
+                              eventName={reg.eventName}
+                              category={reg.category}
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <h5 className="text-sm sm:text-base font-bold text-white font-serif leading-snug">
+                              {reg.eventName}
+                            </h5>
+                            <p className="text-[11px] font-mono text-amber-200/80 mt-0.5">
+                              {reg.category} • Role: {reg.role}
+                            </p>
+                          </div>
+                        </div>
+
+                        <span
+                          className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full border shrink-0 ${
+                            reg.status === "Verified"
+                              ? "bg-emerald-500/15 text-emerald-300 border-emerald-400/35"
+                              : "bg-amber-500/15 text-amber-300 border-amber-400/35"
+                          }`}
+                        >
+                          {reg.status}
+                        </span>
+                      </div>
+
+                      {/* Team / Band Roster Details Box */}
+                      {(reg.teamName || reg.teamMembers.length > 0) && (
+                        <div className="rounded-xl bg-[#1a0b07]/90 border border-amber-500/20 p-3 space-y-2">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                              <Users className="w-3.5 h-3.5" />
+                              Team / Band Details
+                            </span>
+                            {reg.teamName && (
+                              <span className="text-xs font-bold text-white">
+                                {reg.teamName}
+                              </span>
+                            )}
+                          </div>
+
+                          {reg.teamMembers.length > 0 && (
+                            <ul className="space-y-1 pt-1 border-t border-amber-500/15">
+                              {reg.teamMembers.map((member, mIdx) => (
+                                <li
+                                  key={`${member.name}-${mIdx}`}
+                                  className="flex items-center justify-between gap-2 text-xs text-slate-200"
+                                >
+                                  <span className="font-medium truncate">
+                                    {mIdx + 1}. {member.name}
+                                  </span>
+                                  <span className="font-mono text-amber-300 shrink-0">
+                                    {member.phone}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      )}
+
+                      <ActionButton
+                        registration={reg}
+                        busy={busyRegId === reg._id}
+                        onMark={(id) => void handleMarkAttendance(id)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Reset Back to Scanner / Manual Lookup */}
+            <div className="pt-2 border-t border-amber-500/15">
+              <button
+                type="button"
+                onClick={() => void resetToScannerView()}
+                className="w-full py-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-400/40 text-amber-200 hover:text-white font-bold text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.99]"
+              >
+                <span>← Back to Scanner / Search Next</span>
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </motion.div>
   );
 }
-

@@ -143,8 +143,14 @@ function serializeRegistrationItem(
   };
 }
 
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 /**
- * Resolves a scanned Master Pass QR payload to the participant's profile
+ * Resolves a scanned Master Pass QR payload or manual Participant ID lookup
+ * (supports full case-insensitive IDs like `MIL-2026-7979` / `MLP-2026-7979`
+ * as well as 4-digit suffixes like `7979`) to the participant's profile
  * details and ALL associated competition registrations from MongoDB.
  */
 export async function getParticipantByQR(
@@ -164,32 +170,70 @@ export async function getParticipantByQR(
       };
     }
 
+    const pidQuery = parsed.participantId
+      ? parsed.participantId.trim().toUpperCase()
+      : "";
+
     let docs = parsed.email
       ? await Participant.find({ email: parsed.email }).lean()
       : [];
 
-    if (docs.length === 0 && parsed.participantId) {
+    if (docs.length === 0 && pidQuery) {
+      // Exact case-insensitive match against persisted participantId
       docs = await Participant.find({
-        participantId: parsed.participantId,
+        participantId: new RegExp(`^${escapeRegex(pidQuery)}$`, "i"),
       }).lean();
     }
 
-    // Legacy fallback: allow matching deterministic participantId if stored doc
-    // didn't persist it yet
-    if (docs.length === 0 && parsed.participantId) {
-      const allRegistered = await Participant.find({ isRegistered: true }).lean();
-      const matched = allRegistered.filter(
+    // Legacy & suffix-aware fallback across registered participants
+    if (docs.length === 0 && pidQuery) {
+      const allRegistered = await Participant.find({
+        $or: [{ isRegistered: true }, { "events.0": { $exists: true } }],
+      }).lean();
+
+      const exactDeterministic = allRegistered.filter(
         (d) =>
-          (d.participantId || deriveDeterministicParticipantId(d.email)) ===
-          parsed.participantId
+          (
+            d.participantId || deriveDeterministicParticipantId(d.email)
+          ).toUpperCase() === pidQuery
       );
-      docs = matched;
+
+      if (exactDeterministic.length > 0) {
+        docs = exactDeterministic;
+      } else {
+        const digitsOnly = /^\d{4,}$/.test(pidQuery)
+          ? pidQuery
+          : pidQuery.match(/-(\d{4,})$/)?.[1] || "";
+
+        if (digitsOnly) {
+          const suffixTarget = `-${digitsOnly}`;
+          const suffixMatches = allRegistered.filter((d) => {
+            const stored = (d.participantId || "").toUpperCase();
+            const deterministic = deriveDeterministicParticipantId(
+              d.email
+            ).toUpperCase();
+            return (
+              stored.endsWith(suffixTarget) ||
+              deterministic.endsWith(suffixTarget)
+            );
+          });
+
+          if (suffixMatches.length > 1) {
+            return {
+              success: false,
+              error: `Multiple participants matched suffix "${digitsOnly}". Please enter the full Participant ID.`,
+            };
+          }
+
+          docs = suffixMatches;
+        }
+      }
     }
 
     if (docs.length === 0) {
       return {
         success: false,
-        error: "No participant found for this Master Pass QR code.",
+        error: "No participant found for this Master Pass QR code or ID.",
       };
     }
 
