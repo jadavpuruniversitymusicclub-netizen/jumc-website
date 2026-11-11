@@ -294,8 +294,12 @@ export default function SubEventDetailView({ event }: SubEventDetailViewProps) {
 
       {/* Registration Modal */}
       {registerModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-up">
-          <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-black/70 backdrop-blur-2xl border border-white/20 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-transparent animate-fade-up">
+          <div
+            onClick={() => setRegisterModalOpen(false)}
+            className="fixed inset-0 bg-transparent -z-10"
+          />
+          <div className="relative w-full max-w-lg p-6 sm:p-8 rounded-3xl bg-[#160407]/95 border-2 border-amber-400/55 shadow-[0_0_65px_rgba(245,158,11,0.32)]">
             <button
               onClick={() => setRegisterModalOpen(false)}
               className="absolute top-5 right-5 p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"

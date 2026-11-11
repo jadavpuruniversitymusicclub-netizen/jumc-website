@@ -206,7 +206,7 @@ export default function MilaapCompetitions() {
             data-lenis-prevent
             className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto"
           >
-            {/* Deep Dim/Blur Backdrop */}
+            {/* Transparent Click-Outside Backdrop (keeps Milaap background vivid) */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -214,7 +214,7 @@ export default function MilaapCompetitions() {
               transition={{ duration: 0.2 }}
               style={{ willChange: "opacity" }}
               onClick={() => setSelectedComp(null)}
-              className="fixed inset-0 bg-black/85 backdrop-blur-xl -z-10 transform-gpu"
+              className="fixed inset-0 bg-transparent -z-10 transform-gpu"
             />
 
             {/* Central Glassmorphic Modal Container */}
@@ -224,7 +224,7 @@ export default function MilaapCompetitions() {
               exit={{ opacity: 0, scale: 0.93, y: 24 }}
               transition={{ type: "spring", stiffness: 320, damping: 28 }}
               style={{ willChange: "transform, opacity" }}
-              className="relative w-full max-w-2xl max-h-[88vh] bg-[#160407]/95 border border-amber-500/40 rounded-3xl shadow-[0_0_60px_rgba(245,158,11,0.25)] overflow-hidden flex flex-col my-auto transform-gpu"
+              className="relative w-full max-w-2xl max-h-[88vh] bg-[#160407]/95 border-2 border-amber-400/60 rounded-3xl shadow-[0_0_65px_rgba(245,158,11,0.35)] overflow-hidden flex flex-col my-auto transform-gpu"
               role="dialog"
               aria-modal="true"
               aria-labelledby="rulebook-title"

@@ -683,13 +683,13 @@ export default function MilaapDashboardPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setEditProfileOpen(false)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-xl -z-10"
+              className="fixed inset-0 bg-transparent -z-10"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.94, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: 20 }}
-              className="relative w-full max-w-lg bg-[#160407]/95 border border-amber-500/40 rounded-3xl shadow-2xl overflow-hidden my-auto"
+              className="relative w-full max-w-lg bg-[#160407]/95 border-2 border-amber-400/60 rounded-3xl shadow-[0_0_65px_rgba(245,158,11,0.35)] overflow-hidden my-auto"
             >
               <div className="h-1.5 w-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600" />
               <div className="px-6 py-4 border-b border-amber-500/20 flex items-center justify-between">
@@ -779,13 +779,13 @@ export default function MilaapDashboardPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setEditEventsOpen(false)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-xl -z-10"
+              className="fixed inset-0 bg-transparent -z-10"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.94, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: 20 }}
-              className="relative w-full max-w-2xl max-h-[88vh] bg-[#160407]/95 border border-amber-500/40 rounded-3xl shadow-2xl overflow-hidden flex flex-col my-auto"
+              className="relative w-full max-w-2xl max-h-[88vh] bg-[#160407]/95 border-2 border-amber-400/60 rounded-3xl shadow-[0_0_65px_rgba(245,158,11,0.35)] overflow-hidden flex flex-col my-auto"
             >
               <div className="h-1.5 w-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600 shrink-0" />
               <div className="px-6 py-4 border-b border-amber-500/20 flex items-center justify-between shrink-0">

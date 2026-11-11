@@ -665,7 +665,7 @@ export default function MyEventsSection({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => !submittingEdit && setEditTarget(null)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-xl -z-10 transform-gpu"
+              className="fixed inset-0 bg-transparent -z-10 transform-gpu"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.94, y: 20 }}
@@ -676,7 +676,7 @@ export default function MyEventsSection({
               role="dialog"
               aria-modal="true"
               aria-labelledby="edit-registration-title"
-              className="relative w-full max-w-xl max-h-[90vh] bg-[#160407]/95 border border-amber-500/40 rounded-3xl shadow-[0_0_60px_rgba(245,158,11,0.22)] overflow-hidden flex flex-col my-auto transform-gpu"
+              className="relative w-full max-w-xl max-h-[90vh] bg-[#160407]/95 border-2 border-amber-400/60 rounded-3xl shadow-[0_0_65px_rgba(245,158,11,0.35)] overflow-hidden flex flex-col my-auto transform-gpu"
             >
               <div className="h-1.5 w-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600 shrink-0" />
 
@@ -905,7 +905,7 @@ export default function MyEventsSection({
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
               onClick={() => !submittingCancel && setCancelTarget(null)}
-              className="fixed inset-0 bg-black/85 backdrop-blur-xl -z-10 transform-gpu"
+              className="fixed inset-0 bg-transparent -z-10 transform-gpu"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.94, y: 18 }}
@@ -916,7 +916,7 @@ export default function MyEventsSection({
               role="dialog"
               aria-modal="true"
               aria-labelledby="cancel-registration-title"
-              className="relative w-full max-w-md bg-[#180509]/95 border border-rose-500/45 rounded-3xl p-6 sm:p-7 shadow-[0_0_55px_rgba(244,63,94,0.28)] space-y-5 my-auto transform-gpu"
+              className="relative w-full max-w-md bg-[#180509]/95 border-2 border-rose-500/60 rounded-3xl p-6 sm:p-7 shadow-[0_0_60px_rgba(244,63,94,0.35)] space-y-5 my-auto transform-gpu"
             >
               <div className="flex items-start gap-3.5">
                 <div className="p-2.5 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-400 shrink-0">

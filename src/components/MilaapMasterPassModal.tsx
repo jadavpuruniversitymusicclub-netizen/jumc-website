@@ -403,14 +403,14 @@ function MasterPassDialog({
       data-lenis-prevent
       className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 overflow-y-auto"
     >
-      {/* Crisp Non-Blurred Modal Dimmer (keeps backdrop & Mandala clear) */}
+      {/* Transparent click-outside backdrop (keeps webpage artwork visible) */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
         onClick={() => !isDownloading && onClose()}
-        className="fixed inset-0 bg-black/65 -z-10 transform-gpu"
+        className="fixed inset-0 bg-transparent -z-10 transform-gpu"
       />
 
       {/* Fixed 520px Offscreen Capture Surface so every viewport exports full-bleed PDF */}

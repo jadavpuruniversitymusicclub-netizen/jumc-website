@@ -30,14 +30,14 @@ const PortalModal = ({ isOpen, onClose }: PortalModalProps) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-transparent"
           />
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
             transition={{ type: "spring", duration: 0.5 }}
-            className="relative w-[95%] md:w-full max-w-md max-h-[90vh] overflow-y-auto bg-acoustic-surface rounded-3xl shadow-2xl p-6 md:p-8 border border-charcoal/10"
+            className="relative w-[95%] md:w-full max-w-md max-h-[90vh] overflow-y-auto bg-acoustic-surface rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.35)] p-6 md:p-8 border-2 border-amber-500/35"
           >
             <button 
               onClick={onClose}

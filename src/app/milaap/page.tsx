@@ -466,7 +466,7 @@ export default function MilaapPage() {
     );
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center pt-28 pb-0 px-4 overflow-x-clip">
+    <main className="relative min-h-screen flex flex-col items-center pt-28 pb-0 px-4 sm:px-6 overflow-x-hidden">
       {/* ================================================================
           PART 1: HERO SECTION
           ================================================================ */}
@@ -854,87 +854,135 @@ export default function MilaapPage() {
           </div>
         </MorphTextReveal>
 
-        {/* Unified Coordinate Timeline Container (1000 x 2300 viewBox) */}
+        {/* Responsive Event Timeline Container */}
         <div
           ref={timelineRef}
-          className="relative w-full max-w-5xl mx-auto h-[2100px] md:h-[2300px] py-10 transform-gpu"
+          className="relative w-full max-w-5xl mx-auto py-8 md:py-10 md:h-[2300px] transform-gpu"
         >
-          {/* Central Responsive SVG Canvas */}
-          <svg
-            viewBox="0 0 1000 2300"
-            className="absolute inset-0 w-full h-full pointer-events-none"
-            preserveAspectRatio="none"
-            fill="none"
-          >
-            <defs>
-              <linearGradient
-                id="goldGradient"
-                x1="0%"
-                y1="0%"
-                x2="0%"
-                y2="100%"
+          {/* Mobile Vertical Timeline (< 768px): Centered Cards Zero Horizontal Clipping */}
+          <div className="md:hidden relative flex flex-col items-center gap-5 px-2 sm:px-4">
+            <div
+              aria-hidden="true"
+              className="absolute top-6 bottom-16 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-amber-300/60 via-amber-500/40 to-amber-700/20 pointer-events-none"
+            />
+            {competitions.map((comp, idx) => (
+              <motion.div
+                key={`mobile-${comp.title}`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.15 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 110,
+                  damping: 22,
+                  delay: idx * 0.04,
+                }}
+                style={{ willChange: "transform, opacity" }}
+                className="relative z-10 w-full max-w-[calc(100vw-2rem)] mx-auto bg-[#24060a]/90 backdrop-blur-md border border-amber-500/25 rounded-2xl p-5 shadow-2xl transform-gpu"
               >
-                <stop offset="0%" stopColor="#fde68a" />
-                <stop offset="50%" stopColor="#f59e0b" />
-                <stop offset="100%" stopColor="#d97706" />
-              </linearGradient>
-            </defs>
-
-            {/* Base Faint Path */}
-            <path
-              d={windingPath}
-              stroke="rgba(245, 209, 66, 0.15)"
-              strokeWidth="2.5"
-              fill="none"
-            />
-
-            {/* Soft ambient glow halo (replaces heavy per-frame SVG drop-shadow filter) */}
-            <motion.path
-              d={windingPath}
-              stroke="rgba(245, 180, 40, 0.22)"
-              strokeWidth="12"
-              fill="none"
-              style={{ pathLength: smoothTimelineProgress }}
-            />
-
-            {/* Active Scroll-Drawn Glowing Path */}
-            <motion.path
-              d={windingPath}
-              stroke="url(#goldGradient)"
-              strokeWidth="4"
-              fill="none"
-              style={{ pathLength: smoothTimelineProgress }}
-            />
-
-            {/* Nodes & Horizontal Connector Lines Driven Strictly via MotionValue */}
-            {nodePositions.map((node, idx) => (
-              <SvgTimelineNode
-                key={idx}
-                node={node}
-                scrollProgress={smoothTimelineProgress}
-              />
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <span className="text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]">
+                    {comp.icon}
+                  </span>
+                  <span className="text-[10px] font-mono tracking-widest px-2.5 py-0.5 rounded-full border bg-amber-500/20 text-amber-300 border-amber-400/40">
+                    {String(idx + 1).padStart(2, "0")}
+                  </span>
+                </div>
+                <h3 className="text-sm sm:text-base font-semibold tracking-wide mb-1.5 text-amber-100">
+                  {comp.title}
+                </h3>
+                <p className="text-xs leading-relaxed text-amber-200/75 font-light">
+                  {comp.desc}
+                </p>
+              </motion.div>
             ))}
 
-            {/* Terminal Dot Just Above the 'i' of 'milaap' at (468, 2115) */}
-            <SvgTerminalDot scrollProgress={smoothTimelineProgress} />
-          </svg>
+            <div className="relative z-10 text-center pt-4 pb-2 select-none pointer-events-none">
+              <span className="MilaapFont text-5xl tracking-wider bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_0_24px_rgba(245,209,66,0.9)]">
+                milaap
+              </span>
+            </div>
+          </div>
 
-          {/* HTML Competition Cards with Direct MotionValue Transform */}
-          {competitions.map((comp, idx) => {
-            const node = nodePositions[idx];
-            return (
-              <CompetitionCard
-                key={idx}
-                comp={comp}
-                node={node}
-                idx={idx}
-                scrollProgress={smoothTimelineProgress}
+          {/* Desktop Winding SVG Timeline (>= 768px) */}
+          <div className="hidden md:block relative w-full h-full">
+            {/* Central Responsive SVG Canvas */}
+            <svg
+              viewBox="0 0 1000 2300"
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              preserveAspectRatio="none"
+              fill="none"
+            >
+              <defs>
+                <linearGradient
+                  id="goldGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="0%"
+                  y2="100%"
+                >
+                  <stop offset="0%" stopColor="#fde68a" />
+                  <stop offset="50%" stopColor="#f59e0b" />
+                  <stop offset="100%" stopColor="#d97706" />
+                </linearGradient>
+              </defs>
+
+              {/* Base Faint Path */}
+              <path
+                d={windingPath}
+                stroke="rgba(245, 209, 66, 0.15)"
+                strokeWidth="2.5"
+                fill="none"
               />
-            );
-          })}
 
-          {/* Glowing Finale Emblem at top: 93%, directly beneath the path termination dot */}
-          <TimelineFinale scrollProgress={smoothTimelineProgress} />
+              {/* Soft ambient glow halo (replaces heavy per-frame SVG drop-shadow filter) */}
+              <motion.path
+                d={windingPath}
+                stroke="rgba(245, 180, 40, 0.22)"
+                strokeWidth="12"
+                fill="none"
+                style={{ pathLength: smoothTimelineProgress }}
+              />
+
+              {/* Active Scroll-Drawn Glowing Path */}
+              <motion.path
+                d={windingPath}
+                stroke="url(#goldGradient)"
+                strokeWidth="4"
+                fill="none"
+                style={{ pathLength: smoothTimelineProgress }}
+              />
+
+              {/* Nodes & Horizontal Connector Lines Driven Strictly via MotionValue */}
+              {nodePositions.map((node, idx) => (
+                <SvgTimelineNode
+                  key={idx}
+                  node={node}
+                  scrollProgress={smoothTimelineProgress}
+                />
+              ))}
+
+              {/* Terminal Dot Just Above the 'i' of 'milaap' at (468, 2115) */}
+              <SvgTerminalDot scrollProgress={smoothTimelineProgress} />
+            </svg>
+
+            {/* HTML Competition Cards with Direct MotionValue Transform */}
+            {competitions.map((comp, idx) => {
+              const node = nodePositions[idx];
+              return (
+                <CompetitionCard
+                  key={idx}
+                  comp={comp}
+                  node={node}
+                  idx={idx}
+                  scrollProgress={smoothTimelineProgress}
+                />
+              );
+            })}
+
+            {/* Glowing Finale Emblem at top: 93%, directly beneath the path termination dot */}
+            <TimelineFinale scrollProgress={smoothTimelineProgress} />
+          </div>
         </div>
 
         {/* ================================================================
@@ -1190,7 +1238,7 @@ export default function MilaapPage() {
             </div>
 
             {/* 3D Coverflow / Stacked Card Slider */}
-            <div className="relative w-full max-w-3xl mx-auto">
+            <div className="relative w-full max-w-3xl mx-auto overflow-hidden">
               <div className="relative h-[320px] md:h-[400px] perspective-[1200px] flex items-center justify-center">
                 <AnimatePresence mode="popLayout">
                   {carouselItems.map((item, i) => {
@@ -1469,20 +1517,14 @@ export default function MilaapPage() {
           </p>
         </div>
 
-        {/* ── Massive Rising Watermark (once: true) ── */}
-        <div className="relative w-full overflow-hidden">
-          <motion.div
-            initial={{ y: 60, opacity: 0 }}
-            whileInView={{ y: 0, opacity: 1 }}
-            viewport={{ once: true, amount: 0.15 }}
-            transition={{ type: "spring", stiffness: 100, damping: 20 }}
-            style={{ willChange: "transform, opacity" }}
-            className="w-full text-center select-none pointer-events-none transform-gpu"
+        {/* ── Large Responsive Milaap Wordmark (Visible Across Mobile & Desktop) ── */}
+        <div className="w-[85%] max-w-[320px] sm:max-w-[500px] md:max-w-[700px] mx-auto mt-6 pb-8 text-center select-none pointer-events-none opacity-90 overflow-hidden">
+          <span
+            className="font-samarkan MilaapFont lowercase inline-block leading-[0.82] tracking-tight bg-gradient-to-t from-amber-500/25 via-amber-300/70 to-yellow-200 bg-clip-text text-transparent text-[5.25rem] sm:text-[9rem] md:text-[12.5rem] drop-shadow-[0_4px_24px_rgba(245,158,11,0.3)]"
+            style={{ fontFamily: "'Samarkan', sans-serif" }}
           >
-            <span className="MilaapFont text-[26vw] leading-[0.75] tracking-tight bg-gradient-to-t from-amber-500/10 via-amber-300/40 to-yellow-200/80 bg-clip-text text-transparent inline-block">
-              milaap
-            </span>
-          </motion.div>
+            milaap
+          </span>
         </div>
       </footer>
     </main>

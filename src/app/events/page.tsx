@@ -642,7 +642,7 @@ export default function EventsPage() {
               transition={{ duration: 0.2 }}
               style={{ willChange: "opacity" }}
               onClick={() => setSelectedEvent(null)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-xl -z-10 transform-gpu"
+              className="fixed inset-0 bg-transparent -z-10 transform-gpu"
             />
 
             {/* Modal Body */}
@@ -654,7 +654,7 @@ export default function EventsPage() {
               style={{ willChange: "transform, opacity" }}
               role="dialog"
               aria-modal="true"
-              className="relative w-full max-w-2xl max-h-[85vh] bg-[#160407]/95 border border-amber-500/30 rounded-3xl shadow-[0_0_60px_rgba(245,158,11,0.25)] overflow-hidden flex flex-col my-auto transform-gpu"
+              className="relative w-full max-w-2xl max-h-[85vh] bg-[#160407]/95 border-2 border-amber-400/60 rounded-3xl shadow-[0_0_65px_rgba(245,158,11,0.35)] overflow-hidden flex flex-col my-auto transform-gpu"
             >
               {/* Gold Top Accent Line */}
               <div className="h-1.5 w-full bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-600 shrink-0 shadow-[0_0_12px_rgba(245,158,11,0.6)]" />

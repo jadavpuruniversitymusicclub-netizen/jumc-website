@@ -29,7 +29,6 @@ import {
   ExternalLink,
   Menu,
   X,
-  Trophy,
   AlertTriangle,
   Send,
   Eye,
@@ -38,7 +37,6 @@ import {
 } from "lucide-react";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
 import { deriveDeterministicParticipantId } from "@/lib/participantId";
-import EventAttendanceCounterBar from "@/components/EventAttendanceCounterBar";
 import AdminQrScanner from "@/components/AdminQrScanner";
 import {
   getEventAttendanceStats,
@@ -387,26 +385,36 @@ export default function AdminDashboardPage() {
     currentPage * PAGE_SIZE
   );
 
-  // Competition breakdown counts for Overview
+  // Unified per-competition breakdown (registered, verified, attended) for Overview
   const competitionBreakdown = useMemo(() => {
+    const statMap = new Map(attendanceStats.map((s) => [s.eventSlug, s]));
     return MILAAP_COMPETITIONS.map((comp) => {
-      let total = 0;
+      let localRegistered = 0;
       let verified = 0;
+      let localAttended = 0;
       for (const p of participants) {
         const match = (p.events || []).find((ev) => ev.eventSlug === comp.id);
         if (match) {
-          total += 1;
+          localRegistered += 1;
           if (match.status === "Verified") verified += 1;
+          if (match.attended) localAttended += 1;
         }
       }
+      const stat = statMap.get(comp.id);
+      const total = stat?.totalRegistered ?? localRegistered;
+      const attended = stat?.totalAttended ?? localAttended;
+      const attendancePct =
+        total > 0 ? Math.round((attended / total) * 100) : 0;
       return {
         ...comp,
         total,
         verified,
-        pending: total - verified,
+        pending: Math.max(0, total - verified),
+        attended,
+        attendancePct,
       };
     });
-  }, [participants]);
+  }, [participants, attendanceStats]);
 
   // Recompute metrics cleanly from local participants array
   const recomputeMetrics = (list: AdminParticipant[]) => {
@@ -570,10 +578,18 @@ export default function AdminDashboardPage() {
           (acc, c) => acc + c.pending,
           0
         );
+        const totalAttended = competitionBreakdown.reduce(
+          (acc, c) => acc + c.attended,
+          0
+        );
+        const overallAttendancePct =
+          totalEntries > 0
+            ? Math.round((totalAttended / totalEntries) * 100)
+            : 0;
         return {
-          title: "Registrations by Competition",
-          subtitle: `Distribution across ${competitionBreakdown.length} Milaap competitions  |  Unique Participants: ${metrics.totalRegistrations}`,
-          filename: `milaap-competition-breakdown-${todayStamp()}.pdf`,
+          title: "Competition Registrations & Live Attendance",
+          subtitle: `Unique Participants: ${metrics.totalRegistrations}  |  Total Stage Entries: ${totalEntries}  |  Attended: ${totalAttended}`,
+          filename: `milaap-competition-attendance-${todayStamp()}.pdf`,
           headers: [
             "#",
             "Competition",
@@ -582,24 +598,20 @@ export default function AdminDashboardPage() {
             "Registered",
             "Verified",
             "Pending",
-            "Participant Share",
+            "Attended",
+            "Attendance %",
           ],
-          rows: competitionBreakdown.map((c, idx) => {
-            const pct =
-              metrics.totalRegistrations > 0
-                ? Math.round((c.total / metrics.totalRegistrations) * 100)
-                : 0;
-            return [
-              idx + 1,
-              c.title,
-              c.category,
-              c.format,
-              c.total,
-              c.verified,
-              c.pending,
-              `${pct}%`,
-            ];
-          }),
+          rows: competitionBreakdown.map((c, idx) => [
+            idx + 1,
+            c.title,
+            c.category,
+            c.format,
+            c.total,
+            c.verified,
+            c.pending,
+            c.attended,
+            `${c.attendancePct}%`,
+          ]),
           footRow: [
             "",
             "TOTAL ENTRIES",
@@ -608,14 +620,17 @@ export default function AdminDashboardPage() {
             totalEntries,
             totalVerified,
             totalPending,
-            "100%",
+            totalAttended,
+            `${overallAttendancePct}%`,
           ],
-          orientation: "portrait",
+          orientation: "landscape",
           columnStyles: {
             0: { cellWidth: 9 },
-            4: { cellWidth: 20 },
-            5: { cellWidth: 18 },
-            6: { cellWidth: 18 },
+            4: { cellWidth: 22 },
+            5: { cellWidth: 20 },
+            6: { cellWidth: 20 },
+            7: { cellWidth: 22 },
+            8: { cellWidth: 24 },
           },
         };
       }
@@ -1135,7 +1150,7 @@ export default function AdminDashboardPage() {
                 className="space-y-8"
               >
                 {/* Key Metric Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                   <MetricCard
                     label="Total Registrations"
                     value={metrics.totalRegistrations}
@@ -1151,13 +1166,6 @@ export default function AdminDashboardPage() {
                     accent="rose"
                   />
                   <MetricCard
-                    label="Total Events"
-                    value={MILAAP_COMPETITIONS.length}
-                    subtext={`${metrics.totalEventEntries} total stage entries`}
-                    icon={<Trophy className="w-5 h-5 text-yellow-300" />}
-                    accent="amber"
-                  />
-                  <MetricCard
                     label="Live Announcements"
                     value={announcements.filter((a) => a.isActive).length}
                     subtext={
@@ -1170,24 +1178,17 @@ export default function AdminDashboardPage() {
                   />
                 </div>
 
-                {/* Per-Event Registration & Attendance Counter Cards */}
-                <EventAttendanceCounterBar
-                  stats={attendanceStats}
-                  loading={loadingData}
-                />
-
-                {/* Competition Breakdown + Recent Participants */}
+                {/* Competition Registrations & Live Attendance + Recent Participants */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                  {/* Event Breakdown */}
+                  {/* Unified Competition Registrations & Live Attendance */}
                   <div className="lg:col-span-7 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 p-6 space-y-5">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <h2 className="text-base font-bold text-white font-cinzel">
-                          Registrations by Competition
+                        <h2 className="text-base font-bold text-white font-cinzel uppercase tracking-wide">
+                          Competition Registrations &amp; Live Attendance
                         </h2>
                         <p className="text-xs text-slate-400">
-                          Distribution across all {MILAAP_COMPETITIONS.length}{" "}
-                          Milaap stages
+                          Registered, verified, and gate check-in counts per competition
                         </p>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
@@ -1195,7 +1196,7 @@ export default function AdminDashboardPage() {
                           compact
                           onClick={handleExportBreakdownPdf}
                           loading={exportingKey === "breakdown"}
-                          title="Download Competition Breakdown as PDF"
+                          title="Download Competition Registrations & Live Attendance as PDF"
                         />
                         <button
                           type="button"
@@ -1207,31 +1208,75 @@ export default function AdminDashboardPage() {
                       </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                       {competitionBreakdown.map((c) => {
-                        const pct =
-                          metrics.totalRegistrations > 0
-                            ? Math.round(
-                                (c.total / metrics.totalRegistrations) * 100
-                              )
-                            : 0;
+                        const isComplete =
+                          c.total > 0 && c.attended === c.total;
                         return (
-                          <div key={c.id} className="space-y-1.5">
-                            <div className="flex items-center justify-between text-xs">
-                              <span className="font-medium text-white">
-                                {c.title}
-                              </span>
-                              <span className="font-mono text-amber-300">
-                                {c.total}{" "}
-                                <span className="text-slate-400 text-[10px]">
-                                  ({c.verified} verified)
+                          <div
+                            key={c.id}
+                            className="p-4 rounded-2xl bg-black/40 border border-white/10 space-y-2.5"
+                          >
+                            <div className="flex flex-wrap items-center justify-between gap-2">
+                              <div className="min-w-0 flex items-center gap-2 flex-wrap">
+                                <span className="text-xs font-bold text-white truncate">
+                                  {c.title}
                                 </span>
+                                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-200 border border-amber-400/25 shrink-0">
+                                  {c.category} • {c.format}
+                                </span>
+                              </div>
+                              <span
+                                className={`text-[11px] font-mono font-semibold shrink-0 ${
+                                  isComplete
+                                    ? "text-emerald-300"
+                                    : "text-amber-300"
+                                }`}
+                              >
+                                {c.attendancePct}% checked in
                               </span>
                             </div>
+
+                            <div className="grid grid-cols-3 gap-2 text-center">
+                              <div className="rounded-xl bg-white/5 border border-white/10 py-1.5 px-2">
+                                <p className="text-[10px] uppercase tracking-wider text-slate-400 font-mono">
+                                  Registered
+                                </p>
+                                <p className="text-sm font-bold text-white font-mono">
+                                  {c.total}
+                                </p>
+                              </div>
+                              <div className="rounded-xl bg-white/5 border border-white/10 py-1.5 px-2">
+                                <p className="text-[10px] uppercase tracking-wider text-slate-400 font-mono">
+                                  Verified
+                                </p>
+                                <p className="text-sm font-bold text-amber-300 font-mono">
+                                  {c.verified}
+                                </p>
+                              </div>
+                              <div className="rounded-xl bg-white/5 border border-white/10 py-1.5 px-2">
+                                <p className="text-[10px] uppercase tracking-wider text-slate-400 font-mono">
+                                  Attended
+                                </p>
+                                <p className="text-sm font-bold text-emerald-300 font-mono">
+                                  {c.attended}
+                                </p>
+                              </div>
+                            </div>
+
                             <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
                               <div
-                                className="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 transition-all duration-500"
-                                style={{ width: `${Math.max(pct, c.total > 0 ? 6 : 0)}%` }}
+                                className={`h-full rounded-full transition-all duration-500 ${
+                                  isComplete
+                                    ? "bg-gradient-to-r from-emerald-500 to-teal-400"
+                                    : "bg-gradient-to-r from-amber-500 to-yellow-400"
+                                }`}
+                                style={{
+                                  width: `${Math.max(
+                                    c.attendancePct,
+                                    c.attended > 0 ? 6 : 0
+                                  )}%`,
+                                }}
                               />
                             </div>
                           </div>
@@ -1243,7 +1288,7 @@ export default function AdminDashboardPage() {
                   {/* Latest Signups */}
                   <div className="lg:col-span-5 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 p-6 space-y-4">
                     <div className="flex items-center justify-between gap-3">
-                      <h2 className="text-base font-bold text-white font-cinzel">
+                      <h2 className="text-base font-bold text-white font-cinzel uppercase tracking-wide">
                         Recent Participants
                       </h2>
                       <PdfDownloadButton
@@ -1264,28 +1309,59 @@ export default function AdminDashboardPage() {
                           const hasPending = (p.events || []).some(
                             (ev) => ev.status !== "Verified"
                           );
+                          const displayId =
+                            p.participantId ||
+                            deriveDeterministicParticipantId(p.email);
                           return (
                             <div
                               key={p._id}
-                              className="p-3.5 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-between gap-3"
+                              className="p-3.5 rounded-2xl bg-black/40 border border-white/10 space-y-2"
                             >
-                              <div className="min-w-0">
-                                <p className="text-xs font-bold text-white truncate">
-                                  {p.name}
-                                </p>
-                                <p className="text-[11px] text-slate-400 truncate">
-                                  {p.college} • {(p.events || []).length} events
-                                </p>
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <p className="text-xs font-bold text-white truncate">
+                                      {p.name}
+                                    </p>
+                                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-200 border border-amber-400/25 shrink-0">
+                                      {displayId}
+                                    </span>
+                                  </div>
+                                  <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                                    {p.college}
+                                    {p.year ? ` • ${p.year}` : ""}
+                                  </p>
+                                </div>
+                                <span
+                                  className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full border shrink-0 ${
+                                    hasPending
+                                      ? "bg-amber-500/15 text-amber-300 border-amber-400/30"
+                                      : "bg-emerald-500/15 text-emerald-300 border-emerald-400/30"
+                                  }`}
+                                >
+                                  {hasPending ? "Pending" : "Verified"}
+                                </span>
                               </div>
-                              <span
-                                className={`text-[10px] font-mono uppercase px-2.5 py-0.5 rounded-full border shrink-0 ${
-                                  hasPending
-                                    ? "bg-amber-500/15 text-amber-300 border-amber-400/30"
-                                    : "bg-emerald-500/15 text-emerald-300 border-emerald-400/30"
-                                }`}
-                              >
-                                {hasPending ? "Pending" : "Verified"}
-                              </span>
+
+                              {(p.events || []).length > 0 && (
+                                <div className="flex flex-wrap gap-1.5">
+                                  {(p.events || []).map((ev, idx) => (
+                                    <span
+                                      key={`${ev.eventSlug || ev.eventName}-${idx}`}
+                                      className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                                        ev.attended
+                                          ? "bg-emerald-500/15 text-emerald-200 border-emerald-400/30"
+                                          : ev.status === "Verified"
+                                          ? "bg-white/10 text-amber-100 border-white/15"
+                                          : "bg-amber-500/10 text-amber-300 border-amber-400/25"
+                                      }`}
+                                    >
+                                      {ev.eventName}
+                                      {ev.attended ? " ✓" : ""}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
                             </div>
                           );
                         })}
@@ -2112,13 +2188,13 @@ export default function AdminDashboardPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setDeleteTarget(null)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-xl -z-10"
+              className="fixed inset-0 bg-transparent -z-10"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.94 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.94 }}
-              className="w-full max-w-md rounded-3xl bg-[#160407]/95 border border-rose-500/40 p-6 space-y-5 shadow-2xl"
+              className="w-full max-w-md rounded-3xl bg-[#160407]/95 border-2 border-rose-500/60 p-6 space-y-5 shadow-[0_0_60px_rgba(244,63,94,0.35)]"
             >
               <div className="flex items-center gap-3 text-rose-300">
                 <AlertTriangle className="w-6 h-6 shrink-0" />

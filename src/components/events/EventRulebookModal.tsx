@@ -55,14 +55,14 @@ export default function EventRulebookModal({
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto">
-        {/* Deep blur backdrop */}
+        {/* Transparent click-outside backdrop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
           onClick={onClose}
-          className="fixed inset-0 bg-black/80 backdrop-blur-xl -z-10"
+          className="fixed inset-0 bg-transparent -z-10"
         />
 
         {/* Modal Container */}
@@ -71,7 +71,7 @@ export default function EventRulebookModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.94, y: 24 }}
           transition={{ type: "spring", stiffness: 320, damping: 30 }}
-          className="relative w-full max-w-3xl max-h-[88vh] bg-[#160407]/95 border border-amber-500/30 rounded-3xl shadow-[0_0_60px_rgba(245,158,11,0.22)] overflow-hidden flex flex-col my-auto"
+          className="relative w-full max-w-3xl max-h-[88vh] bg-[#160407]/95 border-2 border-amber-400/60 rounded-3xl shadow-[0_0_65px_rgba(245,158,11,0.35)] overflow-hidden flex flex-col my-auto"
           role="dialog"
           aria-modal="true"
           aria-labelledby="rulebook-modal-title"
