@@ -127,8 +127,11 @@ export const MilaapMasterPassCard = forwardRef<
       {/* Inner Pass Content Container */}
       <div className="relative z-20 flex-1 flex flex-col justify-between py-1 px-1">
         {/* Top Regal Header */}
-        <div className="text-center pt-1">
-          <p className="text-xs sm:text-sm tracking-[0.28em] font-bold text-amber-300 whitespace-nowrap">
+        <div className="text-center pt-2">
+          <p
+            className="text-base sm:text-xl tracking-[0.18em] sm:tracking-[0.22em] font-extrabold text-amber-200 whitespace-nowrap"
+            style={{ textShadow: "0 2px 10px rgba(0, 0, 0, 0.85)" }}
+          >
             JUMC x JUDF Present
           </p>
 
@@ -144,7 +147,7 @@ export const MilaapMasterPassCard = forwardRef<
             >
               milaap
             </span>
-            <span className="text-sm sm:text-base font-serif font-bold tracking-[0.25em] text-amber-200 whitespace-nowrap">
+            <span className="text-xs sm:text-sm font-serif font-bold tracking-[0.25em] text-amber-200/95 whitespace-nowrap">
               — EDITION I —
             </span>
           </h2>
