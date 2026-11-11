@@ -70,11 +70,11 @@ export const MilaapMasterPassCard = forwardRef<
       ref={ref}
       className={`${
         forPdf ? "w-[520px]" : "w-full max-w-[520px]"
-      } min-h-[840px] p-6 sm:p-7 rounded-none bg-[#2b050a] relative overflow-hidden flex flex-col justify-between ${
+      } min-h-[840px] p-10 sm:p-11 rounded-none border-2 border-amber-500/85 bg-[#2b050a] relative overflow-hidden flex flex-col justify-between ${
         forPdf ? "" : "shadow-[0_0_45px_rgba(245,158,11,0.28)]"
       }`}
     >
-      {/* Original Milaap Webpage Backdrop Artwork (top/bottom lotus borders + musician mural) */}
+      {/* Original Milaap Webpage Backdrop Artwork cropped cleanly to outer border */}
       <img
         src={bgSrc}
         alt=""
@@ -82,7 +82,7 @@ export const MilaapMasterPassCard = forwardRef<
         className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
       />
 
-      {/* Light Warm Maroon Readability Tint (keeps lotus borders & mural clear without darkening) */}
+      {/* Light Warm Maroon Readability Tint */}
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none"
@@ -100,38 +100,32 @@ export const MilaapMasterPassCard = forwardRef<
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] object-contain pointer-events-none select-none opacity-25"
       />
 
-      {/* Stretched Outer Golden Border Frame */}
+      {/* Inner Golden Square Frame set at a clear 28px distance from the outer pass edge */}
       <div
         aria-hidden="true"
-        className="absolute inset-1.5 border-2 border-amber-500/70 rounded-xl pointer-events-none z-10"
+        className="absolute inset-7 border border-amber-400/50 rounded-none pointer-events-none z-10"
       />
 
-      {/* Inner Thin Golden Line */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-3.5 border border-amber-400/30 rounded-lg pointer-events-none z-10"
-      />
-
-      {/* 4 Gold Corner L-Brackets */}
+      {/* 4 Gold Corner L-Brackets hugging the inner square corners */}
       <span
         aria-hidden="true"
-        className="absolute top-4 left-4 w-7 h-7 border-t-2 border-l-2 border-amber-400 pointer-events-none z-20"
+        className="absolute top-7 left-7 w-6 h-6 border-t-2 border-l-2 border-amber-400 pointer-events-none z-20"
       />
       <span
         aria-hidden="true"
-        className="absolute top-4 right-4 w-7 h-7 border-t-2 border-r-2 border-amber-400 pointer-events-none z-20"
+        className="absolute top-7 right-7 w-6 h-6 border-t-2 border-r-2 border-amber-400 pointer-events-none z-20"
       />
       <span
         aria-hidden="true"
-        className="absolute bottom-4 left-4 w-7 h-7 border-b-2 border-l-2 border-amber-400 pointer-events-none z-20"
+        className="absolute bottom-7 left-7 w-6 h-6 border-b-2 border-l-2 border-amber-400 pointer-events-none z-20"
       />
       <span
         aria-hidden="true"
-        className="absolute bottom-4 right-4 w-7 h-7 border-b-2 border-r-2 border-amber-400 pointer-events-none z-20"
+        className="absolute bottom-7 right-7 w-6 h-6 border-b-2 border-r-2 border-amber-400 pointer-events-none z-20"
       />
 
       {/* Inner Pass Content Container */}
-      <div className="relative z-20 flex-1 flex flex-col justify-between py-2 px-1 sm:px-2">
+      <div className="relative z-20 flex-1 flex flex-col justify-between py-1 px-1">
         {/* Top Regal Header */}
         <div className="text-center pt-1">
           <p className="text-xs sm:text-sm tracking-[0.28em] font-bold text-amber-300 whitespace-nowrap">
