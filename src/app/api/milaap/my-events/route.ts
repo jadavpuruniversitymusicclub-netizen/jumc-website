@@ -7,6 +7,8 @@ import Participant from "@/models/Participant";
 
 export interface MyEventItem {
   registrationId: string;
+  name: string;
+  email: string;
   eventSlug: string;
   eventName: string;
   category: string;
@@ -55,6 +57,8 @@ export async function GET() {
       for (const ev of docEvents) {
         events.push({
           registrationId: String(doc._id),
+          name: doc.name || session.user.name || "Milaap Delegate",
+          email: doc.email || email,
           eventSlug: ev.eventSlug,
           eventName: ev.eventName,
           category: ev.category,
