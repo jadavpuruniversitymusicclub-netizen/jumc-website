@@ -112,9 +112,12 @@ function ActionButton({
 
 /**
  * Renders PDF page 1 onto an offscreen canvas using pdfjs-dist and converts it
- * to a crisp PNG File so Html5Qrcode.scanFile can decode QR passes from PDFs.
+ * to crisp PNG Files (full page + zoomed QR crop fallback) so Html5Qrcode can
+ * reliably decode QR passes uploaded as PDFs.
  */
-async function convertPdfFirstPageToPngFile(pdfFile: File): Promise<File> {
+async function convertPdfFirstPageToPngFiles(
+  pdfFile: File
+): Promise<{ fullFile: File; qrCropFile: File | null }> {
   const buffer = await pdfFile.arrayBuffer();
   const pdfjsLib = await import("pdfjs-dist");
   pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
@@ -140,14 +143,53 @@ async function convertPdfFirstPageToPngFile(pdfFile: File): Promise<File> {
     viewport,
   }).promise;
 
-  const blob = await new Promise<Blob | null>((resolve) =>
+  const fullBlob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, "image/png", 1)
   );
-  if (!blob) {
+  if (!fullBlob) {
     throw new Error("Could not convert rendered PDF pass into image.");
   }
+  const fullFile = new File([fullBlob], "milaap-pass-page1.png", {
+    type: "image/png",
+  });
 
-  return new File([blob], "milaap-pass-page1.png", { type: "image/png" });
+  // Also extract zoomed bottom-half QR region as a fallback if full-page scan
+  // has surrounding pass typography that confuses ZXing at low contrasts.
+  let qrCropFile: File | null = null;
+  const cropX = Math.floor(canvas.width * 0.12);
+  const cropY = Math.floor(canvas.height * 0.45);
+  const cropW = Math.floor(canvas.width * 0.76);
+  const cropH = Math.floor(canvas.height * 0.48);
+
+  if (cropW > 60 && cropH > 60) {
+    const cropCanvas = document.createElement("canvas");
+    cropCanvas.width = cropW;
+    cropCanvas.height = cropH;
+    const cropCtx = cropCanvas.getContext("2d");
+    if (cropCtx) {
+      cropCtx.drawImage(
+        canvas,
+        cropX,
+        cropY,
+        cropW,
+        cropH,
+        0,
+        0,
+        cropW,
+        cropH
+      );
+      const cropBlob = await new Promise<Blob | null>((resolve) =>
+        cropCanvas.toBlob(resolve, "image/png", 1)
+      );
+      if (cropBlob) {
+        qrCropFile = new File([cropBlob], "milaap-pass-qr-crop.png", {
+          type: "image/png",
+        });
+      }
+    }
+  }
+
+  return { fullFile, qrCropFile };
 }
 
 export default function AdminQrScanner({
@@ -317,17 +359,32 @@ export default function AdminQrScanner({
 
     try {
       await stopScanner();
-      const imageFile =
+      const isPdf =
         file.type === "application/pdf" ||
-        file.name.toLowerCase().endsWith(".pdf")
-          ? await convertPdfFirstPageToPngFile(file)
-          : file;
+        file.name.toLowerCase().endsWith(".pdf");
 
       const { Html5Qrcode: Html5QrcodeCtor } = await import("html5-qrcode");
       const qr = new Html5QrcodeCtor("reader");
       html5QrCodeRef.current = qr;
 
-      const decodedText = await qr.scanFile(imageFile, false);
+      let decodedText = "";
+      if (isPdf) {
+        const { fullFile, qrCropFile } = await convertPdfFirstPageToPngFiles(
+          file
+        );
+        try {
+          decodedText = await qr.scanFile(fullFile, false);
+        } catch (firstErr) {
+          if (qrCropFile) {
+            decodedText = await qr.scanFile(qrCropFile, false);
+          } else {
+            throw firstErr;
+          }
+        }
+      } else {
+        decodedText = await qr.scanFile(file, false);
+      }
+
       try {
         qr.clear();
       } catch {
@@ -337,6 +394,14 @@ export default function AdminQrScanner({
 
       await processDecodedQR(decodedText);
     } catch (err) {
+      if (html5QrCodeRef.current) {
+        try {
+          html5QrCodeRef.current.clear();
+        } catch {
+          // Ignore clear errors
+        }
+        html5QrCodeRef.current = null;
+      }
       console.error("[QR File scan error]:", err);
       showFlash(
         "error",

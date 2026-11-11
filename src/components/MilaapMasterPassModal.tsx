@@ -109,6 +109,8 @@ function MasterPassDialog({
         cacheBust: true,
         pixelRatio: 3,
         backgroundColor: "#120604",
+        skipFonts: true,
+        skipAutoScale: true,
       });
 
       const pageW = 420;
@@ -190,9 +192,14 @@ function MasterPassDialog({
           ref={ticketRef}
           className="w-[360px] sm:w-[400px] bg-gradient-to-b from-[#2a120a] via-[#1a0b07] to-[#120604] p-5 sm:p-6 relative overflow-hidden rounded-2xl border-2 border-amber-500/50 shadow-[0_0_55px_rgba(245,158,11,0.25)]"
         >
-          {/* Warm Ambient Gold Glows */}
-          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-72 h-40 rounded-full bg-amber-500/15 blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 w-64 h-32 rounded-full bg-amber-600/10 blur-3xl pointer-events-none" />
+          {/* Warm Ambient Gold Radial Glows (SVG foreignObject safe) */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(circle at 50% 0%, rgba(245,158,11,0.16), transparent 52%), radial-gradient(circle at 50% 100%, rgba(217,119,6,0.12), transparent 48%)",
+            }}
+          />
 
           {/* 4 Decorative Gold Corner Accents */}
           <span className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-amber-400 pointer-events-none" />
