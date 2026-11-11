@@ -7,6 +7,7 @@ export interface IRegisteredEvent {
   teamName?: string;
   role?: string;
   status: "Pending" | "Verified";
+  registeredAt?: Date;
 }
 
 export interface IParticipant extends Document {
@@ -54,6 +55,10 @@ const RegisteredEventSchema = new Schema<IRegisteredEvent>(
       type: String,
       enum: ["Pending", "Verified"],
       default: "Pending",
+    },
+    registeredAt: {
+      type: Date,
+      default: Date.now,
     },
   },
   { _id: false }

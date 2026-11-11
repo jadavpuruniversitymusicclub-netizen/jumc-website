@@ -9,6 +9,7 @@ export interface SessionRegisteredEvent {
   teamName?: string;
   role?: string;
   status: "Pending" | "Verified";
+  registeredAt?: string;
 }
 
 export interface SessionParticipant {

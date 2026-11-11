@@ -122,10 +122,19 @@ export async function POST(req: Request) {
     }
 
     const existingStatusMap = new Map<string, "Pending" | "Verified">();
+    const existingDateMap = new Map<string, Date>();
     const existingSlugs = new Set<string>();
     if (existing?.events) {
       for (const ev of existing.events) {
         existingStatusMap.set(ev.eventSlug, ev.status);
+        existingDateMap.set(
+          ev.eventSlug,
+          ev.registeredAt
+            ? new Date(ev.registeredAt)
+            : existing.createdAt
+            ? new Date(existing.createdAt)
+            : new Date()
+        );
         existingSlugs.add(ev.eventSlug);
       }
     }
@@ -163,6 +172,7 @@ export async function POST(req: Request) {
           String(item.role || "").trim() ||
           (comp.format === "Solo" ? "Solo Performer" : "Participant"),
         status: existingStatusMap.get(comp.id) ?? "Pending",
+        registeredAt: existingDateMap.get(comp.id) ?? new Date(),
       });
     }
 

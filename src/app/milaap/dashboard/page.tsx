@@ -10,29 +10,23 @@ import {
   LogOut,
   Copy,
   Check,
-  Sparkles,
   User,
   Mail,
   Phone,
   Building2,
   GraduationCap,
-  Calendar,
-  MapPin,
-  Clock,
-  CheckCircle2,
-  PlusCircle,
   Edit3,
   X,
   Loader2,
   Music,
   Footprints,
-  Users,
   ShieldCheck,
   AlertCircle,
   ExternalLink,
 } from "lucide-react";
 import MilaapBrand from "@/components/MilaapBrand";
 import MilaapAnnouncements from "@/components/MilaapAnnouncements";
+import MyEventsSection from "@/components/MyEventsSection";
 import AdminPortalBarrier from "@/components/AdminPortalBarrier";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
 
@@ -69,6 +63,7 @@ export default function MilaapDashboardPage() {
 
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [eventsRefreshKey, setEventsRefreshKey] = useState(0);
 
   const participant = session?.participant ?? session?.user?.participant;
   const isRegistered = Boolean(
@@ -222,6 +217,7 @@ export default function MilaapDashboardPage() {
         return;
       }
       await update();
+      setEventsRefreshKey((k) => k + 1);
       setSaving(false);
       setEditEventsOpen(false);
     } catch {
@@ -438,127 +434,11 @@ export default function MilaapDashboardPage() {
             </div>
           </section>
 
-          {/* RIGHT: Registered Events List & Editor Trigger */}
-          <section className="lg:col-span-8 rounded-3xl bg-white/[0.04] border border-white/10 backdrop-blur-xl p-6 sm:p-8 shadow-xl space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-5">
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-amber-400 block mb-1">
-                  Your Stage Lineup
-                </span>
-                <h2 className="text-xl sm:text-2xl font-bold text-white font-cinzel flex items-center gap-2">
-                  <span>Registered Competitions</span>
-                  <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-400/30">
-                    {participant.events.length}
-                  </span>
-                </h2>
-              </div>
-
-              <button
-                type="button"
-                onClick={openEventsEditor}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 text-black font-bold text-xs uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-[0_0_20px_rgba(245,158,11,0.3)] cursor-pointer"
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Add / Edit Events</span>
-              </button>
-            </div>
-
-            {participant.events.length === 0 ? (
-              <div className="py-12 text-center space-y-4">
-                <p className="text-sm text-slate-300">
-                  You have not selected any competitions yet.
-                </p>
-                <button
-                  type="button"
-                  onClick={openEventsEditor}
-                  className="px-5 py-2.5 rounded-xl bg-amber-500/20 border border-amber-400/40 text-amber-200 text-xs font-semibold uppercase tracking-wider hover:bg-amber-500/30 cursor-pointer"
-                >
-                  Select Competitions Now
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {participant.events.map((ev) => {
-                  const catalogComp = MILAAP_COMPETITIONS.find(
-                    (c) => c.id === ev.eventSlug
-                  );
-                  const isVerified = ev.status === "Verified";
-
-                  return (
-                    <div
-                      key={ev.eventSlug}
-                      className="rounded-2xl bg-black/45 border border-amber-500/20 hover:border-amber-400/50 p-5 flex flex-col justify-between gap-4 transition-all"
-                    >
-                      <div>
-                        <div className="flex items-start justify-between gap-2 mb-2.5">
-                          <span className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white/10 text-amber-300 border border-amber-400/25">
-                            {ev.category}
-                          </span>
-
-                          {/* Verification Status Badge */}
-                          <span
-                            className={`inline-flex items-center gap-1 text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${
-                              isVerified
-                                ? "bg-emerald-950/70 text-emerald-300 border-emerald-500/40"
-                                : "bg-amber-950/70 text-amber-300 border-amber-500/40"
-                            }`}
-                          >
-                            {isVerified ? (
-                              <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                            ) : (
-                              <Clock className="w-3 h-3 text-amber-400" />
-                            )}
-                            {ev.status}
-                          </span>
-                        </div>
-
-                        <h3 className="text-base sm:text-lg font-bold text-white font-serif leading-snug">
-                          {ev.eventName}
-                        </h3>
-
-                        {(ev.teamName || ev.role) && (
-                          <div className="mt-2.5 space-y-1 text-xs text-slate-300/90">
-                            {ev.teamName && (
-                              <p className="flex items-center gap-1.5">
-                                <Users className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                                <span>
-                                  Team:{" "}
-                                  <strong className="text-amber-200 font-medium">
-                                    {ev.teamName}
-                                  </strong>
-                                </span>
-                              </p>
-                            )}
-                            {ev.role && (
-                              <p className="flex items-center gap-1.5">
-                                <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                                <span>Role: {ev.role}</span>
-                              </p>
-                            )}
-                          </div>
-                        )}
-                      </div>
-
-                      {catalogComp && (
-                        <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 font-mono">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3 text-amber-400" />
-                            {catalogComp.date}
-                          </span>
-                          <span className="flex items-center gap-1 truncate max-w-[170px]">
-                            <MapPin className="w-3 h-3 text-amber-400 shrink-0" />
-                            <span className="truncate">
-                              {catalogComp.venue}
-                            </span>
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+          {/* RIGHT: My Events Section (MongoDB Fetch + Loading + Empty + Cards) */}
+          <MyEventsSection
+            onOpenEditor={openEventsEditor}
+            refreshKey={eventsRefreshKey}
+          />
         </div>
       </div>
 

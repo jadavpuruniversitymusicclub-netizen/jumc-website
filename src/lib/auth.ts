@@ -121,6 +121,11 @@ export const authOptions: NextAuthOptions = {
                 teamName: ev.teamName || "",
                 role: ev.role || "Participant",
                 status: ev.status === "Verified" ? "Verified" : "Pending",
+                registeredAt: ev.registeredAt
+                  ? new Date(ev.registeredAt).toISOString()
+                  : doc.createdAt
+                  ? new Date(doc.createdAt).toISOString()
+                  : undefined,
               }))
               : [],
             createdAt: doc.createdAt
