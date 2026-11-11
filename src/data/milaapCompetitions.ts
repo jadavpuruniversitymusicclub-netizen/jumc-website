@@ -174,44 +174,6 @@ export const MILAAP_COMPETITIONS: MilaapCompetition[] = [
     }
   },
   {
-    id: "indak-eastern-dance",
-    title: "INDAK: Eastern Group Dance",
-    category: "Dance",
-    format: "Group",
-    shortDescription:
-      "JUDF's signature group dance competition celebrating Indian Classical and vibrant regional Folk choreography.",
-    timeLimit: "8 – 12 Mins on Stage",
-    teamSize: "6 – 16 Dancers per Team",
-    prizePool: "₹35,000",
-    date: "Nov 29, 2026",
-    venue: "Open Air Theatre (OAT)",
-    gradient: "from-purple-600/30 via-rose-950/40 to-black",
-    accentColor: "#A855F7",
-    rulebook: {
-      overview:
-        "INDAK is the flagship dance festival of JUDF, uniting Kathak, Bharatanatyam, Odissi, Manipuri, and vibrant folk traditions in breathtaking group formations under festival stage lights.",
-      constraints: [
-        "Teams must have 6 to 16 dancers on stage.",
-        "Valid student ID cards required for all team members.",
-        "Empty stage to cleared stage protocol must be completed within 2 minutes."
-      ],
-      timeLimits:
-        "8 to 12 minutes performance window on stage. Negative marking applies for exceeding 12 minutes.",
-      rules: [
-        "Accepted dance styles: Bharatanatyam, Kathak, Odissi, Manipuri, Mohiniyattam, Folk (Bhangra, Garba, Chhau, Bihu, Lavani, etc.).",
-        "Fusion between multiple classical or folk styles is welcomed with a coherent thematic narrative.",
-        "Fire, water, live flames, powders, and hazardous props are strictly prohibited on stage.",
-        "Soundtracks must be submitted in MP3 format (320kbps) on a USB drive at least 2 hours before the event."
-      ],
-      judgingCriteria: [
-        "Synchronization, formation transitions, and spatial choreography (30%)",
-        "Abhinaya, expressions, mudras, and posture authenticity (30%)",
-        "Costume, aesthetics, and thematic representation (20%)",
-        "Rhythm adherence, stamina, and energy flow (20%)"
-      ]
-    }
-  },
-  {
     id: "street-dance-battle",
     title: "Street Dance Battle",
     category: "Dance",

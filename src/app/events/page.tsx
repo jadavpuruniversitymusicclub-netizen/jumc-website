@@ -73,8 +73,8 @@ const TOP_LEVEL_EVENTS: TopLevelEvent[] = [
       highlights: [
         "Eastern & Western Solo Vocals",
         "Battle of Bands & Beatboxing Cypher",
-        "INDAK Classical & Folk Group Dance",
-        "Street Dance 1v1 Battles & All-Styles Cypher"
+        "Street Dance 1v1 Battles & All-Styles Cypher",
+        "Instrumental Showdown & Headliner Pro-Night"
       ],
       note: "Clicking 'View Details' takes you directly to the dedicated Milaap Portal."
     }

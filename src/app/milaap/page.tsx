@@ -223,11 +223,6 @@ const competitions = [
     icon: <Drum size={20} />,
   },
   {
-    title: "INDAK: EASTERN & FOLK DANCE",
-    desc: "Classical & Folk Group/Solo • Odissi, Kathak, Bharatanatyam, Manipuri",
-    icon: <Footprints size={20} />,
-  },
-  {
     title: "WESTERN & STREET DANCE BATTLE",
     desc: "Hip-Hop, Afro, Breaking, Popping & Contemporary",
     icon: <Star size={20} />,
@@ -254,18 +249,17 @@ const nodePositions: {
   cardSide: "left" | "right";
   threshold: number;
 }[] = [
-  { x: 580, y: 200, cardSide: "left", threshold: 0.08 },
-  { x: 420, y: 440, cardSide: "right", threshold: 0.19 },
-  { x: 580, y: 680, cardSide: "left", threshold: 0.30 },
-  { x: 420, y: 920, cardSide: "right", threshold: 0.42 },
-  { x: 580, y: 1160, cardSide: "left", threshold: 0.53 },
-  { x: 420, y: 1400, cardSide: "right", threshold: 0.65 },
-  { x: 580, y: 1640, cardSide: "left", threshold: 0.76 },
-  { x: 420, y: 1880, cardSide: "right", threshold: 0.88 },
+  { x: 580, y: 200, cardSide: "left", threshold: 0.09 },
+  { x: 420, y: 480, cardSide: "right", threshold: 0.21 },
+  { x: 580, y: 760, cardSide: "left", threshold: 0.33 },
+  { x: 420, y: 1040, cardSide: "right", threshold: 0.45 },
+  { x: 580, y: 1320, cardSide: "left", threshold: 0.58 },
+  { x: 420, y: 1600, cardSide: "right", threshold: 0.71 },
+  { x: 580, y: 1880, cardSide: "left", threshold: 0.83 },
 ];
 
 const windingPath =
-  "M 500 50 C 530 90, 620 140, 580 200 C 540 260, 380 380, 420 440 C 460 500, 620 620, 580 680 C 540 740, 380 860, 420 920 C 460 980, 620 1100, 580 1160 C 540 1220, 380 1340, 420 1400 C 460 1460, 620 1580, 580 1640 C 540 1700, 380 1820, 420 1880 C 450 1930, 530 1960, 510 2010 C 490 2055, 435 2040, 445 1995 C 452 1965, 468 2040, 468 2115";
+  "M 500 50 C 530 90, 620 140, 580 200 C 540 260, 380 410, 420 480 C 460 550, 620 690, 580 760 C 540 830, 380 970, 420 1040 C 460 1110, 620 1250, 580 1320 C 540 1390, 380 1530, 420 1600 C 460 1670, 620 1810, 580 1880 C 550 1935, 520 1970, 505 2010 C 490 2050, 435 2040, 445 1995 C 452 1965, 468 2040, 468 2115";
 
 /* ====================================================================
    SPONSORSHIP DATA
@@ -414,7 +408,7 @@ const carouselItems = [
   { src: "/judf-group.svg", alt: "JUDF Team — Dance & Rhythm" },
   { src: "/reach-group.svg", alt: "JUMC × JUDF — Digital & Campus Impact" },
   { src: "/jumc-group.svg", alt: "Iqraar Band & JUMC Live Showcase" },
-  { src: "/judf-group.svg", alt: "INDAK Flagship Dance Festival" },
+  { src: "/judf-group.svg", alt: "JUDF Team — Ensemble & Choreography" },
 ];
 
 /* ====================================================================
@@ -727,7 +721,7 @@ export default function MilaapPage() {
                   performing for NAAC and other distinguished guests.
                 </p>
                 <p>
-                  Its signature annual festival, INDAK, has featured guest
+                  JUDF&apos;s annual dance showcases have featured guest
                   performances by Laavanya Ghosh, Ranodip Poddar, Deven Khadka,
                   Drabin Chatterjee and Troupe, and The Unknown&apos;s Crew. JUDF&apos;s
                   own home teams took 1st position in both the Eastern/Folk

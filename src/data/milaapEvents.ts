@@ -217,44 +217,6 @@ export const MILAAP_EVENTS: MilaapEvent[] = [
     }
   },
   {
-    id: 'indak-eastern-dance',
-    title: 'INDAK — Eastern & Folk Group Dance',
-    subtitle: 'Classical Grace & Vibrant Folk Traditions',
-    category: 'Dance',
-    status: 'Registrations Open',
-    shortDescription:
-      'JUDF’s signature flagship Eastern dance spectacle featuring classical traditions (Kathak, Bharatanatyam, Odissi) and high-energy regional folk choreography.',
-    date: 'Nov 29, 2026',
-    time: '05:30 PM – 09:30 PM',
-    venue: 'Open Air Theatre (OAT)',
-    teamSize: '6 – 16 Dancers per Team',
-    timeLimit: '8 – 12 Minutes on Stage',
-    prizePool: '₹35,000',
-    gradient: 'from-purple-600/30 via-rose-950/40 to-black',
-    accentColor: '#A855F7',
-    rulebook: {
-      overview:
-        'INDAK has been JUDF’s signature festival for years. It celebrates the vibrant heritage of Indian classical and folk dance forms in grand ensemble formations under festival stage lights.',
-      teamConstraints: 'Teams must have 6 to 16 dancers on stage.',
-      timeConstraints: '8 to 12 minutes on stage. Empty stage to clear stage protocol in 2 minutes.',
-      rules: [
-        'Accepted dance styles: Bharatanatyam, Kathak, Odissi, Manipuri, Mohiniyattam, Folk (Bhangra, Garba, Chhau, Bihu, Lavani, etc.).',
-        'Fusion between multiple classical or folk styles is welcomed with coherent thematic narrative.',
-        'Fire, water, live flames, and hazardous props are strictly prohibited on stage.',
-        'Soundtracks must be submitted in MP3 format (320kbps) on a USB drive at least 2 hours before the event.'
-      ],
-      judgingCriteria: [
-        'Synchronization, formation transitions, and spatial choreography (30%).',
-        'Abhinaya, expressions, mudras, and posture authenticity (30%).',
-        'Costume, aesthetics, and thematic representation (20%).',
-        'Rhythm adherence and energy flow (20%).'
-      ],
-      coordinators: [
-        { name: 'Tanisha Das', phone: '+91 88374 13287', club: 'JUDF Coordinator' }
-      ]
-    }
-  },
-  {
     id: 'street-dance-battle',
     title: 'Western & Street Dance Battle',
     subtitle: 'Cyphers, All-Styles & Crew Showdowns',

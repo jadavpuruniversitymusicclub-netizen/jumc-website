@@ -232,7 +232,7 @@ export default function MilaapDetailView() {
             <div>
               <div className="flex items-center justify-between mb-6">
                 <span className="px-3 py-1 rounded-full text-[10px] font-mono font-bold tracking-widest uppercase bg-blue-500/20 border border-blue-500/40 text-blue-300">
-                  8+ YEARS • INDAK
+                  8+ YEARS • JUDF
                 </span>
                 <Radio className="w-5 h-5 text-blue-400" />
               </div>

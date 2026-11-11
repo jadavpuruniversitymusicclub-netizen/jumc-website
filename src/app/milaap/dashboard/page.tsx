@@ -100,8 +100,10 @@ export default function MilaapDashboardPage() {
 
   const openEventsEditor = () => {
     if (!participant) return;
+    const activeSlugs = new Set(MILAAP_COMPETITIONS.map((c) => c.id));
     const map: Record<string, { teamName: string; role: string }> = {};
     for (const ev of participant.events || []) {
+      if (!activeSlugs.has(ev.eventSlug)) continue;
       map[ev.eventSlug] = {
         teamName: ev.teamName || "",
         role: ev.role || "Participant",

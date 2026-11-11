@@ -71,7 +71,6 @@ export const EVENTS_DATA: EventItem[] = [
       { time: 'Day 1 (Nov 28) 04:30 PM', activity: 'Western Vocals & Acoustic Jam Session at OAT' },
       { time: 'Day 2 (Nov 29) 11:00 AM', activity: 'Instrumental Showdown (Strings, Percussion, Wind)' },
       { time: 'Day 2 (Nov 29) 02:30 PM', activity: 'Western & Street Dance Battle (Cypher & Crew Battle)' },
-      { time: 'Day 2 (Nov 29) 06:00 PM', activity: 'INDAK — Eastern & Folk Group Dance Showcase' },
       { time: 'Day 3 (Nov 30) 11:00 AM', activity: 'K-Pop & Movement Workshop with JUDW Masters' },
       { time: 'Day 3 (Nov 30) 05:30 PM', activity: 'Grand Award Gala & Headliner Celebrity Musical Concert' },
     ],
@@ -201,46 +200,6 @@ export const EVENTS_DATA: EventItem[] = [
     ],
   },
   {
-    slug: 'indak-folk-dance',
-    title: 'INDAK — Eastern & Folk Group Dance',
-    subtitle: 'Signature Annual Dance Festival of JUDW',
-    category: 'Dance (JUDF)',
-    status: 'Open',
-    club: 'JUDW',
-    date: 'Nov 29, 2026',
-    startDateIso: '2026-11-29T17:00:00+05:30',
-    endDateIso: '2026-11-29T21:30:00+05:30',
-    time: '5:00 PM – 9:30 PM',
-    venue: 'Gandhi Bhavan Main Stage',
-    locationDetails: 'Gandhi Bhavan Stage, Jadavpur University',
-    tags: ['JUDF', 'ODISSI / KATHAK', 'FOLK', 'INDAK'],
-    bannerGradient: 'from-crimson/30 via-rose-950/60 to-slate-950',
-    shortDescription:
-      'JUDW’s flagship classical & folk dance spectacle. Grand stage productions across Odissi, Kathak, Manipuri, and folk heritage.',
-    fullDescription:
-      'For over 8 years, JU Dance Wing has dominated Eastern/Folk group dance categories across national university festivals. INDAK is their magnum opus: a theatrical journey of mudras, footwork, vibrant traditional attires, and breathtaking ensemble synchronization.',
-    prizes: {
-      first: '₹20,000 + Prestigious INDAK Rolling Trophy & Medals',
-      second: '₹10,000 + Silver Crest',
-      third: '₹5,000 + Certificates',
-    },
-    rules: [
-      'Group size: 6 to 16 members.',
-      'Time duration: 8 to 10 minutes total.',
-      'Styles: Classical (Odissi, Kathak, Bharatanatyam, Manipuri) or Indian Folk (Chhau, Bihu, Garba, Lavani, Bhangra).',
-      'Props and costumes must be safe and managed entirely by the performing crew.',
-    ],
-    schedule: [
-      { time: '04:00 PM', activity: 'Green room call & technical sound cue check' },
-      { time: '05:00 PM', activity: 'Traditional Lamp Lighting & Opening Odissi Invocation' },
-      { time: '05:30 PM', activity: 'Eastern Classical & Folk Group Dance Battles' },
-      { time: '09:00 PM', activity: 'Grand INDAK Award Ceremony' },
-    ],
-    coordinators: [
-      { name: 'JUDW Dance Convenor', role: 'Head of Classical Choreography', contact: '+91 98319 99001' },
-    ],
-  },
-  {
     slug: 'street-dance-battle',
     title: 'Western & Street Dance Battle',
     subtitle: 'Hip-Hop, Breaking, Popping & 1v1 Cyphers',
@@ -353,11 +312,11 @@ export const BROCHURE_DATA = {
     legacy: '8+ years uniting diverse dance forms',
     westernForms: ['Hip-Hop', 'Afro', 'Breaking', 'Popping'],
     easternForms: ['Odissi', 'Bharatanatyam', 'Kathak', 'Manipuri'],
-    signatureFest: 'INDAK',
+    signatureFest: 'JUDF Dance Showcase',
     achievements:
       'Secured 1st position in both Eastern/Folk and Western/Contemporary Group Dance categories across national university circuits.',
     description:
-      '8+ years uniting diverse dance forms—Hip-Hop, Afro, Breaking, and Popping (Western) alongside Odissi, Bharatanatyam, Kathak, and Manipuri (Eastern). Home of signature annual festival INDAK, securing 1st position in both Eastern/Folk and Western/Contemporary Group Dance categories.',
+      '8+ years uniting diverse dance forms—Hip-Hop, Afro, Breaking, and Popping (Western) alongside Odissi, Bharatanatyam, Kathak, and Manipuri (Eastern). Multiple-time champions securing 1st position in both Eastern/Folk and Western/Contemporary Group Dance categories.',
   },
   socialMediaImpact: {
     headline: '160,000+ VIEWS — TWO STUDENT CLUBS. ONE UNIVERSITY.',

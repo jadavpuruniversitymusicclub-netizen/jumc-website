@@ -44,7 +44,6 @@ function CompetitionCategoryIcon({
   if (title.includes("Vocals")) return <Mic2 size={20} />;
   if (title.includes("Instrumental")) return <Guitar size={20} />;
   if (title.includes("Bands")) return <Drum size={20} />;
-  if (title.includes("INDAK")) return <Footprints size={20} />;
   if (title.includes("Street")) return <Flame size={20} />;
   return category === "Music" ? <Music size={20} /> : <Footprints size={20} />;
 }

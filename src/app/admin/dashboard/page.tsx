@@ -1137,7 +1137,8 @@ export default function AdminDashboardPage() {
                           Registrations by Competition
                         </h2>
                         <p className="text-xs text-slate-400">
-                          Distribution across all 6 Milaap stages
+                          Distribution across all {MILAAP_COMPETITIONS.length}{" "}
+                          Milaap stages
                         </p>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
