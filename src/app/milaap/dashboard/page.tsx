@@ -23,13 +23,18 @@ import {
   ShieldCheck,
   AlertCircle,
   ExternalLink,
+  QrCode,
+  FileDown,
 } from "lucide-react";
 import MilaapBrand from "@/components/MilaapBrand";
 import MilaapAnnouncements from "@/components/MilaapAnnouncements";
 import MyEventsSection from "@/components/MyEventsSection";
+import MilaapMasterPassModal from "@/components/MilaapMasterPassModal";
 import AdminPortalBarrier from "@/components/AdminPortalBarrier";
 import TeamMembersFieldArray from "@/components/TeamMembersFieldArray";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
+import { deriveDeterministicParticipantId } from "@/lib/participantId";
+import type { MyEventItem } from "@/app/api/milaap/my-events/route";
 import {
   createEmptyTeamMembers,
   isAlwaysGroupCompetition,
@@ -80,6 +85,10 @@ export default function MilaapDashboardPage() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [eventsRefreshKey, setEventsRefreshKey] = useState(0);
+  const [masterPassOpen, setMasterPassOpen] = useState(false);
+  const [liveEvents, setLiveEvents] = useState<MyEventItem[] | undefined>(
+    undefined
+  );
 
   const participant = session?.participant ?? session?.user?.participant;
   const isRegistered = Boolean(
@@ -147,10 +156,15 @@ export default function MilaapDashboardPage() {
     setEditEventsOpen(true);
   };
 
+  const effectiveParticipantId = participant
+    ? participant.participantId ||
+      deriveDeterministicParticipantId(participant.email)
+    : "";
+
   const handleCopyId = async () => {
-    if (!participant?.participantId) return;
+    if (!effectiveParticipantId) return;
     try {
-      await navigator.clipboard.writeText(participant.participantId);
+      await navigator.clipboard.writeText(effectiveParticipantId);
       setCopiedId(true);
       setTimeout(() => setCopiedId(false), 2000);
     } catch {
@@ -418,7 +432,7 @@ export default function MilaapDashboardPage() {
 
               <div className="flex items-center justify-between gap-3 pt-1">
                 <span className="text-2xl sm:text-3xl font-mono font-black tracking-wider text-amber-300">
-                  {participant.participantId || "MIL-2026"}
+                  {effectiveParticipantId || "MLP-2026"}
                 </span>
                 <button
                   type="button"
@@ -494,6 +508,34 @@ export default function MilaapDashboardPage() {
               />
             </div>
 
+            {/* Unified Participant ID & Master PDF Pass Block */}
+            <div className="bg-[#1a0b07]/90 border border-amber-500/30 rounded-xl p-4 space-y-3 shadow-[0_0_25px_rgba(245,158,11,0.12)]">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] text-amber-300">
+                  PARTICIPANT ID &amp; ENTRY PASS
+                </span>
+                <QrCode className="w-4 h-4 text-amber-400 shrink-0" />
+              </div>
+
+              <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-black/50 border border-amber-500/20">
+                <span className="text-xs sm:text-sm font-mono font-bold tracking-wider text-amber-300">
+                  {effectiveParticipantId}
+                </span>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-300 px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30">
+                  Master QR
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setMasterPassOpen(true)}
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-600 hover:brightness-110 active:scale-[0.98] text-black font-bold text-xs uppercase tracking-wider transition-all shadow-[0_0_22px_rgba(245,158,11,0.35)] cursor-pointer"
+              >
+                <FileDown className="w-4 h-4 shrink-0" />
+                <span>VIEW / DOWNLOAD OFFICIAL PASS (PDF)</span>
+              </button>
+            </div>
+
             <div className="p-3.5 rounded-2xl bg-amber-500/[0.06] border border-amber-400/20 text-[11px] text-amber-100/80 leading-relaxed">
               Need help modifying a Verified entry or changing band members?
               Contact our event coordinators on the{" "}
@@ -508,6 +550,7 @@ export default function MilaapDashboardPage() {
           <MyEventsSection
             onOpenEditor={openEventsEditor}
             refreshKey={eventsRefreshKey}
+            onEventsLoaded={setLiveEvents}
           />
         </div>
       </div>
@@ -830,6 +873,22 @@ export default function MilaapDashboardPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Unified Milaap Master Pass PDF Modal */}
+      <MilaapMasterPassModal
+        open={masterPassOpen}
+        participant={{
+          name: participant.name,
+          email: participant.email,
+          phone: participant.phone,
+          college: participant.college,
+          year: participant.year,
+          participantId: effectiveParticipantId,
+          events: participant.events || [],
+        }}
+        liveEvents={liveEvents}
+        onClose={() => setMasterPassOpen(false)}
+      />
     </main>
   );
 }

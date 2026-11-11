@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import connectToDatabase from "@/lib/mongodb";
+import { deriveDeterministicParticipantId } from "@/lib/participantId";
 import { getGlobalSettings } from "@/lib/settings";
 import Participant from "@/models/Participant";
 
 export interface MyEventItem {
   registrationId: string;
+  eventRecordId: string;
   name: string;
   email: string;
   eventSlug: string;
@@ -16,9 +18,11 @@ export interface MyEventItem {
   role: string;
   teamMembers: Array<{ name: string; phone: string }>;
   status: "Pending" | "Verified";
+  attended: boolean;
+  attendedAt: string | null;
   registeredAt: string;
   updatedAt?: string;
-  participantId?: string;
+  participantId: string;
   phone: string;
   college: string;
   year: string;
@@ -55,8 +59,13 @@ export async function GET() {
         : new Date().toISOString();
 
       for (const ev of docEvents) {
+        const docParticipantId =
+          doc.participantId || deriveDeterministicParticipantId(doc.email);
         events.push({
           registrationId: String(doc._id),
+          eventRecordId: ev._id
+            ? String(ev._id)
+            : `${String(doc._id)}:${ev.eventSlug}`,
           name: doc.name || session.user.name || "Milaap Delegate",
           email: doc.email || email,
           eventSlug: ev.eventSlug,
@@ -68,13 +77,15 @@ export async function GET() {
             ? ev.teamMembers.map((m) => ({ name: m.name, phone: m.phone }))
             : [],
           status: ev.status === "Verified" ? "Verified" : "Pending",
+          attended: Boolean(ev.attended),
+          attendedAt: ev.attendedAt || null,
           registeredAt: ev.registeredAt
             ? new Date(ev.registeredAt).toISOString()
             : fallbackDate,
           updatedAt: ev.updatedAt
             ? new Date(ev.updatedAt).toISOString()
             : undefined,
-          participantId: doc.participantId || undefined,
+          participantId: docParticipantId,
           phone: doc.phone || "",
           college: doc.college || "",
           year: doc.year || "",

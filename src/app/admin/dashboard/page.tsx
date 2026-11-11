@@ -34,14 +34,26 @@ import {
   Send,
   Eye,
   EyeOff,
+  ScanLine,
 } from "lucide-react";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
+import EventAttendanceCounterBar from "@/components/EventAttendanceCounterBar";
+import AdminQrScanner from "@/components/AdminQrScanner";
+import {
+  getEventAttendanceStats,
+  type EventAttendanceStat,
+} from "@/app/admin/dashboard/actions";
 import {
   exportAdminListToPdf,
   type AdminPdfExportOptions,
 } from "@/lib/adminPdfExport";
 
-type TabId = "overview" | "participants" | "controls" | "announcements";
+type TabId =
+  | "overview"
+  | "participants"
+  | "scanner"
+  | "controls"
+  | "announcements";
 
 interface AdminRegisteredEvent {
   eventSlug: string;
@@ -51,6 +63,8 @@ interface AdminRegisteredEvent {
   role?: string;
   teamMembers?: Array<{ name: string; phone: string }>;
   status: "Pending" | "Verified";
+  attended?: boolean;
+  attendedAt?: string | null;
 }
 
 interface AdminParticipant {
@@ -114,7 +128,7 @@ function formatParticipantPdfRows(
             : "";
         return `${e.eventName}${e.teamName ? ` [${e.teamName}]` : ""}${
           e.role ? ` (${e.role})` : ""
-        }${membersText} - ${e.status}`;
+        }${membersText} - ${e.status}${e.attended ? " [ATTENDED]" : ""}`;
       })
       .join("\n");
     const overallStatus =
@@ -183,6 +197,9 @@ export default function AdminDashboardPage() {
     totalEventEntries: 0,
   });
   const [announcements, setAnnouncements] = useState<AdminAnnouncement[]>([]);
+  const [attendanceStats, setAttendanceStats] = useState<
+    EventAttendanceStat[]
+  >([]);
   const [setting, setSetting] = useState<AdminFestivalSetting>({
     registrationsLocked: false,
     isEventEditingOpen: true,
@@ -253,11 +270,16 @@ export default function AdminDashboardPage() {
     if (!isAdmin) return;
     setLoadingData(true);
     try {
-      const [partRes, annRes, setRes] = await Promise.all([
+      const [partRes, annRes, setRes, statsRes] = await Promise.all([
         fetch("/api/admin/participants", { cache: "no-store" }),
         fetch("/api/admin/announcements", { cache: "no-store" }),
         fetch("/api/admin/settings", { cache: "no-store" }),
+        getEventAttendanceStats(),
       ]);
+
+      if (statsRes?.success) {
+        setAttendanceStats(statsRes.stats);
+      }
 
       if (partRes.ok) {
         const partData = await partRes.json();
@@ -844,6 +866,11 @@ export default function AdminDashboardPage() {
       icon: <Users className="w-4 h-4" />,
     },
     {
+      id: "scanner",
+      label: "QR Scanner",
+      icon: <ScanLine className="w-4 h-4" />,
+    },
+    {
       id: "controls",
       label: "Global Controls",
       icon: <Sliders className="w-4 h-4" />,
@@ -1017,6 +1044,8 @@ export default function AdminDashboardPage() {
                   ? "Global Controls (God Mode)"
                   : activeTab === "announcements"
                   ? "Live Announcements"
+                  : activeTab === "scanner"
+                  ? "QR Scanner & Attendance"
                   : activeTab}
               </h1>
               <p className="text-[11px] font-mono text-slate-400">
@@ -1135,6 +1164,12 @@ export default function AdminDashboardPage() {
                     accent="emerald"
                   />
                 </div>
+
+                {/* Per-Event Registration & Attendance Counter Cards */}
+                <EventAttendanceCounterBar
+                  stats={attendanceStats}
+                  loading={loadingData}
+                />
 
                 {/* Competition Breakdown + Recent Participants */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -1436,7 +1471,9 @@ export default function AdminDashboardPage() {
                                               : ""}
                                           </span>
                                           <span className="font-mono text-[9px] uppercase font-bold shrink-0">
-                                            {ev.status}
+                                            {ev.attended
+                                              ? `✓ ATTENDED • ${ev.status}`
+                                              : ev.status}
                                           </span>
                                         </button>
                                       );
@@ -1540,6 +1577,17 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
               </motion.div>
+            )}
+
+            {/* ============================================================
+                TAB: QR SCANNER & PER-EVENT ATTENDANCE TRACKING
+                ============================================================ */}
+            {activeTab === "scanner" && (
+              <AdminQrScanner
+                attendanceStats={attendanceStats}
+                loadingStats={loadingData}
+                onRefreshStats={fetchAllAdminData}
+              />
             )}
 
             {/* ============================================================

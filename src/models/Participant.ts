@@ -6,6 +6,7 @@ export interface ITeamMember {
 }
 
 export interface IRegisteredEvent {
+  _id?: mongoose.Types.ObjectId;
   eventSlug: string;
   eventName: string;
   category: string;
@@ -13,6 +14,8 @@ export interface IRegisteredEvent {
   role?: string;
   teamMembers?: ITeamMember[];
   status: "Pending" | "Verified";
+  attended: boolean;
+  attendedAt: string | null;
   registeredAt?: Date;
   updatedAt?: Date;
 }
@@ -84,6 +87,14 @@ const RegisteredEventSchema = new Schema<IRegisteredEvent>(
       enum: ["Pending", "Verified"],
       default: "Pending",
     },
+    attended: {
+      type: Boolean,
+      default: false,
+    },
+    attendedAt: {
+      type: String,
+      default: null,
+    },
     registeredAt: {
       type: Date,
       default: Date.now,
@@ -92,7 +103,7 @@ const RegisteredEventSchema = new Schema<IRegisteredEvent>(
       type: Date,
     },
   },
-  { _id: false }
+  { _id: true }
 );
 
 const ParticipantSchema = new Schema<IParticipant>(

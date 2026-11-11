@@ -1,6 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import connectToDatabase from "@/lib/mongodb";
+import { deriveDeterministicParticipantId } from "@/lib/participantId";
 import Participant from "@/models/Participant";
 import type { SessionParticipant, UserRole } from "@/types/next-auth";
 
@@ -111,7 +112,8 @@ export const authOptions: NextAuthOptions = {
             phone: doc.phone || "",
             college: doc.college || "",
             year: doc.year || "",
-            participantId: doc.participantId || undefined,
+            participantId:
+              doc.participantId || deriveDeterministicParticipantId(doc.email),
             isRegistered: Boolean(doc.isRegistered),
             events: Array.isArray(doc.events)
               ? doc.events.map((ev) => ({
@@ -127,6 +129,8 @@ export const authOptions: NextAuthOptions = {
                     }))
                   : [],
                 status: ev.status === "Verified" ? "Verified" : "Pending",
+                attended: Boolean(ev.attended),
+                attendedAt: ev.attendedAt || null,
                 registeredAt: ev.registeredAt
                   ? new Date(ev.registeredAt).toISOString()
                   : doc.createdAt

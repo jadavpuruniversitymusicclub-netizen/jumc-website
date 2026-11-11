@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import connectToDatabase from "@/lib/mongodb";
+import { deriveDeterministicParticipantId } from "@/lib/participantId";
 import { getGlobalSettings } from "@/lib/settings";
 import Participant, { type IRegisteredEvent } from "@/models/Participant";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
@@ -22,15 +23,21 @@ interface EventPayloadItem {
   teamMembers?: TeamMemberInput[];
 }
 
-async function generateUniqueParticipantId(): Promise<string> {
+async function generateUniqueParticipantId(email: string): Promise<string> {
+  const deterministic = deriveDeterministicParticipantId(email);
+  const conflict = await Participant.exists({
+    participantId: deterministic,
+    email: { $ne: email.toLowerCase().trim() },
+  });
+  if (!conflict) return deterministic;
+
   for (let attempt = 0; attempt < 10; attempt++) {
     const num = Math.floor(1000 + Math.random() * 9000);
-    const candidate = `MIL-2026-${num}`;
+    const candidate = `MLP-2026-${num}`;
     const exists = await Participant.exists({ participantId: candidate });
     if (!exists) return candidate;
   }
-  const suffix = Date.now().toString().slice(-4);
-  return `MIL-2026-${suffix}`;
+  return `MLP-2026-${Date.now().toString().slice(-4)}`;
 }
 
 export async function GET() {
@@ -139,11 +146,16 @@ export async function POST(req: Request) {
     }
 
     const existingStatusMap = new Map<string, "Pending" | "Verified">();
+    const existingAttendedMap = new Map<string, { attended: boolean; attendedAt: string | null }>();
     const existingDateMap = new Map<string, Date>();
     const existingSlugs = new Set<string>();
     if (existing?.events) {
       for (const ev of existing.events) {
         existingStatusMap.set(ev.eventSlug, ev.status);
+        existingAttendedMap.set(ev.eventSlug, {
+          attended: Boolean(ev.attended),
+          attendedAt: ev.attendedAt || null,
+        });
         existingDateMap.set(
           ev.eventSlug,
           ev.registeredAt
@@ -197,6 +209,7 @@ export async function POST(req: Request) {
         );
       }
 
+      const prevAttended = existingAttendedMap.get(comp.id);
       seenSlugs.add(slug);
       sanitizedEvents.push({
         eventSlug: comp.id,
@@ -208,6 +221,8 @@ export async function POST(req: Request) {
           (comp.format === "Solo" ? "Solo Performer" : "Participant"),
         teamMembers: memberValidation.members,
         status: existingStatusMap.get(comp.id) ?? "Pending",
+        attended: prevAttended?.attended ?? false,
+        attendedAt: prevAttended?.attendedAt ?? null,
         registeredAt: existingDateMap.get(comp.id) ?? new Date(),
       });
     }
@@ -220,7 +235,7 @@ export async function POST(req: Request) {
     }
 
     const participantId =
-      existing?.participantId || (await generateUniqueParticipantId());
+      existing?.participantId || (await generateUniqueParticipantId(email));
 
     const updated = await Participant.findOneAndUpdate(
       { email },

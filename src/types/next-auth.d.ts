@@ -15,6 +15,8 @@ export interface SessionRegisteredEvent {
   role?: string;
   teamMembers?: SessionTeamMember[];
   status: "Pending" | "Verified";
+  attended?: boolean;
+  attendedAt?: string | null;
   registeredAt?: string;
 }
 
