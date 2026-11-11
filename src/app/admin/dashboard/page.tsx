@@ -37,6 +37,7 @@ import {
   ScanLine,
 } from "lucide-react";
 import { MILAAP_COMPETITIONS } from "@/data/milaapCompetitions";
+import { deriveDeterministicParticipantId } from "@/lib/participantId";
 import EventAttendanceCounterBar from "@/components/EventAttendanceCounterBar";
 import AdminQrScanner from "@/components/AdminQrScanner";
 import {
@@ -138,7 +139,7 @@ function formatParticipantPdfRows(
         : "Verified";
     return [
       idx + 1,
-      p.participantId || "-",
+      p.participantId || deriveDeterministicParticipantId(p.email),
       p.name || "-",
       p.email || "-",
       p.phone || "-",
@@ -350,7 +351,11 @@ export default function AdminDashboardPage() {
         const matchEmail = (p.email || "").toLowerCase().includes(q);
         const matchPhone = (p.phone || "").toLowerCase().includes(q);
         const matchCollege = (p.college || "").toLowerCase().includes(q);
-        const matchPid = (p.participantId || "").toLowerCase().includes(q);
+        const matchPid = (
+          p.participantId || deriveDeterministicParticipantId(p.email)
+        )
+          .toLowerCase()
+          .includes(q);
         const matchEv = events.some((ev) =>
           ev.eventName.toLowerCase().includes(q)
         );
@@ -1411,7 +1416,10 @@ export default function AdminDashboardPage() {
                                         {p.name}
                                       </p>
                                       <span className="inline-block mt-1 text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-400/25">
-                                        {p.participantId || "MIL-2026"}
+                                        {p.participantId ||
+                                          deriveDeterministicParticipantId(
+                                            p.email
+                                          )}
                                       </span>
                                     </div>
                                   </div>

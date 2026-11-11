@@ -291,6 +291,7 @@ export async function markEventAttendance(
     revalidatePath("/milaap/dashboard");
     revalidatePath("/admin/dashboard");
     revalidatePath("/admin");
+    revalidatePath("/milaap/admin");
 
     return {
       success: true,

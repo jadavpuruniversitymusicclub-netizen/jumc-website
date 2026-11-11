@@ -42,17 +42,13 @@ export async function PATCH(req: Request) {
       );
     }
 
-    if (eventSlug === "ALL") {
-      participant.events = participant.events.map((ev) => ({
-        ...ev,
-        status,
-      }));
-    } else {
-      participant.events = participant.events.map((ev) =>
-        ev.eventSlug === eventSlug ? { ...ev, status } : ev
-      );
+    for (const ev of participant.events) {
+      if (eventSlug === "ALL" || ev.eventSlug === eventSlug) {
+        ev.status = status;
+      }
     }
 
+    participant.markModified("events");
     await participant.save();
 
     return NextResponse.json({
