@@ -16,6 +16,7 @@ import type { MyEventItem } from "@/app/api/milaap/my-events/route";
 import {
   downloadMasterPassPdf,
   getMilaapMandalaDataUrl,
+  getMilaapPassBgDataUrl,
 } from "@/lib/masterPassPdf";
 
 export interface MasterPassParticipant {
@@ -35,25 +36,27 @@ export interface MasterPassParticipant {
 interface MilaapMasterPassCardProps {
   participant: MasterPassParticipant;
   liveEvents?: MyEventItem[];
+  bgDataUrl?: string;
   mandalaDataUrl?: string;
   forPdf?: boolean;
 }
 
 /**
- * Milaap Edition I Official Participant Master Pass card (`ticketRef`).
- * Features a full-bleed warm maroon canvas (`#2b0d07`), an unblurred static
- * snapshot of the website Mandala flower (`/mandala.svg`), Samarkan logo
- * typography, enlarged identity cards, edge-aligned double gold borders, and
- * a high-density scannable QR code.
+ * Milaap Edition I Official Participant Master Pass (`ticketRef`).
+ * Preserves the original Milaap maroon tapestry & golden folk-musician mural
+ * backdrop with top/bottom lotus floral borders, overlays ONE centered static
+ * Mandala Lotus behind the middle content, and aligns all labels, event lineup
+ * pills, and footer venue lines cleanly without wrapping cracks.
  */
 export const MilaapMasterPassCard = forwardRef<
   HTMLDivElement,
   MilaapMasterPassCardProps
 >(function MilaapMasterPassCard(
-  { participant, liveEvents, mandalaDataUrl, forPdf = false },
+  { participant, liveEvents, bgDataUrl, mandalaDataUrl, forPdf = false },
   ref
 ) {
   const effectiveEvents = liveEvents ?? participant.events;
+  const bgSrc = bgDataUrl || "/milaap-bg.jpeg";
   const mandalaSrc = mandalaDataUrl || "/mandala.svg";
 
   const qrPayload = JSON.stringify({
@@ -67,55 +70,49 @@ export const MilaapMasterPassCard = forwardRef<
       ref={ref}
       className={`${
         forPdf ? "w-[520px]" : "w-full max-w-[520px]"
-      } min-h-[840px] p-5 sm:p-6 rounded-none bg-[#2b0d07] border-2 border-amber-500/80 relative overflow-hidden flex flex-col justify-between ${
+      } min-h-[840px] p-6 sm:p-7 rounded-none bg-[#2b050a] relative overflow-hidden flex flex-col justify-between ${
         forPdf ? "" : "shadow-[0_0_45px_rgba(245,158,11,0.28)]"
       }`}
     >
-      {/* Subtle Warm Gold & Terracotta Radiance (no blur, no heavy darkening) */}
+      {/* Original Milaap Webpage Backdrop Artwork (top/bottom lotus borders + musician mural) */}
+      <img
+        src={bgSrc}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none select-none"
+      />
+
+      {/* Light Warm Maroon Readability Tint (keeps lotus borders & mural clear without darkening) */}
       <div
         aria-hidden="true"
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(circle at 50% 45%, rgba(217, 119, 6, 0.16) 0%, rgba(124, 45, 18, 0.08) 55%, rgba(43, 13, 7, 0.22) 100%)",
+            "linear-gradient(180deg, rgba(43,5,10,0.42) 0%, rgba(28,4,8,0.48) 52%, rgba(20,3,6,0.58) 100%)",
         }}
       />
 
-      {/* Decorative Top Mandala Floral Border */}
+      {/* ONLY ONE Centered Static Mandala Lotus Snapshot behind middle pass content */}
       <img
         src={mandalaSrc}
         alt=""
         aria-hidden="true"
-        className="absolute -top-44 left-1/2 -translate-x-1/2 w-[360px] h-[360px] object-contain opacity-30 pointer-events-none select-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[420px] object-contain pointer-events-none select-none opacity-25"
       />
 
-      {/* Decorative Bottom Mandala Floral Border */}
-      <img
-        src={mandalaSrc}
-        alt=""
-        aria-hidden="true"
-        className="absolute -bottom-44 left-1/2 -translate-x-1/2 w-[360px] h-[360px] object-contain opacity-30 pointer-events-none select-none"
-      />
-
-      {/* Central Crisp Unblurred Static Mandala Flower Snapshot */}
+      {/* Stretched Outer Golden Border Frame */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
-      >
-        <img
-          src={mandalaSrc}
-          alt=""
-          className="w-[480px] h-[480px] object-contain opacity-55"
-        />
-      </div>
-
-      {/* Inner Hairline Golden Margin Frame */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-2.5 border border-amber-400/50 pointer-events-none z-10"
+        className="absolute inset-1.5 border-2 border-amber-500/70 rounded-xl pointer-events-none z-10"
       />
 
-      {/* 4 Enlarged Golden Corner Targeting Brackets */}
+      {/* Inner Thin Golden Line */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-3.5 border border-amber-400/30 rounded-lg pointer-events-none z-10"
+      />
+
+      {/* 4 Gold Corner L-Brackets */}
       <span
         aria-hidden="true"
         className="absolute top-4 left-4 w-7 h-7 border-t-2 border-l-2 border-amber-400 pointer-events-none z-20"
@@ -134,51 +131,52 @@ export const MilaapMasterPassCard = forwardRef<
       />
 
       {/* Inner Pass Content Container */}
-      <div className="relative z-20 flex-1 flex flex-col justify-between px-2 py-2 sm:px-3 sm:py-3">
+      <div className="relative z-20 flex-1 flex flex-col justify-between py-2 px-1 sm:px-2">
         {/* Top Regal Header */}
         <div className="text-center pt-1">
-          <p className="text-xs sm:text-sm tracking-[0.28em] font-bold text-amber-300">
+          <p className="text-xs sm:text-sm tracking-[0.28em] font-bold text-amber-300 whitespace-nowrap">
             JUMC x JUDF Present
           </p>
 
           <h2 id="master-pass-title" className="flex flex-col items-center">
             <span
-              className="h-16 sm:h-20 my-2 flex items-center justify-center font-samarkan MilaapFont lowercase text-6xl sm:text-7xl leading-none tracking-tight select-none"
+              className="h-14 sm:h-16 my-1.5 flex items-center justify-center font-samarkan MilaapFont lowercase text-5xl sm:text-6xl leading-none tracking-tight select-none"
               style={{
                 fontFamily: "'Samarkan', sans-serif",
                 color: "#FCD34D",
-                textShadow: "0 3px 16px rgba(245, 158, 11, 0.5)",
+                textShadow: "0 3px 14px rgba(245, 158, 11, 0.55)",
                 fontFeatureSettings: '"kern" 1',
               }}
             >
               milaap
             </span>
-            <span className="text-base sm:text-lg font-serif font-bold tracking-[0.25em] text-amber-200">
+            <span className="text-sm sm:text-base font-serif font-bold tracking-[0.25em] text-amber-200 whitespace-nowrap">
               — EDITION I —
             </span>
           </h2>
 
-          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-amber-400 mt-1">
+          <p className="text-xs sm:text-sm font-bold tracking-[0.22em] text-amber-400 mt-1 whitespace-nowrap">
             OFFICIAL PARTICIPANT MASTER PASS
           </p>
         </div>
 
-        {/* Wider & Enlarged Participant Details Container (no blur) */}
-        <div className="w-full mx-auto my-5 p-6 sm:p-7 rounded-2xl border-2 border-amber-500/40 bg-[#1e0905]/80 text-left space-y-5">
-          <div className="grid grid-cols-2 gap-x-5 gap-y-5">
+        {/* Wide Participant Details Box (no blur so backdrop & lotus stay crisp) */}
+        <div className="w-full p-5 sm:p-6 rounded-2xl bg-[#180704]/85 border border-amber-500/30 text-left space-y-4 my-4">
+          {/* Row 1: Name & Milaap ID cleanly aligned on single lines */}
+          <div className="grid grid-cols-[1.2fr_1fr] gap-4 items-start">
             <div className="min-w-0">
-              <p className="text-xs sm:text-sm font-bold tracking-widest text-amber-400/90 uppercase mb-1">
+              <p className="text-[11px] sm:text-xs font-bold tracking-widest text-amber-400/90 uppercase mb-1 h-5 flex items-center leading-none">
                 PARTICIPANT NAME
               </p>
-              <p className="text-xl sm:text-2xl font-extrabold text-white leading-tight break-words">
+              <p className="text-lg sm:text-xl font-bold text-white whitespace-nowrap truncate leading-snug">
                 {participant.name}
               </p>
             </div>
 
             <div className="min-w-0">
-              <p className="text-xs sm:text-sm font-bold tracking-widest text-amber-400/90 uppercase mb-1">
+              <p className="text-[11px] sm:text-xs font-bold tracking-widest text-amber-400/90 uppercase mb-1 h-5 flex items-center gap-1.5 leading-none">
                 <span
-                  className="font-samarkan MilaapFont lowercase normal-case text-base sm:text-lg mr-1"
+                  className="font-samarkan MilaapFont lowercase normal-case text-sm sm:text-base leading-none"
                   style={{
                     fontFamily: "'Samarkan', sans-serif",
                     color: "#FCD34D",
@@ -186,54 +184,59 @@ export const MilaapMasterPassCard = forwardRef<
                 >
                   milaap
                 </span>
-                ID
+                <span>ID</span>
               </p>
-              <p className="text-xl sm:text-2xl font-mono font-extrabold text-amber-400 leading-tight break-all">
+              <p className="text-lg sm:text-xl font-mono font-bold text-amber-400 whitespace-nowrap truncate leading-snug">
                 {participant.participantId}
               </p>
             </div>
+          </div>
 
+          {/* Row 2: Phone Number & Registered Events */}
+          <div className="grid grid-cols-[1.2fr_1fr] gap-4 items-start pt-3 border-t border-amber-500/20">
             <div className="min-w-0">
-              <p className="text-xs sm:text-sm font-bold tracking-widest text-amber-400/90 uppercase mb-1">
+              <p className="text-[11px] sm:text-xs font-bold tracking-widest text-amber-400/90 uppercase mb-1 leading-none">
                 PHONE NUMBER
               </p>
-              <p className="text-lg sm:text-xl font-bold text-stone-100 font-mono leading-tight break-words">
+              <p className="text-sm sm:text-base font-medium font-mono text-stone-100 whitespace-nowrap truncate">
                 {participant.phone || "Not set"}
               </p>
             </div>
 
             <div className="min-w-0">
-              <p className="text-xs sm:text-sm font-bold tracking-widest text-amber-400/90 uppercase mb-1">
+              <p className="text-[11px] sm:text-xs font-bold tracking-widest text-amber-400/90 uppercase mb-1 leading-none">
                 REGISTERED EVENTS
               </p>
-              <p className="text-lg sm:text-xl font-extrabold text-emerald-400 leading-tight">
+              <p className="text-sm sm:text-base font-bold text-emerald-400 whitespace-nowrap">
                 {effectiveEvents.length}{" "}
                 {effectiveEvents.length === 1 ? "Event" : "Events"}
               </p>
             </div>
           </div>
 
-          <div className="pt-4 border-t border-amber-500/25">
-            <p className="text-xs sm:text-sm font-bold tracking-widest text-amber-400/90 uppercase mb-1">
+          {/* Row 3: Institution / Year */}
+          <div className="pt-3 border-t border-amber-500/20 min-w-0">
+            <p className="text-[11px] sm:text-xs font-bold tracking-widest text-amber-400/90 uppercase mb-1 leading-none">
               INSTITUTION / YEAR
             </p>
-            <p className="text-base sm:text-lg font-semibold text-stone-100 leading-snug">
+            <p className="text-sm sm:text-base font-medium text-stone-100 whitespace-nowrap truncate">
               {[participant.college, participant.year]
                 .filter(Boolean)
                 .join(" • ") || "Jadavpur University Delegate"}
             </p>
           </div>
 
+          {/* Row 4: Intact Non-Cracking Event Lineup Pills */}
           {effectiveEvents.length > 0 && (
-            <div className="pt-4 border-t border-amber-500/25 space-y-2.5">
-              <p className="text-xs sm:text-sm font-bold tracking-widest text-amber-400/90 uppercase mb-1">
+            <div className="pt-3 border-t border-amber-500/20 space-y-1.5">
+              <p className="text-[11px] sm:text-xs font-bold tracking-widest text-amber-400/90 uppercase leading-none">
                 EVENT LINEUP
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2.5 items-center pt-1">
                 {effectiveEvents.map((ev) => (
                   <span
                     key={ev.eventSlug}
-                    className="inline-block px-4 py-2 text-sm sm:text-base font-bold text-amber-100 bg-[#3a160b] border border-amber-500/50 rounded-xl shadow-sm"
+                    className="inline-flex items-center justify-center whitespace-nowrap h-auto min-h-[32px] px-3.5 py-1.5 rounded-lg bg-[#2a0f08] border border-amber-500/40 text-amber-100 text-xs sm:text-sm font-semibold leading-none shadow-sm"
                   >
                     {ev.eventName}
                     {ev.teamName ? ` [${ev.teamName}]` : ""}
@@ -244,23 +247,23 @@ export const MilaapMasterPassCard = forwardRef<
           )}
         </div>
 
-        {/* Enlarged Centered QR Code (230px) Inside Crisp Cream/Gold Frame */}
-        <div className="mx-auto w-fit p-4 rounded-2xl bg-[#fdf8f0] border-2 border-amber-400 shadow-[0_0_25px_rgba(245,158,11,0.3)] my-2">
+        {/* Prominent Scannable QR Code (size=200) */}
+        <div className="mx-auto w-fit p-3.5 bg-[#fdf8f0] rounded-2xl border-2 border-amber-400 shadow-[0_0_24px_rgba(245,158,11,0.3)] my-1.5">
           <QRCodeSVG
             value={qrPayload}
-            size={230}
+            size={200}
             bgColor="#fdf8f0"
             fgColor="#1a0b07"
             level="H"
           />
         </div>
 
-        {/* Enlarged Regal Footer */}
-        <div className="border-t border-amber-500/30 pt-4 mt-4 text-center space-y-1">
-          <p className="text-sm sm:text-base font-medium text-stone-200 leading-relaxed">
+        {/* Centered Single-Line Venue Footer */}
+        <div className="border-t border-amber-500/30 pt-3.5 mt-3 text-center space-y-1 pb-2">
+          <p className="text-xs sm:text-sm font-medium text-stone-100 leading-relaxed">
             Present this single{" "}
             <span
-              className="font-samarkan MilaapFont lowercase text-lg px-0.5"
+              className="font-samarkan MilaapFont lowercase text-base px-0.5"
               style={{
                 fontFamily: "'Samarkan', sans-serif",
                 color: "#FCD34D",
@@ -271,10 +274,12 @@ export const MilaapMasterPassCard = forwardRef<
             Master Pass at the Registration &amp; Stage Desks for all your
             events.
           </p>
-          <p className="text-sm font-bold text-amber-400 mt-2 flex items-center justify-center gap-2">
+          <p className="flex items-center justify-center gap-2 whitespace-nowrap text-xs sm:text-sm font-semibold text-amber-400 mt-2">
             <Music className="w-4 h-4 text-amber-400 shrink-0" />
             <MapPin className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>Jadavpur University, Kolkata</span>
+            <span className="whitespace-nowrap">
+              Jadavpur University, Kolkata
+            </span>
           </p>
         </div>
       </div>
@@ -320,6 +325,7 @@ function MasterPassDialog({
   const ticketRef = useRef<HTMLDivElement | null>(null);
   const pdfCaptureRef = useRef<HTMLDivElement | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [bgDataUrl, setBgDataUrl] = useState<string | undefined>(undefined);
   const [mandalaDataUrl, setMandalaDataUrl] = useState<string | undefined>(
     undefined
   );
@@ -330,9 +336,13 @@ function MasterPassDialog({
 
   useEffect(() => {
     let active = true;
-    getMilaapMandalaDataUrl().then((url) => {
-      if (active && url) setMandalaDataUrl(url);
-    });
+    Promise.all([getMilaapPassBgDataUrl(), getMilaapMandalaDataUrl()]).then(
+      ([bg, mandala]) => {
+        if (!active) return;
+        if (bg) setBgDataUrl(bg);
+        if (mandala) setMandalaDataUrl(mandala);
+      }
+    );
     return () => {
       active = false;
     };
@@ -354,10 +364,14 @@ function MasterPassDialog({
     setIsDownloading(true);
     setFeedback(null);
     try {
-      if (!mandalaDataUrl) {
-        const url = await getMilaapMandalaDataUrl();
-        if (url) setMandalaDataUrl(url);
-      }
+      const [bg, mandala] = await Promise.all([
+        bgDataUrl ? Promise.resolve(bgDataUrl) : getMilaapPassBgDataUrl(),
+        mandalaDataUrl
+          ? Promise.resolve(mandalaDataUrl)
+          : getMilaapMandalaDataUrl(),
+      ]);
+      if (bg && !bgDataUrl) setBgDataUrl(bg);
+      if (mandala && !mandalaDataUrl) setMandalaDataUrl(mandala);
 
       for (let frame = 0; frame < 6; frame += 1) {
         await new Promise<void>((resolve) =>
@@ -392,7 +406,7 @@ function MasterPassDialog({
       data-lenis-prevent
       className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-6 overflow-y-auto"
     >
-      {/* Crisp Non-Blurred Modal Dimmer (keeps ticket artwork vivid) */}
+      {/* Crisp Non-Blurred Modal Dimmer (keeps backdrop & Mandala clear) */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -402,7 +416,7 @@ function MasterPassDialog({
         className="fixed inset-0 bg-black/65 -z-10 transform-gpu"
       />
 
-      {/* Fixed 520px Offscreen Capture Surface so mobile screens export full-page PDF */}
+      {/* Fixed 520px Offscreen Capture Surface so every viewport exports full-bleed PDF */}
       {isDownloading && (
         <div
           aria-hidden="true"
@@ -418,6 +432,7 @@ function MasterPassDialog({
             ref={pdfCaptureRef}
             participant={participant}
             liveEvents={liveEvents}
+            bgDataUrl={bgDataUrl}
             mandalaDataUrl={mandalaDataUrl}
             forPdf
           />
@@ -440,6 +455,7 @@ function MasterPassDialog({
           ref={ticketRef}
           participant={participant}
           liveEvents={liveEvents}
+          bgDataUrl={bgDataUrl}
           mandalaDataUrl={mandalaDataUrl}
         />
 

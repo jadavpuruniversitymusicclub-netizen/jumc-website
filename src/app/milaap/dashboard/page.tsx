@@ -36,6 +36,7 @@ import MilaapMasterPassModal, {
 import {
   downloadMasterPassPdf,
   getMilaapMandalaDataUrl,
+  getMilaapPassBgDataUrl,
 } from "@/lib/masterPassPdf";
 import AdminPortalBarrier from "@/components/AdminPortalBarrier";
 import TeamMembersFieldArray from "@/components/TeamMembersFieldArray";
@@ -101,6 +102,9 @@ export default function MilaapDashboardPage() {
     type: "success" | "error";
     text: string;
   } | null>(null);
+  const [passBgDataUrl, setPassBgDataUrl] = useState<string | undefined>(
+    undefined
+  );
   const [passMandalaDataUrl, setPassMandalaDataUrl] = useState<
     string | undefined
   >(undefined);
@@ -108,9 +112,13 @@ export default function MilaapDashboardPage() {
 
   useEffect(() => {
     let active = true;
-    getMilaapMandalaDataUrl().then((url) => {
-      if (active && url) setPassMandalaDataUrl(url);
-    });
+    Promise.all([getMilaapPassBgDataUrl(), getMilaapMandalaDataUrl()]).then(
+      ([bg, mandala]) => {
+        if (!active) return;
+        if (bg) setPassBgDataUrl(bg);
+        if (mandala) setPassMandalaDataUrl(mandala);
+      }
+    );
     return () => {
       active = false;
     };
@@ -212,10 +220,16 @@ export default function MilaapDashboardPage() {
     setDirectDownloadFeedback(null);
 
     try {
-      if (!passMandalaDataUrl) {
-        const mandala = await getMilaapMandalaDataUrl();
-        if (mandala) setPassMandalaDataUrl(mandala);
-      }
+      const [bg, mandala] = await Promise.all([
+        passBgDataUrl
+          ? Promise.resolve(passBgDataUrl)
+          : getMilaapPassBgDataUrl(),
+        passMandalaDataUrl
+          ? Promise.resolve(passMandalaDataUrl)
+          : getMilaapMandalaDataUrl(),
+      ]);
+      if (bg && !passBgDataUrl) setPassBgDataUrl(bg);
+      if (mandala && !passMandalaDataUrl) setPassMandalaDataUrl(mandala);
 
       for (let frame = 0; frame < 6; frame += 1) {
         await new Promise<void>((resolve) =>
@@ -1001,6 +1015,7 @@ export default function MilaapDashboardPage() {
               events: participant.events || [],
             }}
             liveEvents={liveEvents}
+            bgDataUrl={passBgDataUrl}
             mandalaDataUrl={passMandalaDataUrl}
             forPdf
           />

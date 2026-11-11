@@ -2,6 +2,7 @@
 
 let cachedSamarkanFontCss: string | null = null;
 let cachedMandalaDataUrl: string | null = null;
+let cachedBgDataUrl: string | null = null;
 
 async function fetchLocalAssetAsDataUrl(url: string): Promise<string> {
   const response = await fetch(url, { cache: "force-cache" });
@@ -50,8 +51,24 @@ export async function getSamarkanFontEmbedCss(): Promise<string | undefined> {
 }
 
 /**
- * Preloads `/mandala.svg` as an inline data URL so static Mandala artwork
- * captures reliably at 3x resolution inside html-to-image + jsPDF.
+ * Preloads the webpage backdrop (`/milaap-bg.jpeg`) as a cached data URL so
+ * lotus floral borders and the golden musician mural render sharply in PDF.
+ */
+export async function getMilaapPassBgDataUrl(): Promise<string | undefined> {
+  if (cachedBgDataUrl) return cachedBgDataUrl;
+  try {
+    const dataUrl = await fetchLocalAssetAsDataUrl("/milaap-bg.jpeg");
+    cachedBgDataUrl = dataUrl;
+    return dataUrl;
+  } catch (error) {
+    console.warn("[MasterPass backdrop preload fallback]:", error);
+    return undefined;
+  }
+}
+
+/**
+ * Preloads `/mandala.svg` as an inline data URL so the centered static Mandala
+ * lotus captures reliably at 3x resolution inside html-to-image + jsPDF.
  */
 export async function getMilaapMandalaDataUrl(): Promise<string | undefined> {
   if (cachedMandalaDataUrl) return cachedMandalaDataUrl;
@@ -97,8 +114,8 @@ async function waitForPassAssets(el: HTMLElement): Promise<void> {
 
 /**
  * Captures the rendered Milaap Official Master Pass DOM element at 3x resolution
- * with embedded Samarkan font + static Mandala artwork and saves it as a 100%
- * full-bleed edge-to-edge `.pdf` file (`Milaap26_MasterPass_<Name>.pdf`).
+ * with embedded Samarkan font + webpage backdrop + centered Mandala artwork and
+ * saves it edge-to-edge as `.pdf` (`Milaap26_MasterPass_<Name>.pdf`).
  */
 export async function downloadMasterPassPdf(
   element: HTMLElement,
@@ -120,7 +137,7 @@ export async function downloadMasterPassPdf(
     pixelRatio: 3,
     width: captureWidth,
     height: captureHeight,
-    backgroundColor: "#2b0d07",
+    backgroundColor: "#2b050a",
     skipAutoScale: true,
     ...(fontEmbedCSS ? { fontEmbedCSS } : { skipFonts: true }),
   });
