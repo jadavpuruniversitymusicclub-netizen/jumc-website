@@ -1,7 +1,7 @@
 "use client";
 
 let cachedSamarkanFontCss: string | null = null;
-let cachedBgDataUrl: string | null = null;
+let cachedMandalaDataUrl: string | null = null;
 
 async function fetchLocalAssetAsDataUrl(url: string): Promise<string> {
   const response = await fetch(url, { cache: "force-cache" });
@@ -50,15 +50,17 @@ export async function getSamarkanFontEmbedCss(): Promise<string | undefined> {
 }
 
 /**
- * Preloads `/milaap-bg.jpeg` as a data URL for reliable crisp PDF rendering.
+ * Preloads `/mandala.svg` as an inline data URL so static Mandala artwork
+ * captures reliably at 3x resolution inside html-to-image + jsPDF.
  */
-export async function getMilaapPassBgDataUrl(): Promise<string | undefined> {
-  if (cachedBgDataUrl) return cachedBgDataUrl;
+export async function getMilaapMandalaDataUrl(): Promise<string | undefined> {
+  if (cachedMandalaDataUrl) return cachedMandalaDataUrl;
   try {
-    const dataUrl = await fetchLocalAssetAsDataUrl("/milaap-bg.jpeg");
-    cachedBgDataUrl = dataUrl;
+    const dataUrl = await fetchLocalAssetAsDataUrl("/mandala.svg");
+    cachedMandalaDataUrl = dataUrl;
     return dataUrl;
-  } catch {
+  } catch (error) {
+    console.warn("[MasterPass mandala preload fallback]:", error);
     return undefined;
   }
 }
@@ -78,7 +80,7 @@ async function waitForPassAssets(el: HTMLElement): Promise<void> {
         try {
           await img.decode();
         } catch {
-          // Ignore decode rejection for already-decoded/fallback images
+          // Ignore decode rejection for already-decoded/SVG images
         }
       }
     })
@@ -88,15 +90,15 @@ async function waitForPassAssets(el: HTMLElement): Promise<void> {
     try {
       await document.fonts.ready;
     } catch {
-      // Ignore font readiness check failure
+      // Ignore font readiness check error
     }
   }
 }
 
 /**
  * Captures the rendered Milaap Official Master Pass DOM element at 3x resolution
- * with embedded Samarkan font + local webpage background artwork and downloads
- * it strictly as a `.pdf` document (`Milaap26_MasterPass_<Name>.pdf`).
+ * with embedded Samarkan font + static Mandala artwork and saves it as a 100%
+ * full-bleed edge-to-edge `.pdf` file (`Milaap26_MasterPass_<Name>.pdf`).
  */
 export async function downloadMasterPassPdf(
   element: HTMLElement,
@@ -110,42 +112,34 @@ export async function downloadMasterPassPdf(
 
   await waitForPassAssets(element);
 
+  const captureWidth = element.offsetWidth || 520;
+  const captureHeight = element.offsetHeight || 840;
+
   const dataUrl = await toPng(element, {
     cacheBust: true,
     pixelRatio: 3,
-    backgroundColor: "#2b050a",
+    width: captureWidth,
+    height: captureHeight,
+    backgroundColor: "#2b0d07",
     skipAutoScale: true,
     ...(fontEmbedCSS ? { fontEmbedCSS } : { skipFonts: true }),
   });
 
-  const pageW = 420;
-  const pageH = 680;
   const pdf = new jsPDF({
     orientation: "portrait",
     unit: "px",
-    format: [pageW, pageH],
+    format: [captureWidth, captureHeight],
+    hotfixes: ["px_scaling"],
   });
 
-  // Seamless deep maroon base filling any edge margin around the captured pass
-  pdf.setFillColor(43, 5, 10);
-  pdf.rect(0, 0, pageW, pageH, "F");
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
 
-  const rectWidth = element.offsetWidth || 400;
-  const rectHeight = element.offsetHeight || 620;
-  const padding = 8;
-  const availW = pageW - padding * 2;
-  const availH = pageH - padding * 2;
-  const scale = Math.min(availW / rectWidth, availH / rectHeight);
-  const drawW = rectWidth * scale;
-  const drawH = rectHeight * scale;
-  const offsetX = (pageW - drawW) / 2;
-  const offsetY = (pageH - drawH) / 2;
-
-  pdf.addImage(dataUrl, "PNG", offsetX, offsetY, drawW, drawH);
+  // Edge-to-edge full-bleed image filling 100% of the PDF page (0 outer margin)
+  pdf.addImage(dataUrl, "PNG", 0, 0, pdfWidth, pdfHeight);
 
   const safeName = (participantName || "Participant")
     .trim()
     .replace(/\s+/g, "_");
   pdf.save(`Milaap26_MasterPass_${safeName}.pdf`);
 }
-

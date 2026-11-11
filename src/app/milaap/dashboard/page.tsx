@@ -35,7 +35,7 @@ import MilaapMasterPassModal, {
 } from "@/components/MilaapMasterPassModal";
 import {
   downloadMasterPassPdf,
-  getMilaapPassBgDataUrl,
+  getMilaapMandalaDataUrl,
 } from "@/lib/masterPassPdf";
 import AdminPortalBarrier from "@/components/AdminPortalBarrier";
 import TeamMembersFieldArray from "@/components/TeamMembersFieldArray";
@@ -101,15 +101,15 @@ export default function MilaapDashboardPage() {
     type: "success" | "error";
     text: string;
   } | null>(null);
-  const [passBgDataUrl, setPassBgDataUrl] = useState<string | undefined>(
-    undefined
-  );
+  const [passMandalaDataUrl, setPassMandalaDataUrl] = useState<
+    string | undefined
+  >(undefined);
   const directTicketRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let active = true;
-    getMilaapPassBgDataUrl().then((url) => {
-      if (active && url) setPassBgDataUrl(url);
+    getMilaapMandalaDataUrl().then((url) => {
+      if (active && url) setPassMandalaDataUrl(url);
     });
     return () => {
       active = false;
@@ -212,9 +212,9 @@ export default function MilaapDashboardPage() {
     setDirectDownloadFeedback(null);
 
     try {
-      if (!passBgDataUrl) {
-        const bg = await getMilaapPassBgDataUrl();
-        if (bg) setPassBgDataUrl(bg);
+      if (!passMandalaDataUrl) {
+        const mandala = await getMilaapMandalaDataUrl();
+        if (mandala) setPassMandalaDataUrl(mandala);
       }
 
       for (let frame = 0; frame < 6; frame += 1) {
@@ -1001,7 +1001,8 @@ export default function MilaapDashboardPage() {
               events: participant.events || [],
             }}
             liveEvents={liveEvents}
-            bgDataUrl={passBgDataUrl}
+            mandalaDataUrl={passMandalaDataUrl}
+            forPdf
           />
         </div>
       )}
