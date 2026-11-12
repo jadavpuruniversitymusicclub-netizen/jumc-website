@@ -6,10 +6,7 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import Link from "next/link";
-import MilaapCompetitions from "@/components/MilaapCompetitions";
 import MilaapAnnouncements from "@/components/MilaapAnnouncements";
-import EventRulebookModal from "@/components/events/EventRulebookModal";
-import { MILAAP_EVENTS, type MilaapEvent } from "@/data/milaapEvents";
 import {
   ArrowLeft,
   Sparkles,
@@ -23,6 +20,12 @@ import {
   Mail,
   MapPin,
   Crown,
+  Calendar,
+  Clock,
+  Trophy,
+  BookOpen,
+  Download,
+  ChevronDown,
 } from "lucide-react";
 
 /* ====================================================================
@@ -182,59 +185,339 @@ function GoldenDivider() {
 }
 
 /* ====================================================================
-   COMPETITION DATA & MATHEMATICAL C^1-CONTINUOUS SPLINE GEOMETRY
+   UNIFIED MILAAP EVENT DATA & 2.5D HELICAL LOOP SPLINE GEOMETRY
    ==================================================================== */
 
-const competitions = [
+export interface UnifiedMilaapItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  category: "Music" | "Dance" | "Flagship" | "Special";
+  isCompetition: boolean;
+  prizePool?: string;
+  date: string;
+  time: string;
+  venue: string;
+  teamSize: string;
+  timeLimit: string;
+  description: string;
+  rulebook?: {
+    overview: string;
+    teamConstraints?: string;
+    timeConstraints?: string;
+    rules: string[];
+    judgingCriteria: string[];
+    coordinators?: { name: string; phone: string; club: string }[];
+  };
+}
+
+const unifiedMilaapEvents: UnifiedMilaapItem[] = [
   {
     id: "eastern-light-vocals",
     title: "Eastern Light Vocals & Classical",
-    desc: "Solo Singing • Ragapradhan & Semi-Classical",
+    subtitle: "Solo Singing • Ragapradhan & Semi-Classical",
+    category: "Music",
+    isCompetition: true,
+    prizePool: "₹20,000",
+    date: "Nov 28, 2026",
+    time: "11:00 AM – 03:30 PM",
+    venue: "Gandhi Bhavan Auditorium",
+    teamSize: "Solo (1 Singer + up to 2 Accompanists)",
+    timeLimit: "5 Mins + 2 Mins Soundcheck",
+    description:
+      "Solo classical and light vocal arena honoring the foundational legacy of founder Kabir Suman and legendary Indian vocal traditions.",
+    rulebook: {
+      overview:
+        "Eastern Light Vocals invites vocalists to showcase the depth of Indian music—from Khayal, Thumri, and Ghazal to Rabindrasangeet, Nazrulgeeti, and contemporary light compositions.",
+      teamConstraints:
+        "1 vocalist with up to 2 live instrumental accompanists (e.g., Tabla, Harmonium, Tanpura) or standard karaoke/tanpura track.",
+      timeConstraints:
+        "5 minutes performance time with 2 minutes setup. Overtime results in negative scoring.",
+      rules: [
+        "Participants can choose Indian Classical, Semi-Classical, Ghazal, Rabindrasangeet, or Regional Folk.",
+        "A tanpura droid or acoustic tanpura is mandatory for classical presentations.",
+        "Pre-recorded vocal backing or auto-tuned audio tracks are strictly banned.",
+        "Participants must submit their track (if using an audio backing) at the registration desk 45 minutes prior.",
+      ],
+      judgingCriteria: [
+        "Sur, Shruti, and pitch accuracy (35%).",
+        "Taal, Laya, and rhythmic precision (25%).",
+        "Bhava, emotional expression, and voice modulation (25%).",
+        "Song selection and overall presentation (15%).",
+      ],
+      coordinators: [
+        { name: "Aditya Bhattacharyya", phone: "+91 62909 21928", club: "JUMC Coordinator" },
+      ],
+    },
   },
   {
     id: "western-vocals",
     title: "Western Vocals & Acoustic Jam",
-    desc: "Solo & Duet • Pop, Rock, Soul & Unplugged",
+    subtitle: "Solo & Duet • Pop, Rock, Soul & Unplugged",
+    category: "Music",
+    isCompetition: true,
+    prizePool: "₹20,000",
+    date: "Nov 28, 2026",
+    time: "04:00 PM – 07:30 PM",
+    venue: "Worldview Amphitheatre",
+    teamSize: "Solo (1) or Duet (2 Performers)",
+    timeLimit: "5 Minutes Total Stage Time",
+    description:
+      "Solo and duet vocal showcase celebrating Pop, Rock, Soul, R&B, Jazz, and organic acoustic arrangements in the amphitheatre.",
+    rulebook: {
+      overview:
+        "Western Vocals & Acoustic Jam is the platform for raw vocal power, vocal harmonies, and unplugged instrumentals in the scenic open-air campus amphitheatre.",
+      teamConstraints: "Solo vocalist or vocal duet (maximum 2 performers on stage).",
+      timeConstraints: "Strict 5-minute performance window.",
+      rules: [
+        "Performers may self-accompany on acoustic guitar or keyboard, or bring 1 accompanist.",
+        "Instrumental backing tracks without lead vocals are permitted via 3.5mm jack or Bluetooth.",
+        "Genres: Pop, Rock, Country, Soul, Blues, Jazz, Ballads, and Acoustic Indie.",
+        "Original compositions and creative cover rearrangements are actively encouraged.",
+      ],
+      judgingCriteria: [
+        "Vocal range, tone quality, and pitch stability (35%).",
+        "Harmonic coordination (for duets) and dynamics (25%).",
+        "Acoustic arrangement and stage presence (25%).",
+        "Clarity of diction and interpretation (15%).",
+      ],
+      coordinators: [
+        { name: "Aditya Bhattacharyya", phone: "+91 62909 21928", club: "JUMC Coordinator" },
+      ],
+    },
   },
   {
     id: "instrumental-showdown",
     title: "Instrumental Showdown",
-    desc: "Eastern & Western Solo/Duet Instrumentals",
+    subtitle: "Eastern & Western Solo/Duet Instrumentals",
+    category: "Music",
+    isCompetition: true,
+    prizePool: "₹18,000",
+    date: "Nov 29, 2026",
+    time: "11:00 AM – 02:30 PM",
+    venue: "Gandhi Bhavan Auditorium",
+    teamSize: "Solo (1 Performer + Optional Tanpura)",
+    timeLimit: "6 Minutes Performance Time",
+    description:
+      "Solo instrumental duel celebrating dexterous fretwork, percussive mastery, and soulful wind melodies across all disciplines.",
+    rulebook: {
+      overview:
+        "The Instrumental Showdown puts the spotlight solely on the instrument and player. Whether it is the soaring notes of a violin, lightning guitar solos, intricate sitar meends, or complex tabla kaydas.",
+      teamConstraints: "Solo performer only. A drone/tanpura track is allowed for Eastern instruments.",
+      timeConstraints: "6 minutes total stage time. No backing rhythm tracks allowed.",
+      rules: [
+        "Any acoustic or electric instrument is eligible (Sitar, Guitar, Flute, Violin, Keyboard, Drums, Percussion).",
+        "Keyboards must be played in real-time; auto-accompaniment modes (arpeggiators/styles) are barred.",
+        "Judging is calibrated across both classical disciplines and modern progressive/fusion styles.",
+        "Instrumentalists must bring their own cables, processors, and instruments.",
+      ],
+      judgingCriteria: [
+        "Technical virtuosity, speed, and accuracy (35%).",
+        "Rhythmic groove, improvisational depth, and cadence (30%).",
+        "Tone purity, dynamics, and articulation (20%).",
+        "Difficulty of repertoire (15%).",
+      ],
+      coordinators: [
+        { name: "Aditya Bhattacharyya", phone: "+91 62909 21928", club: "JUMC Coordinator" },
+      ],
+    },
   },
   {
     id: "battle-of-bands",
     title: "Battle of the Bands",
-    desc: "Flagship Band Showcase • Amplified Live Stage",
+    subtitle: "Flagship Band Showcase • Amplified Live Stage",
+    category: "Music",
+    isCompetition: true,
+    prizePool: "₹40,000",
+    date: "Nov 29, 2026",
+    time: "02:00 PM – 07:00 PM",
+    venue: "Open Air Theatre (OAT)",
+    teamSize: "3 – 8 Members per Band",
+    timeLimit: "15 Mins Performance + 5 Mins Soundcheck",
+    description:
+      "The high-octane collegiate band showdown on the Open Air Theatre main stage. Plug in, turn up the gain, and electrify the crowd.",
+    rulebook: {
+      overview:
+        "Battle of the Bands is the crown jewel of Milaap's musical lineup. From indie rock to heavy metal and classical-fusion, bands battle for state-wide supremacy on an industry-grade amplified stage.",
+      teamConstraints: "Minimum 3, maximum 8 members. Cross-college combinations are allowed.",
+      timeConstraints:
+        "Strict 20 minutes total stage time (15 mins performance + 5 mins setup/soundcheck). A warning bell rings at 13 mins.",
+      rules: [
+        "A standard 5-piece drumkit, bass amplifier, and two guitar amplifiers will be provided on stage.",
+        "Bands must bring their own instruments (guitars, keyboards, processors, cables, drum sticks).",
+        "Bands may perform original compositions or covers. Original compositions carry bonus evaluation points.",
+        "Backing tracks and pre-recorded synth sequences are strictly prohibited; all sound must be live.",
+        "Any foul language, offensive lyrics, or disrespectful stage conduct will lead to immediate disqualification.",
+      ],
+      judgingCriteria: [
+        "Tightness, rhythmic locking, and musical arrangement (30%).",
+        "Vocal dynamics, instrumental dexterity, and solo execution (30%).",
+        "Originality, crowd response, and stage command (25%).",
+        "Time management and stage etiquette (15%).",
+      ],
+      coordinators: [
+        { name: "Aditya Bhattacharyya", phone: "+91 62909 21928", club: "JUMC Coordinator" },
+      ],
+    },
   },
   {
     id: "street-dance-battle",
     title: "Western & Street Dance Battle",
-    desc: "Hip-Hop, Afro, Breaking, Popping & Contemporary",
+    subtitle: "Hip-Hop, Afro, Breaking, Popping & Contemporary",
+    category: "Dance",
+    isCompetition: true,
+    prizePool: "₹22,000",
+    date: "Nov 29, 2026",
+    time: "02:00 PM – 06:00 PM",
+    venue: "Gandhi Bhavan Lawns & Cypher Arena",
+    teamSize: "1v1 Solo or 2v2 Crew Duo",
+    timeLimit: "45s per Round (Call-outs in Finals)",
+    description:
+      "Electrifying 1v1 and 2v2 street dance battles spanning Hip-Hop, Breaking, Popping, Krump, Afro, and Waacking judged by battle veterans.",
+    rulebook: {
+      overview:
+        "The Street Dance Battle is the ultimate test of musicality, freestyle spontaneity, and athletic execution. Dancers battle round-by-round to live beats spun by our resident battle DJ.",
+      teamConstraints: "Solo (1v1) or Duos (2v2) registered in advance.",
+      timeConstraints: "Preliminary round: 45s cypher run. Quarter/Semi-finals: 2 rounds of 45s each.",
+      rules: [
+        "DJ drops random tracks (Hip-hop, Funk, Breaks, Trap, Afro, House). No pre-choreographed songs.",
+        "Physical contact, unsportsmanlike behavior, or aggressive touching leads to immediate elimination.",
+        "Top 16 dancers from open cyphers qualify for 1v1 knockouts; top 8 duos qualify for 2v2 knockouts.",
+        "Decisions by the guest judges are instantaneous and irrevocable.",
+      ],
+      judgingCriteria: [
+        "Musicality, beat response, and rhythm texture (35%).",
+        "Technique, foundation, and control (30%).",
+        "Originality, freestyle innovation, and personality (25%).",
+        "Battle aggression and crowd interaction (10%).",
+      ],
+      coordinators: [
+        { name: "Tanisha Das", phone: "+91 88374 13287", club: "JUDF Coordinator" },
+      ],
+    },
   },
   {
     id: "choreography-showcase",
     title: "Choreography & Duet Showcase",
-    desc: "Thematic Storytelling & Fusion Dance",
+    subtitle: "Thematic Storytelling & Fusion Dance",
+    category: "Dance",
+    isCompetition: true,
+    prizePool: "₹25,000",
+    date: "Nov 30, 2026",
+    time: "11:00 AM – 03:00 PM",
+    venue: "Gandhi Bhavan Auditorium",
+    teamSize: "2 – 8 Performers per Act",
+    timeLimit: "6 – 9 Minutes on Stage",
+    description:
+      "Thematic storytelling and contemporary fusion dance through synchronized duets, lyrical movements, and choreographed emotional drama.",
+    rulebook: {
+      overview:
+        "This competition challenges choreographers to weave narrative, emotive depth, and contemporary movement into a theatrical stage production.",
+      teamConstraints: "2 to 8 dancers. Open to all collegiate teams.",
+      timeConstraints: "6 to 9 minutes including stage setup.",
+      rules: [
+        "Choreographies must follow a defined concept or storyline (brief synopsis to be read out by MC).",
+        "Fusion across Contemporary, Ballet, Lyrical Jazz, Urban, and Semi-Classical is encouraged.",
+        "Props must be declared during registration; no glitter, confetti, or messy substances permitted on stage.",
+      ],
+      judgingCriteria: [
+        "Choreographic complexity and thematic translation (35%).",
+        "Synchronization, partnering, and lift mechanics (30%).",
+        "Emotional resonance and stage presence (25%).",
+        "Costume and music edit seamlessness (10%).",
+      ],
+      coordinators: [
+        { name: "Tanisha Das", phone: "+91 88374 13287", club: "JUDF Coordinator" },
+      ],
+    },
+  },
+  {
+    id: "folk-jugalbandi-showcase",
+    title: "Classical & Folk Jugalbandi Showcase",
+    subtitle: "Baul, Bhatiyali & Classical Fusion Extravaganza",
+    category: "Special",
+    isCompetition: false,
+    date: "Nov 28, 2026",
+    time: "07:30 PM – 09:30 PM",
+    venue: "Open Air Theatre (OAT)",
+    teamSize: "Curated Ensemble & Guest Maestros",
+    timeLimit: "2-Hour Inaugural Mainstage Showcase",
+    description:
+      "An exclusive inaugural jugalbandi weaving rural Bengal's folk traditions, baul mysticism, and Indian classical ragas featuring master instrumentalists and vocalists.",
+    rulebook: {
+      overview:
+        "An inaugural evening showcase bringing together folk legends, Baul practitioners, and student instrumentalists in an unrehearsed, soul-stirring musical dialogue.",
+      rules: [
+        "Open access to all registered Milaap delegates and university students.",
+        "Seating on first-come, first-served basis at Open Air Theatre.",
+        "Audience participation and live singalongs are wholeheartedly encouraged.",
+      ],
+      judgingCriteria: [
+        "Non-competitive celebration of Bengal's living cultural heritage.",
+      ],
+      coordinators: [
+        { name: "Aditya Bhattacharyya", phone: "+91 62909 21928", club: "JUMC Coordinator" },
+        { name: "Tanisha Das", phone: "+91 88374 13287", club: "JUDF Coordinator" },
+      ],
+    },
+  },
+  {
+    id: "pro-night-gala",
+    title: "Headline Artist Performances & Felicitation",
+    subtitle: "Grand Finale Pro-Night & Official Trophy Ceremony",
+    category: "Flagship",
+    isCompetition: false,
+    date: "Nov 30, 2026",
+    time: "05:00 PM – 10:00 PM",
+    venue: "Jadavpur University Main Stadium",
+    teamSize: "All Registered Delegates & Campus Community",
+    timeLimit: "5-Hour Star Concert & Awards",
+    description:
+      "The star-studded climax of Milaap Edition I! Witness top national touring headliners live on the massive festival mainstage, followed by the official trophy distribution honoring all festival champions.",
+    rulebook: {
+      overview:
+        "The grand finale of Milaap Edition I! A celebratory evening uniting thousands of college students for the trophy award ceremony, followed by an unforgettable live performance from a top national headliner.",
+      teamConstraints: "Open entry to all registered festival participants and valid college ID holders.",
+      timeConstraints: "Gates open at 04:30 PM. Final entry closes at 07:00 PM.",
+      rules: [
+        "Valid physical student ID card and festival entry wristband/QR pass are required at all security check gates.",
+        "Strictly no outside food, alcohol, or prohibited items allowed inside the stadium arena.",
+        "All general campus safety and Kolkata police event guidelines strictly enforced.",
+      ],
+      judgingCriteria: [
+        "Grand Trophy Distribution across all Milaap 2026 winners and runner-ups.",
+      ],
+      coordinators: [
+        { name: "Aditya Bhattacharyya", phone: "+91 62909 21928", club: "JUMC Coordinator" },
+        { name: "Tanisha Das", phone: "+91 88374 13287", club: "JUDF Coordinator" },
+      ],
+    },
   },
 ];
 
-/* Parametric C^1-Continuous Curvy Sinusoidal Spline + Terminal Sigma (Σ) Flourish
-   Regime I:   Top Calligraphic Ribbon Flourish (Y in [25, 290])
-   Regime II:  Harmonic S-Wave through the 6 events (Y in [290, 1640], X alternating 700 & 300)
-   Regime III: Terminal Sigma (Σ) curve ending directly at the light point (500, 2260) */
-const srijanSplinePath =
-  "M 340 25 C 580 5, 760 35, 650 85 C 540 135, 290 120, 350 175 C 410 225, 580 210, 680 290 C 780 370, 760 450, 500 495 C 240 540, 220 500, 300 560 C 380 620, 220 710, 500 765 C 780 820, 780 770, 700 830 C 620 890, 780 980, 500 1035 C 220 1090, 220 1040, 300 1100 C 380 1160, 220 1250, 500 1305 C 780 1360, 780 1310, 700 1370 C 620 1430, 780 1520, 500 1575 C 220 1630, 220 1580, 300 1640 C 380 1710, 740 1730, 690 1820 C 640 1900, 350 1900, 360 1980 C 370 2060, 710 2050, 670 2130 C 635 2200, 500 2210, 500 2260";
+/* 2.5D Helical Loop Spline Geometry (viewBox: 0 0 1000 3200)
+   Regime I:   Top Calligraphic Ribbon Flourish (Y in [20, 230])
+   Regime II:  Helical Coils at 8 Milestones (Y in [260, 2738], loop-de-loop coils at X=720 and X=280)
+   Regime III: Terminal Greek Sigma (Σ) curve ending with vertical tangent at (500, 3120) */
+const helicalSplinePrimary =
+  "M 360 20 C 580 5, 760 30, 660 75 C 560 120, 310 110, 360 160 C 410 205, 590 195, 680 230 C 720 245, 755 250, 760 275 C 765 305, 725 320, 685 300 C 650 280, 665 245, 705 250 C 745 255, 740 305, 700 350 C 660 395, 440 437, 320 584 C 280 599, 245 604, 240 629 C 235 659, 275 674, 315 654 C 350 634, 335 599, 295 604 C 255 609, 260 659, 300 704 C 340 749, 560 791, 680 938 C 720 953, 755 958, 760 983 C 765 1013, 725 1028, 685 1008 C 650 988, 665 953, 705 958 C 745 963, 740 1013, 700 1058 C 660 1103, 440 1145, 320 1292 C 280 1307, 245 1312, 240 1337 C 235 1367, 275 1382, 315 1362 C 350 1342, 335 1307, 295 1312 C 255 1317, 260 1367, 300 1412 C 340 1457, 560 1499, 680 1646 C 720 1661, 755 1666, 760 1691 C 765 1721, 725 1736, 685 1716 C 650 1696, 665 1661, 705 1666 C 745 1671, 740 1721, 700 1766 C 660 1811, 440 1853, 320 2000 C 280 2015, 245 2020, 240 2045 C 235 2075, 275 2090, 315 2070 C 350 2050, 335 2015, 295 2020 C 255 2025, 260 2075, 300 2120 C 340 2165, 560 2207, 680 2354 C 720 2369, 755 2374, 760 2399 C 765 2429, 725 2444, 685 2424 C 650 2404, 665 2369, 705 2374 C 745 2379, 740 2429, 700 2474 C 660 2519, 440 2561, 320 2708 C 280 2723, 245 2728, 240 2753 C 235 2783, 275 2798, 315 2778 C 350 2758, 335 2723, 295 2728 C 255 2733, 260 2783, 300 2828 C 350 2865, 460 2880, 580 2875 C 650 2870, 710 2890, 680 2930 C 650 2970, 480 2980, 430 3000 C 490 3020, 660 3030, 680 3065 C 695 3090, 620 3110, 500 3120";
 
-const srijanMilestones = [
-  { y: 290, cardSide: "right" as const, threshold: 0.191 }, // Event 0: Right peak at X=700 (70%)
-  { y: 560, cardSide: "left" as const, threshold: 0.310 },  // Event 1: Left trough at X=300 (30%)
-  { y: 830, cardSide: "right" as const, threshold: 0.420 }, // Event 2: Right peak at X=700 (70%)
-  { y: 1100, cardSide: "left" as const, threshold: 0.530 }, // Event 3: Left trough at X=300 (30%)
-  { y: 1370, cardSide: "right" as const, threshold: 0.641 }, // Event 4: Right peak at X=700 (70%)
-  { y: 1640, cardSide: "left" as const, threshold: 0.751 }, // Event 5: Left trough at X=300 (30%)
+/* Secondary Phase-Shifted Counter-Helix Strand creating 3D double-helix depth */
+const helicalSplineSecondary =
+  "M 640 20 C 420 5, 240 30, 340 75 C 440 120, 690 110, 640 160 C 590 205, 410 195, 320 230 C 280 245, 245 250, 240 275 C 235 305, 275 320, 315 300 C 350 280, 335 245, 295 250 C 255 255, 260 305, 300 350 C 340 395, 560 437, 680 584 C 720 599, 755 604, 760 629 C 765 659, 725 674, 685 654 C 650 634, 665 599, 705 604 C 745 609, 740 659, 700 704 C 660 749, 440 791, 320 938 C 280 953, 245 958, 240 983 C 235 1013, 275 1028, 315 1008 C 350 988, 335 953, 295 958 C 255 963, 260 1013, 300 1058 C 340 1103, 560 1145, 680 1292 C 720 1307, 755 1312, 760 1337 C 765 1367, 725 1382, 685 1362 C 650 1342, 665 1307, 705 1312 C 745 1317, 740 1367, 700 1412 C 660 1457, 440 1499, 320 1646 C 280 1661, 245 1666, 240 1691 C 235 1721, 275 1736, 315 1716 C 350 1696, 335 1661, 295 1666 C 255 1671, 260 1721, 300 1766 C 340 1811, 560 1853, 680 2000 C 720 2015, 755 2020, 760 2045 C 765 2075, 725 2090, 685 2070 C 650 2050, 665 2015, 705 2020 C 745 2025, 740 2075, 700 2120 C 660 2165, 440 2207, 320 2354 C 280 2369, 245 2374, 240 2399 C 235 2429, 275 2444, 315 2424 C 350 2404, 335 2369, 295 2374 C 255 2379, 260 2429, 300 2474 C 340 2519, 560 2561, 680 2708 C 720 2723, 755 2728, 760 2753 C 765 2783, 725 2798, 685 2778 C 650 2758, 665 2723, 705 2728 C 745 2733, 740 2783, 700 2828 C 650 2865, 540 2880, 420 2875 C 350 2870, 290 2890, 320 2930 C 350 2970, 520 2980, 570 3000 C 510 3020, 340 3030, 320 3065 C 305 3090, 380 3110, 500 3120";
+
+const helicalMilestones = [
+  { y: 260, cardSide: "right" as const, threshold: 0.156 }, // Node 0: Right loop at X=720
+  { y: 614, cardSide: "left" as const, threshold: 0.256 },  // Node 1: Left loop at X=280
+  { y: 968, cardSide: "right" as const, threshold: 0.355 }, // Node 2: Right loop at X=720
+  { y: 1322, cardSide: "left" as const, threshold: 0.455 }, // Node 3: Left loop at X=280
+  { y: 1676, cardSide: "right" as const, threshold: 0.554 }, // Node 4: Right loop at X=720
+  { y: 2030, cardSide: "left" as const, threshold: 0.654 }, // Node 5: Left loop at X=280
+  { y: 2384, cardSide: "right" as const, threshold: 0.753 }, // Node 6: Right loop at X=720
+  { y: 2738, cardSide: "left" as const, threshold: 0.853 }, // Node 7: Left loop at X=280
 ];
 
-const srijanTimelineTotalHeight = 2400;
+const helicalTimelineTotalHeight = 3200;
 
 /* ====================================================================
    SPONSORSHIP DATA
@@ -422,10 +705,10 @@ export default function MilaapPage() {
   // Deterministic DOM-measured scroll progress engine u in [0, 1]
   const [scrollProgress, setScrollProgress] = useState(0);
   const [headPoint, setHeadPoint] = useState<{ x: number; y: number } | null>({
-    x: 340,
-    y: 25,
+    x: 360,
+    y: 20,
   });
-  const [pathLength, setPathLength] = useState(5733);
+  const [pathLength, setPathLength] = useState(8579);
 
   useEffect(() => {
     let rafId: number | null = null;
@@ -497,18 +780,195 @@ export default function MilaapPage() {
   // Sponsorship tab state
   const [activeTab, setActiveTab] = useState<SponsorTabKey>("pr");
 
-  // Selected Event Rulebook Modal state
-  const [selectedRulebookEvent, setSelectedRulebookEvent] =
-    useState<MilaapEvent | null>(null);
+  // Inline Rulebook Accordion state
+  const [expandedRulebookId, setExpandedRulebookId] = useState<string | null>(
+    null
+  );
 
-  const handleOpenRulebook = (comp: (typeof competitions)[0]) => {
-    const matched =
-      MILAAP_EVENTS.find((e) => e.id === comp.id) ||
-      MILAAP_EVENTS.find((e) =>
-        e.title.toLowerCase().includes(comp.title.toLowerCase().slice(0, 10))
-      ) ||
-      MILAAP_EVENTS[0];
-    setSelectedRulebookEvent(matched);
+  const toggleRulebook = (id: string) => {
+    setExpandedRulebookId((prev) => (prev === id ? null : id));
+  };
+
+  const handleDownloadRulebookPdf = async (event: UnifiedMilaapItem) => {
+    const { jsPDF } = await import("jspdf");
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4",
+    });
+
+    // Background banner
+    doc.setFillColor(18, 4, 7);
+    doc.rect(0, 0, 210, 297, "F");
+
+    // Golden header accent bar
+    doc.setFillColor(245, 158, 11);
+    doc.rect(0, 0, 210, 4, "F");
+
+    // Header Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.setTextColor(245, 158, 11);
+    doc.text("MILAAP — EDITION I • OFFICIAL RULEBOOK & GUIDELINES", 15, 16);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(180, 180, 180);
+    doc.text(
+      "Jadavpur University Music Club (JUMC) × JU Dance Wing (JUDF)",
+      15,
+      22
+    );
+
+    // Divider
+    doc.setDrawColor(245, 158, 11);
+    doc.setLineWidth(0.4);
+    doc.line(15, 26, 195, 26);
+
+    // Event Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(255, 255, 255);
+    doc.text(event.title, 15, 36);
+
+    // Subtitle
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(253, 230, 138);
+    doc.text(event.subtitle, 15, 42);
+
+    // Metadata Box
+    doc.setFillColor(30, 10, 12);
+    doc.setDrawColor(245, 158, 11);
+    doc.roundedRect(15, 47, 180, 28, 2, 2, "FD");
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(245, 158, 11);
+    doc.text("Category:", 20, 54);
+    doc.text("Date & Time:", 20, 61);
+    doc.text("Venue:", 20, 68);
+
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(240, 240, 240);
+    doc.text(
+      `${event.category} (${
+        event.isCompetition ? "Competitive" : "Non-Competitive Showcase"
+      })`,
+      45,
+      54
+    );
+    doc.text(`${event.date} • ${event.time}`, 45, 61);
+    doc.text(event.venue, 45, 68);
+
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(245, 158, 11);
+    doc.text("Team Size:", 115, 54);
+    doc.text("Time Limit:", 115, 61);
+    if (event.prizePool) doc.text("Prize Pool:", 115, 68);
+
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(240, 240, 240);
+    doc.text(event.teamSize, 140, 54);
+    doc.text(event.timeLimit, 140, 61);
+    if (event.prizePool) doc.text(event.prizePool, 140, 68);
+
+    let currentY = 83;
+
+    // Overview
+    if (event.rulebook?.overview) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(245, 158, 11);
+      doc.text("EVENT OVERVIEW", 15, currentY);
+      currentY += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.setTextColor(220, 220, 220);
+      const splitOverview = doc.splitTextToSize(event.rulebook.overview, 180);
+      doc.text(splitOverview, 15, currentY);
+      currentY += splitOverview.length * 5 + 6;
+    }
+
+    // Rules & Regulations
+    if (event.rulebook?.rules && event.rulebook.rules.length > 0) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(245, 158, 11);
+      doc.text("STAGE RULES & REGULATIONS", 15, currentY);
+      currentY += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(220, 220, 220);
+      event.rulebook.rules.forEach((rule, idx) => {
+        const splitRule = doc.splitTextToSize(`${idx + 1}.  ${rule}`, 180);
+        doc.text(splitRule, 15, currentY);
+        currentY += splitRule.length * 4.8 + 2;
+      });
+      currentY += 4;
+    }
+
+    // Judging Criteria
+    if (
+      event.rulebook?.judgingCriteria &&
+      event.rulebook.judgingCriteria.length > 0
+    ) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(245, 158, 11);
+      doc.text("JUDGING & EVALUATION CRITERIA", 15, currentY);
+      currentY += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(220, 220, 220);
+      event.rulebook.judgingCriteria.forEach((crit) => {
+        const splitCrit = doc.splitTextToSize(`•  ${crit}`, 180);
+        doc.text(splitCrit, 15, currentY);
+        currentY += splitCrit.length * 4.8 + 2;
+      });
+      currentY += 4;
+    }
+
+    // Coordinators
+    if (
+      event.rulebook?.coordinators &&
+      event.rulebook.coordinators.length > 0
+    ) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(245, 158, 11);
+      doc.text("EVENT COORDINATORS", 15, currentY);
+      currentY += 6;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.setTextColor(220, 220, 220);
+      event.rulebook.coordinators.forEach((coord) => {
+        doc.text(
+          `${coord.name} (${coord.club}) — ${coord.phone}`,
+          15,
+          currentY
+        );
+        currentY += 5;
+      });
+    }
+
+    // Footer bar
+    doc.setDrawColor(245, 158, 11, 0.4);
+    doc.line(15, 282, 195, 282);
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(8);
+    doc.setTextColor(140, 140, 140);
+    doc.text(
+      "Milaap 2026 • Official Document • Jadavpur University Main Campus • www.milaapju.in",
+      15,
+      288
+    );
+
+    doc.save(`${event.id}-rulebook.pdf`);
   };
 
   // Carousel state
@@ -936,28 +1396,32 @@ export default function MilaapPage() {
         </MorphTextReveal>
 
         {/* ================================================================
-            PART 5: SRIJAN-STYLE FLOATING TYPOGRAPHY & SERPENTINE S-CURVE TIMELINE
+            PART 5: UNIFIED HELICAL LOOP SHOWCASE & RULEBOOKS
             ================================================================ */}
         <GoldenDivider />
         <MorphTextReveal>
-          <div className="text-center mb-8">
-            <p className="text-amber-200/50 text-[10px] tracking-[0.35em] uppercase mb-3 font-serif">
-              THE CULTURAL ARENA
-            </p>
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-[11px] font-mono font-semibold uppercase tracking-[0.25em] shadow-[0_0_15px_rgba(245,158,11,0.15)] mb-3">
+              <Sparkles size={13} className="text-yellow-400" />
+              MILAAP 2026 • OFFICIAL EVENTS & RULEBOOKS
+            </div>
             <h2 className="MilaapFont text-4xl sm:text-5xl md:text-6xl bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent">
-              explore competitions at milaap
+              the cultural arena
             </h2>
+            <p className="text-amber-100/75 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto font-light mt-2">
+              Explore our 6 championship competitions and headline cultural spectacles along the scroll-driven helical pathway. Access official rules, prize pools, and participate directly.
+            </p>
           </div>
         </MorphTextReveal>
 
-        {/* Responsive Srijan-Style Floating Typography Timeline (Single Layout for Mobile & Desktop) */}
+        {/* Responsive Helical Loop Timeline & Unified Event Showcase */}
         <div
           ref={timelineRef}
-          className="relative w-full max-w-4xl mx-auto px-4 sm:px-8 h-[2000px] sm:h-[2200px] md:h-[2400px] overflow-visible transform-gpu"
+          className="relative w-full max-w-5xl mx-auto px-4 sm:px-8 h-[3200px] overflow-visible transform-gpu"
         >
-          {/* Full-Height Absolute Calligraphic S-Curve SVG */}
+          {/* Full-Height Absolute Calligraphic Helical Loop SVG */}
           <svg
-            viewBox="0 0 1000 2400"
+            viewBox="0 0 1000 3200"
             preserveAspectRatio="none"
             className="absolute inset-0 w-full h-full pointer-events-none z-10 overflow-visible"
             fill="none"
@@ -977,19 +1441,29 @@ export default function MilaapPage() {
               </linearGradient>
             </defs>
 
-            {/* Background Guide Path */}
+            {/* Secondary Phase-Shifted Counter-Helix Background Strand */}
             <path
-              d={srijanSplinePath}
-              stroke="rgba(245, 158, 11, 0.15)"
+              d={helicalSplineSecondary}
+              stroke="rgba(245, 158, 11, 0.12)"
+              strokeWidth="2.5"
+              strokeDasharray="6 6"
+              vectorEffect="non-scaling-stroke"
+              fill="none"
+            />
+
+            {/* Primary Background Guide Path */}
+            <path
+              d={helicalSplinePrimary}
+              stroke="rgba(245, 158, 11, 0.18)"
               strokeWidth="2.5"
               vectorEffect="non-scaling-stroke"
               fill="none"
             />
 
-            {/* Scroll-Animated Foreground Path (Deterministic Arc-Length Parameterization) */}
+            {/* Scroll-Animated Foreground Path */}
             <path
               ref={svgPathRef}
-              d={srijanSplinePath}
+              d={helicalSplinePrimary}
               stroke="url(#calligraphicGoldGradient)"
               strokeWidth="4"
               strokeLinecap="round"
@@ -998,7 +1472,7 @@ export default function MilaapPage() {
               style={{
                 strokeDasharray: pathLength,
                 strokeDashoffset: pathLength * (1 - scrollProgress),
-                filter: "drop-shadow(0 0 14px rgba(251, 191, 36, 0.95))",
+                filter: "drop-shadow(0 0 16px rgba(251, 191, 36, 0.95))",
                 transition: "stroke-dashoffset 0.04s linear",
               }}
             />
@@ -1006,47 +1480,47 @@ export default function MilaapPage() {
             {/* Travelling Glowing Orb / Comet Head along B(u) */}
             {headPoint && scrollProgress > 0.005 && (
               <g className="pointer-events-none">
-                {/* Outer Halo */}
                 <circle
                   cx={headPoint.x}
                   cy={headPoint.y}
-                  r="14"
+                  r="16"
                   fill="#fde047"
-                  opacity="0.35"
-                  filter="drop-shadow(0 0 10px #f59e0b)"
+                  opacity="0.4"
+                  filter="drop-shadow(0 0 12px #f59e0b)"
                 />
-                {/* Core Glowing Orb */}
                 <circle
                   cx={headPoint.x}
                   cy={headPoint.y}
-                  r="7"
+                  r="7.5"
                   fill="#fffbeb"
                   stroke="#f59e0b"
-                  strokeWidth="2"
-                  filter="drop-shadow(0 0 12px #fbbf24)"
+                  strokeWidth="2.5"
+                  filter="drop-shadow(0 0 14px #fbbf24)"
                 />
               </g>
             )}
           </svg>
 
-          {/* Floating Samarkan Typography Rows with Dotted Lines and Node Dots */}
-          {competitions.map((comp, idx) => (
-            <SrijanTimelineRow
-              key={comp.id}
-              comp={comp}
-              milestone={srijanMilestones[idx]}
-              totalHeight={srijanTimelineTotalHeight}
+          {/* Unified Helical Event Cards (Desktop Alternating + Mobile Stacked) */}
+          {unifiedMilaapEvents.map((event, idx) => (
+            <HelicalEventRow
+              key={event.id}
+              event={event}
+              milestone={helicalMilestones[idx]}
+              totalHeight={helicalTimelineTotalHeight}
               scrollProgress={scrollProgress}
-              onOpenRulebook={handleOpenRulebook}
+              isExpanded={expandedRulebookId === event.id}
+              onToggleAccordion={toggleRulebook}
+              onDownloadPdf={handleDownloadRulebookPdf}
             />
           ))}
 
-          {/* Locked Terminal Glowing Light Point & milaap Emblem at (500, 2260) */}
+          {/* Locked Terminal Glowing Light Point & milaap Emblem at (500, 3120) */}
           <div
             className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 text-center pointer-events-none select-none z-20"
-            style={{ top: `${(2260 / srijanTimelineTotalHeight) * 100}%` }}
+            style={{ top: `${(3120 / helicalTimelineTotalHeight) * 100}%` }}
           >
-            {/* Terminal Light Point docked at (500, 2260) */}
+            {/* Terminal Light Point docked at (500, 3120) */}
             <span
               className={`-translate-y-1/2 block w-4 h-4 rounded-full transition-all duration-500 transform-gpu ${
                 scrollProgress >= 0.96
@@ -1505,11 +1979,6 @@ export default function MilaapPage() {
           </section>
         </MorphTextReveal>
 
-        {/* ── Competitions at Milaap & Rulebooks Section ── */}
-        <GoldenDivider />
-        <MorphTextReveal>
-          <MilaapCompetitions />
-        </MorphTextReveal>
 
         <GoldenDivider />
       </div>
@@ -1665,97 +2134,510 @@ export default function MilaapPage() {
           </motion.div>
         </div>
       </footer>
-
-      {/* Milaap Event Rulebook Modal */}
-      <EventRulebookModal
-        event={selectedRulebookEvent}
-        onClose={() => setSelectedRulebookEvent(null)}
-      />
     </main>
   );
 }
 
 /* ====================================================================
-   SUB-COMPONENT: SRIJAN-STYLE FLOATING TYPOGRAPHY TIMELINE ROW
+   SUB-COMPONENT: UNIFIED HELICAL SHOWCASE & RULEBOOK CARD ROW
    ==================================================================== */
 
-function SrijanTimelineRow({
-  comp,
+function HelicalEventRow({
+  event,
   milestone,
   totalHeight,
   scrollProgress,
-  onOpenRulebook,
+  isExpanded,
+  onToggleAccordion,
+  onDownloadPdf,
 }: {
-  comp: (typeof competitions)[0];
-  milestone: (typeof srijanMilestones)[0];
+  event: UnifiedMilaapItem;
+  milestone: (typeof helicalMilestones)[0];
   totalHeight: number;
   scrollProgress: number;
-  onOpenRulebook: (comp: (typeof competitions)[0]) => void;
+  isExpanded: boolean;
+  onToggleAccordion: (id: string) => void;
+  onDownloadPdf: (event: UnifiedMilaapItem) => void;
 }) {
   const isReached = scrollProgress >= milestone.threshold;
   const topPercent = (milestone.y / totalHeight) * 100;
-  const isRightNode = milestone.cardSide === "right"; // Dot at X=700 (70%), text on left
+  const isRightNode = milestone.cardSide === "right"; // Node at X=720 (72%), card on left
 
   return (
     <div
       className={`absolute left-0 right-0 -translate-y-1/2 flex items-center transition-all duration-500 pointer-events-auto ${
-        isReached ? "opacity-100 scale-[1.02]" : "opacity-75 scale-100"
+        isReached ? "opacity-100 scale-100" : "opacity-45 scale-95"
       }`}
       style={{ top: `${topPercent}%` }}
     >
       {isRightNode ? (
-        // Right-Side Node Row (Left Text -> Dotted Line -> Right Node Dot at X=700 / 70%)
-        <>
-          <div className="w-[70%] flex items-center min-w-0">
-            <button
-              onClick={() => onOpenRulebook(comp)}
-              className="group text-left cursor-pointer transition-transform duration-300 hover:scale-[1.03] focus:outline-none shrink-0 max-w-[68%] sm:max-w-none"
+        // Right-Side Helical Coil: Card on Left -> Dotted Connector -> Loop Dot at X=720 (72%)
+        <div className="w-full flex items-center justify-between">
+          <div className="w-full md:w-[58%] lg:w-[54%] min-w-0">
+            <div
+              className={`relative rounded-2xl p-5 sm:p-6 backdrop-blur-md transition-all duration-300 ${
+                event.isCompetition
+                  ? "bg-[#1a0905]/90 hover:bg-[#200b06]/95 border border-amber-500/35 hover:border-amber-400/60 shadow-[0_10px_35px_rgba(0,0,0,0.6)]"
+                  : "bg-gradient-to-br from-[#2b1008]/95 to-[#140603]/95 border-2 border-amber-400/70 shadow-[0_15px_40px_rgba(245,158,11,0.25)]"
+              }`}
             >
-              <h3 className="font-samarkan text-2xl sm:text-4xl md:text-5xl text-[#fde68a] drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)] [text-shadow:0_0_20px_rgba(245,158,11,0.55)] tracking-wide leading-tight transition-all duration-500 group-hover:text-yellow-200">
-                {comp.title.toLowerCase()}
+              {/* Card Badges */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                  {event.category}
+                </span>
+                {event.isCompetition && event.prizePool ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-yellow-500/15 text-yellow-300 border border-yellow-400/40 shadow-[0_0_12px_rgba(234,179,8,0.25)]">
+                    <Trophy size={12} className="text-yellow-400" />
+                    PRIZE: {event.prizePool}
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-200 border border-yellow-400/50">
+                      🌟 SPECIAL SHOWCASE • NON-COMPETITIVE
+                    </span>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-950/60 text-amber-300 border border-amber-500/30">
+                      🎟️ OPEN TO ALL ATTENDEES
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {/* Samarkan Title */}
+              <h3 className="font-samarkan text-2xl sm:text-3xl lg:text-4xl text-[#fde68a] drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)] [text-shadow:0_0_20px_rgba(245,158,11,0.55)] tracking-wide leading-tight mt-2.5">
+                {event.title.toLowerCase()}
               </h3>
-              <p className="font-sans text-xs sm:text-sm text-amber-100/90 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-normal tracking-wider mt-1">
-                {comp.desc}
+
+              {/* Subtitle */}
+              <p className="font-sans text-xs sm:text-sm text-amber-200/90 font-medium tracking-wide mt-1">
+                {event.subtitle}
               </p>
-            </button>
-            <div className="flex-1 border-b-2 border-dotted border-amber-300/70 mx-3 sm:mx-6 h-[1px]" />
+
+              {/* Description */}
+              <p className="font-sans text-xs text-amber-100/70 leading-relaxed mt-2 font-light line-clamp-2 sm:line-clamp-none">
+                {event.description}
+              </p>
+
+              {/* Metadata Chips */}
+              <div className="grid grid-cols-2 gap-2 mt-3.5 pt-3 border-t border-amber-500/20 text-[11px] sm:text-xs text-amber-100/80">
+                <div className="flex items-center gap-1.5">
+                  <Calendar size={13} className="text-amber-400 shrink-0" />
+                  <span className="truncate">{event.date}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock size={13} className="text-amber-400 shrink-0" />
+                  <span className="truncate">{event.time}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <MapPin size={13} className="text-amber-400 shrink-0" />
+                  <span className="truncate">{event.venue}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Users size={13} className="text-amber-400 shrink-0" />
+                  <span className="truncate">{event.teamSize}</span>
+                </div>
+              </div>
+
+              {/* Interactive Embedded Rulebook Accordion */}
+              {event.rulebook && (
+                <div className="mt-3.5 pt-2 border-t border-amber-500/20">
+                  <button
+                    onClick={() => onToggleAccordion(event.id)}
+                    className="w-full py-2 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-400/25 text-amber-200 text-xs font-mono font-medium flex items-center justify-between transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <BookOpen size={14} className="text-amber-400" />
+                      <span>Rulebook & Judging Criteria</span>
+                    </span>
+                    <ChevronDown
+                      size={14}
+                      className={`transform transition-transform duration-300 ${
+                        isExpanded ? "rotate-180 text-yellow-300" : ""
+                      }`}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="overflow-hidden mt-3 pt-3 border-t border-amber-500/15 space-y-3 text-xs"
+                      >
+                        {event.rulebook.overview && (
+                          <div>
+                            <p className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold mb-1">
+                              Overview
+                            </p>
+                            <p className="text-amber-100/80 leading-relaxed">
+                              {event.rulebook.overview}
+                            </p>
+                          </div>
+                        )}
+
+                        {event.rulebook.rules &&
+                          event.rulebook.rules.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold mb-1.5">
+                                Stage Rules
+                              </p>
+                              <ul className="space-y-1.5">
+                                {event.rulebook.rules.map((rule, rIdx) => (
+                                  <li
+                                    key={rIdx}
+                                    className="flex items-start gap-2 text-slate-200/90 leading-relaxed bg-black/30 p-2 rounded-lg border border-amber-500/10"
+                                  >
+                                    <span className="text-amber-400 font-mono font-bold text-[10px] mt-0.5 shrink-0">
+                                      {rIdx + 1}.
+                                    </span>
+                                    <span>{rule}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                        {event.rulebook.judgingCriteria &&
+                          event.rulebook.judgingCriteria.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold mb-1.5">
+                                Judging Criteria
+                              </p>
+                              <div className="space-y-1">
+                                {event.rulebook.judgingCriteria.map(
+                                  (crit, cIdx) => (
+                                    <div
+                                      key={cIdx}
+                                      className="flex items-center gap-1.5 text-slate-300 bg-black/20 px-2.5 py-1.5 rounded-lg border border-white/5"
+                                    >
+                                      <Sparkles
+                                        size={11}
+                                        className="text-amber-400 shrink-0"
+                                      />
+                                      <span>{crit}</span>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                        {event.rulebook.coordinators &&
+                          event.rulebook.coordinators.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold mb-1">
+                                Coordinators
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {event.rulebook.coordinators.map(
+                                  (coord, coIdx) => (
+                                    <div
+                                      key={coIdx}
+                                      className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-black/40 border border-amber-500/20 text-[11px]"
+                                    >
+                                      <span className="text-white font-medium">
+                                        {coord.name}
+                                      </span>
+                                      <a
+                                        href={`tel:${coord.phone.replace(
+                                          /\s/g,
+                                          ""
+                                        )}`}
+                                        className="text-amber-300 hover:text-amber-200 font-mono flex items-center gap-1"
+                                      >
+                                        <Phone size={10} />
+                                        {coord.phone}
+                                      </a>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                        {/* Download Rulebook PDF Trigger */}
+                        <button
+                          onClick={() => onDownloadPdf(event)}
+                          className="w-full mt-2 py-2 px-3 rounded-xl bg-amber-950/60 hover:bg-amber-900/70 border border-amber-400/40 text-amber-200 text-xs font-mono font-medium flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+                        >
+                          <Download size={13} className="text-yellow-400" />
+                          <span>Download Official Rulebook PDF</span>
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {/* Primary Action Button */}
+              {event.isCompetition ? (
+                <Link
+                  href={`/milaap/register?event=${event.id}`}
+                  className="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-black font-extrabold text-xs tracking-wider uppercase shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:shadow-[0_0_30px_rgba(245,158,11,0.7)] hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  <span>✨ Participate Now →</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/milaap/register"
+                  className="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-black font-extrabold text-xs tracking-wider uppercase shadow-[0_0_20px_rgba(245,158,11,0.35)] hover:shadow-[0_0_30px_rgba(245,158,11,0.6)] hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  <span>🎟️ View Fest Pass / Schedule →</span>
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Dotted Connector Line (Desktop) */}
+          <div className="hidden md:flex flex-1 border-b-2 border-dotted border-amber-300/70 mx-3 sm:mx-6 h-[1px]" />
+
+          {/* Loop Node Dot at X=720 (72%) */}
+          <div className="hidden md:flex items-center shrink-0">
             <span
-              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full shrink-0 transition-all duration-500 transform-gpu ${
+              className={`w-4 h-4 rounded-full shrink-0 transition-all duration-500 transform-gpu ${
                 isReached
                   ? "bg-amber-100 border-2 border-yellow-300 shadow-[0_0_20px_#fbbf24] scale-125"
                   : "bg-amber-900/60 border border-amber-400/40 shadow-[0_0_8px_rgba(245,158,11,0.3)] scale-90"
               }`}
             />
           </div>
-          <div className="w-[30%]" />
-        </>
+        </div>
       ) : (
-        // Left-Side Node Row (Left Node Dot at X=300 / 30% -> Dotted Line -> Right Text)
-        <>
-          <div className="w-[30%] flex items-center justify-end min-w-0">
+        // Left-Side Helical Coil: Loop Dot at X=280 (28%) -> Dotted Connector -> Card on Right
+        <div className="w-full flex items-center justify-between">
+          {/* Loop Node Dot at X=280 (28%) */}
+          <div className="hidden md:flex items-center shrink-0">
             <span
-              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full shrink-0 transition-all duration-500 transform-gpu ${
+              className={`w-4 h-4 rounded-full shrink-0 transition-all duration-500 transform-gpu ${
                 isReached
                   ? "bg-amber-100 border-2 border-yellow-300 shadow-[0_0_20px_#fbbf24] scale-125"
                   : "bg-amber-900/60 border border-amber-400/40 shadow-[0_0_8px_rgba(245,158,11,0.3)] scale-90"
               }`}
             />
           </div>
-          <div className="w-[70%] flex items-center min-w-0">
-            <div className="flex-1 border-b-2 border-dotted border-amber-300/70 mx-3 sm:mx-6 h-[1px]" />
-            <button
-              onClick={() => onOpenRulebook(comp)}
-              className="group text-right cursor-pointer transition-transform duration-300 hover:scale-[1.03] focus:outline-none shrink-0 max-w-[68%] sm:max-w-none"
+
+          {/* Dotted Connector Line (Desktop) */}
+          <div className="hidden md:flex flex-1 border-b-2 border-dotted border-amber-300/70 mx-3 sm:mx-6 h-[1px]" />
+
+          <div className="w-full md:w-[58%] lg:w-[54%] min-w-0">
+            <div
+              className={`relative rounded-2xl p-5 sm:p-6 backdrop-blur-md transition-all duration-300 ${
+                event.isCompetition
+                  ? "bg-[#1a0905]/90 hover:bg-[#200b06]/95 border border-amber-500/35 hover:border-amber-400/60 shadow-[0_10px_35px_rgba(0,0,0,0.6)]"
+                  : "bg-gradient-to-br from-[#2b1008]/95 to-[#140603]/95 border-2 border-amber-400/70 shadow-[0_15px_40px_rgba(245,158,11,0.25)]"
+              }`}
             >
-              <h3 className="font-samarkan text-2xl sm:text-4xl md:text-5xl text-[#fde68a] drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)] [text-shadow:0_0_20px_rgba(245,158,11,0.55)] tracking-wide leading-tight transition-all duration-500 group-hover:text-yellow-200">
-                {comp.title.toLowerCase()}
+              {/* Card Badges */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30">
+                  {event.category}
+                </span>
+                {event.isCompetition && event.prizePool ? (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold px-3 py-0.5 rounded-full bg-yellow-500/15 text-yellow-300 border border-yellow-400/40 shadow-[0_0_12px_rgba(234,179,8,0.25)]">
+                    <Trophy size={12} className="text-yellow-400" />
+                    PRIZE: {event.prizePool}
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-yellow-500/20 text-yellow-200 border border-yellow-400/50">
+                      🌟 SPECIAL SHOWCASE • NON-COMPETITIVE
+                    </span>
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-950/60 text-amber-300 border border-amber-500/30">
+                      🎟️ OPEN TO ALL ATTENDEES
+                    </span>
+                  </>
+                )}
+              </div>
+
+              {/* Samarkan Title */}
+              <h3 className="font-samarkan text-2xl sm:text-3xl lg:text-4xl text-[#fde68a] drop-shadow-[0_3px_12px_rgba(0,0,0,0.95)] [text-shadow:0_0_20px_rgba(245,158,11,0.55)] tracking-wide leading-tight mt-2.5">
+                {event.title.toLowerCase()}
               </h3>
-              <p className="font-sans text-xs sm:text-sm text-amber-100/90 drop-shadow-[0_2px_6px_rgba(0,0,0,0.9)] font-normal tracking-wider mt-1">
-                {comp.desc}
+
+              {/* Subtitle */}
+              <p className="font-sans text-xs sm:text-sm text-amber-200/90 font-medium tracking-wide mt-1">
+                {event.subtitle}
               </p>
-            </button>
+
+              {/* Description */}
+              <p className="font-sans text-xs text-amber-100/70 leading-relaxed mt-2 font-light line-clamp-2 sm:line-clamp-none">
+                {event.description}
+              </p>
+
+              {/* Metadata Chips */}
+              <div className="grid grid-cols-2 gap-2 mt-3.5 pt-3 border-t border-amber-500/20 text-[11px] sm:text-xs text-amber-100/80">
+                <div className="flex items-center gap-1.5">
+                  <Calendar size={13} className="text-amber-400 shrink-0" />
+                  <span className="truncate">{event.date}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock size={13} className="text-amber-400 shrink-0" />
+                  <span className="truncate">{event.time}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <MapPin size={13} className="text-amber-400 shrink-0" />
+                  <span className="truncate">{event.venue}</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Users size={13} className="text-amber-400 shrink-0" />
+                  <span className="truncate">{event.teamSize}</span>
+                </div>
+              </div>
+
+              {/* Interactive Embedded Rulebook Accordion */}
+              {event.rulebook && (
+                <div className="mt-3.5 pt-2 border-t border-amber-500/20">
+                  <button
+                    onClick={() => onToggleAccordion(event.id)}
+                    className="w-full py-2 px-3 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-400/25 text-amber-200 text-xs font-mono font-medium flex items-center justify-between transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-2">
+                      <BookOpen size={14} className="text-amber-400" />
+                      <span>Rulebook & Judging Criteria</span>
+                    </span>
+                    <ChevronDown
+                      size={14}
+                      className={`transform transition-transform duration-300 ${
+                        isExpanded ? "rotate-180 text-yellow-300" : ""
+                      }`}
+                    />
+                  </button>
+
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        className="overflow-hidden mt-3 pt-3 border-t border-amber-500/15 space-y-3 text-xs"
+                      >
+                        {event.rulebook.overview && (
+                          <div>
+                            <p className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold mb-1">
+                              Overview
+                            </p>
+                            <p className="text-amber-100/80 leading-relaxed">
+                              {event.rulebook.overview}
+                            </p>
+                          </div>
+                        )}
+
+                        {event.rulebook.rules &&
+                          event.rulebook.rules.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold mb-1.5">
+                                Stage Rules
+                              </p>
+                              <ul className="space-y-1.5">
+                                {event.rulebook.rules.map((rule, rIdx) => (
+                                  <li
+                                    key={rIdx}
+                                    className="flex items-start gap-2 text-slate-200/90 leading-relaxed bg-black/30 p-2 rounded-lg border border-amber-500/10"
+                                  >
+                                    <span className="text-amber-400 font-mono font-bold text-[10px] mt-0.5 shrink-0">
+                                      {rIdx + 1}.
+                                    </span>
+                                    <span>{rule}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                        {event.rulebook.judgingCriteria &&
+                          event.rulebook.judgingCriteria.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold mb-1.5">
+                                Judging Criteria
+                              </p>
+                              <div className="space-y-1">
+                                {event.rulebook.judgingCriteria.map(
+                                  (crit, cIdx) => (
+                                    <div
+                                      key={cIdx}
+                                      className="flex items-center gap-1.5 text-slate-300 bg-black/20 px-2.5 py-1.5 rounded-lg border border-white/5"
+                                    >
+                                      <Sparkles
+                                        size={11}
+                                        className="text-amber-400 shrink-0"
+                                      />
+                                      <span>{crit}</span>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                        {event.rulebook.coordinators &&
+                          event.rulebook.coordinators.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-mono uppercase tracking-wider text-amber-400 font-semibold mb-1">
+                                Coordinators
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {event.rulebook.coordinators.map(
+                                  (coord, coIdx) => (
+                                    <div
+                                      key={coIdx}
+                                      className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-black/40 border border-amber-500/20 text-[11px]"
+                                    >
+                                      <span className="text-white font-medium">
+                                        {coord.name}
+                                      </span>
+                                      <a
+                                        href={`tel:${coord.phone.replace(
+                                          /\s/g,
+                                          ""
+                                        )}`}
+                                        className="text-amber-300 hover:text-amber-200 font-mono flex items-center gap-1"
+                                      >
+                                        <Phone size={10} />
+                                        {coord.phone}
+                                      </a>
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                        {/* Download Rulebook PDF Trigger */}
+                        <button
+                          onClick={() => onDownloadPdf(event)}
+                          className="w-full mt-2 py-2 px-3 rounded-xl bg-amber-950/60 hover:bg-amber-900/70 border border-amber-400/40 text-amber-200 text-xs font-mono font-medium flex items-center justify-center gap-2 transition-all cursor-pointer shadow-[0_0_12px_rgba(245,158,11,0.15)]"
+                        >
+                          <Download size={13} className="text-yellow-400" />
+                          <span>Download Official Rulebook PDF</span>
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {/* Primary Action Button */}
+              {event.isCompetition ? (
+                <Link
+                  href={`/milaap/register?event=${event.id}`}
+                  className="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-black font-extrabold text-xs tracking-wider uppercase shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:shadow-[0_0_30px_rgba(245,158,11,0.7)] hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  <span>✨ Participate Now →</span>
+                </Link>
+              ) : (
+                <Link
+                  href="/milaap/register"
+                  className="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 text-black font-extrabold text-xs tracking-wider uppercase shadow-[0_0_20px_rgba(245,158,11,0.35)] hover:shadow-[0_0_30px_rgba(245,158,11,0.6)] hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  <span>🎟️ View Fest Pass / Schedule →</span>
+                </Link>
+              )}
+            </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
