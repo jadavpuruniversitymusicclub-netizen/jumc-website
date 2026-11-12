@@ -53,14 +53,6 @@ function FacebookIcon({ className = "w-5 h-5" }: { className?: string }) {
   );
 }
 
-function YouTubeIcon({ className = "w-5 h-5" }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-    </svg>
-  );
-}
-
 /* ====================================================================
    PART 2: 60FPS HARDWARE-ACCELERATED MOTION WRAPPERS
    ==================================================================== */
@@ -422,6 +414,8 @@ const festivalCoordinators = [
     clubName: "Jadavpur University Music Club",
     phone: "+91 62909 21928",
     tel: "+916290921928",
+    instagramHandle: "@ju_music_club",
+    instagramUrl: "https://www.instagram.com/ju_music_club/",
   },
   {
     name: "Tanisha Das",
@@ -429,6 +423,8 @@ const festivalCoordinators = [
     clubName: "JU Dance Wing",
     phone: "+91 88374 13287",
     tel: "+918837413287",
+    instagramHandle: "@ju_dance_wing",
+    instagramUrl: "https://www.instagram.com/ju_dance_wing/",
   },
 ];
 
@@ -471,17 +467,29 @@ export default function MilaapPage() {
           PART 1: HERO SECTION
           ================================================================ */}
 
-      {/* Back to Events */}
-      <Link
-        href="/events"
-        className="group flex items-center gap-2 text-xs uppercase tracking-wider text-amber-200/70 hover:text-amber-100 transition-colors mb-6 bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full border border-amber-500/20 active:scale-95 touch-manipulation"
-      >
-        <ArrowLeft
-          size={14}
-          className="group-hover:-translate-x-1 transition-transform"
-        />
-        BACK TO EVENTS DIRECTORY
-      </Link>
+      {/* Internal SEO Navigation & Back to Events */}
+      <div className="flex flex-wrap items-center justify-center gap-3 mb-6 relative z-10">
+        <Link
+          href="/"
+          className="group flex items-center gap-2 text-xs uppercase tracking-wider text-amber-200 hover:text-amber-100 transition-colors bg-amber-500/10 hover:bg-amber-500/20 backdrop-blur-sm px-4 py-2 rounded-full border border-amber-400/35 active:scale-95 touch-manipulation transform-gpu"
+        >
+          <ArrowLeft
+            size={14}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
+          Return to JUMC Official Home
+        </Link>
+        <Link
+          href="/events"
+          className="group flex items-center gap-2 text-xs uppercase tracking-wider text-amber-200/70 hover:text-amber-100 transition-colors bg-black/30 backdrop-blur-sm px-4 py-2 rounded-full border border-amber-500/20 active:scale-95 touch-manipulation transform-gpu"
+        >
+          <ArrowLeft
+            size={14}
+            className="group-hover:-translate-x-1 transition-transform"
+          />
+          BACK TO EVENTS DIRECTORY
+        </Link>
+      </div>
 
       {/* Golden Badge */}
       <motion.div
@@ -766,6 +774,8 @@ export default function MilaapPage() {
                 {/* 1. Footfall Card */}
                 <motion.div
                   whileHover={{ y: -6, scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                  style={{ willChange: "transform" }}
                   className="bg-[#1a0505]/60 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 text-center group hover:border-amber-400/40 transition-all duration-300 shadow-lg transform-gpu"
                 >
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-400/20 to-amber-600/10 border border-amber-400/30 flex items-center justify-center text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
@@ -782,6 +792,8 @@ export default function MilaapPage() {
                 {/* 2. Views Card */}
                 <motion.div
                   whileHover={{ y: -6, scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                  style={{ willChange: "transform" }}
                   className="bg-[#1a0505]/60 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 text-center group hover:border-amber-400/40 transition-all duration-300 shadow-lg transform-gpu"
                 >
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-amber-400/20 to-amber-600/10 border border-amber-400/30 flex items-center justify-center text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
@@ -806,6 +818,8 @@ export default function MilaapPage() {
                 {/* 3. Instagram Card */}
                 <motion.div
                   whileHover={{ y: -6, scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                  style={{ willChange: "transform" }}
                   className="bg-[#1a0505]/60 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 text-center group hover:border-amber-400/40 transition-all duration-300 shadow-lg transform-gpu"
                 >
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-pink-500/20 to-amber-500/10 border border-pink-400/30 flex items-center justify-center text-pink-300 shadow-[0_0_20px_rgba(236,72,153,0.2)]">
@@ -817,11 +831,32 @@ export default function MilaapPage() {
                   <p className="text-amber-200/50 text-[10px] tracking-[0.2em] uppercase">
                     followers on Instagram
                   </p>
+                  <div className="mt-2 flex flex-wrap items-center justify-center gap-2 text-[10px] font-mono">
+                    <a
+                      href="https://www.instagram.com/ju_music_club/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-pink-300/90 hover:text-pink-200 hover:underline"
+                    >
+                      @ju_music_club
+                    </a>
+                    <span className="text-amber-400/40">•</span>
+                    <a
+                      href="https://www.instagram.com/ju_dance_wing/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-amber-300/90 hover:text-amber-200 hover:underline"
+                    >
+                      @ju_dance_wing
+                    </a>
+                  </div>
                 </motion.div>
 
                 {/* 4. Facebook Card */}
                 <motion.div
                   whileHover={{ y: -6, scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                  style={{ willChange: "transform" }}
                   className="bg-[#1a0505]/60 backdrop-blur-md border border-amber-500/20 rounded-2xl p-5 text-center group hover:border-amber-400/40 transition-all duration-300 shadow-lg transform-gpu"
                 >
                   <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gradient-to-br from-blue-500/20 to-amber-500/10 border border-blue-400/30 flex items-center justify-center text-blue-300 shadow-[0_0_20px_rgba(59,130,246,0.2)]">
@@ -1347,28 +1382,77 @@ export default function MilaapPage() {
                     </p>
                   </div>
 
-                  <div className="pt-4 border-t border-amber-500/15 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-amber-500/10 border border-amber-400/25 flex items-center justify-center text-amber-300 group-hover:bg-amber-500/20 group-hover:border-amber-400/50 transition-colors shrink-0">
-                        <Phone size={15} />
+                  <div className="space-y-3 pt-4 border-t border-amber-500/15">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-amber-500/10 border border-amber-400/25 flex items-center justify-center text-amber-300 group-hover:bg-amber-500/20 group-hover:border-amber-400/50 transition-colors shrink-0">
+                          <Phone size={15} />
+                        </div>
+                        <a
+                          href={`tel:${c.tel}`}
+                          className="text-amber-200/90 hover:text-amber-300 font-medium text-sm md:text-base tracking-wider transition-colors touch-manipulation"
+                        >
+                          {c.phone}
+                        </a>
                       </div>
                       <a
                         href={`tel:${c.tel}`}
-                        className="text-amber-200/90 hover:text-amber-300 font-medium text-sm md:text-base tracking-wider transition-colors touch-manipulation"
+                        className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-400/25 text-amber-300 hover:bg-amber-500/25 hover:border-amber-400/50 active:scale-95 text-xs font-medium tracking-wide transition-all touch-manipulation flex items-center gap-1.5"
                       >
-                        {c.phone}
+                        <Phone size={12} />
+                        CALL
                       </a>
                     </div>
+
                     <a
-                      href={`tel:${c.tel}`}
-                      className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-400/25 text-amber-300 hover:bg-amber-500/25 hover:border-amber-400/50 active:scale-95 text-xs font-medium tracking-wide transition-all touch-manipulation flex items-center gap-1.5"
+                      href={c.instagramUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-black/35 border border-pink-400/20 hover:border-pink-400/50 hover:bg-pink-500/10 text-xs text-amber-100/90 hover:text-pink-200 transition-all touch-manipulation"
                     >
-                      <Phone size={12} />
-                      CALL
+                      <span className="flex items-center gap-2 font-medium">
+                        <InstagramIcon className="w-4 h-4 text-pink-400" />
+                        {c.club} Official Instagram ({c.instagramHandle})
+                      </span>
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-pink-300">
+                        Follow →
+                      </span>
                     </a>
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Official Organisers Social Hub */}
+            <div className="mt-6 pt-6 border-t border-amber-500/15 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-center sm:text-left">
+                <p className="text-[10px] uppercase tracking-[0.28em] text-amber-300/75 font-serif">
+                  OFFICIAL SOCIAL CHANNELS
+                </p>
+                <p className="text-xs text-amber-100/65 mt-0.5">
+                  Stay updated on lineups, reels &amp; live stage schedules from JUMC and JU Dance Wing.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <a
+                  href="https://www.instagram.com/ju_music_club/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-pink-500/15 to-amber-500/10 border border-pink-400/35 hover:border-pink-300 text-xs font-medium text-amber-100 hover:text-white transition-all shadow-md"
+                >
+                  <InstagramIcon className="w-4 h-4 text-pink-400" />
+                  <span>JUMC (@ju_music_club)</span>
+                </a>
+                <a
+                  href="https://www.instagram.com/ju_dance_wing/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 to-rose-500/10 border border-amber-400/35 hover:border-amber-300 text-xs font-medium text-amber-100 hover:text-white transition-all shadow-md"
+                >
+                  <InstagramIcon className="w-4 h-4 text-amber-300" />
+                  <span>JU Dance Wing (@ju_dance_wing)</span>
+                </a>
+              </div>
             </div>
           </section>
         </MorphTextReveal>
@@ -1418,7 +1502,7 @@ export default function MilaapPage() {
             </h4>
             <ul className="space-y-2.5">
               {[
-                { label: "Home", href: "/" },
+                { label: "Return to JUMC Official Home", href: "/" },
                 { label: "Events", href: "/events" },
                 { label: "Milaap", href: "/milaap" },
                 { label: "Register", href: "/milaap/sign-in" },
@@ -1463,40 +1547,40 @@ export default function MilaapPage() {
             <h4 className="text-amber-300 text-xs tracking-[0.25em] uppercase font-medium mb-5 font-serif">
               FOLLOW US
             </h4>
-            <div className="flex items-center gap-3">
+            <div className="space-y-2.5">
               <a
-                href="#"
+                href="https://www.instagram.com/ju_music_club/"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Instagram"
-                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-pink-500/20 hover:border-pink-400/40 hover:text-pink-300 hover:shadow-[0_0_20px_rgba(236,72,153,0.3)] active:scale-90 touch-manipulation transform-gpu"
+                aria-label="JUMC Official Instagram (@ju_music_club)"
+                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-black/35 border border-amber-500/20 text-amber-100/80 transition-all duration-300 hover:bg-pink-500/15 hover:border-pink-400/45 hover:text-pink-200 hover:shadow-[0_0_20px_rgba(236,72,153,0.2)] active:scale-95 touch-manipulation transform-gpu"
               >
-                <InstagramIcon className="w-5 h-5" />
+                <InstagramIcon className="w-4 h-4 text-pink-400 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold truncate">JUMC Instagram</p>
+                  <p className="text-[11px] font-mono text-amber-200/55 truncate">@ju_music_club</p>
+                </div>
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/ju_dance_wing/"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label="Facebook"
-                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-blue-500/20 hover:border-blue-400/40 hover:text-blue-300 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] active:scale-90 touch-manipulation transform-gpu"
+                aria-label="JU Dance Wing Instagram (@ju_dance_wing)"
+                className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl bg-black/35 border border-amber-500/20 text-amber-100/80 transition-all duration-300 hover:bg-amber-500/15 hover:border-amber-400/45 hover:text-amber-200 hover:shadow-[0_0_20px_rgba(245,158,11,0.2)] active:scale-95 touch-manipulation transform-gpu"
               >
-                <FacebookIcon className="w-4 h-4" />
-              </a>
-              <a
-                href="#"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="YouTube"
-                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-red-500/20 hover:border-red-400/40 hover:text-red-300 hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] active:scale-90 touch-manipulation transform-gpu"
-              >
-                <YouTubeIcon className="w-5 h-5" />
+                <InstagramIcon className="w-4 h-4 text-amber-300 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold truncate">JU Dance Wing</p>
+                  <p className="text-[11px] font-mono text-amber-200/55 truncate">@ju_dance_wing</p>
+                </div>
               </a>
               <a
                 href="mailto:jumusicclub@gmail.com"
-                aria-label="Email"
-                className="w-11 h-11 rounded-full bg-black/30 border border-amber-500/20 flex items-center justify-center text-amber-200/60 transition-all duration-300 hover:bg-amber-500/20 hover:border-amber-400/40 hover:text-amber-300 hover:shadow-[0_0_20px_rgba(245,158,11,0.3)] active:scale-90 touch-manipulation transform-gpu"
+                aria-label="Email JUMC"
+                className="inline-flex items-center gap-2 text-xs text-amber-200/60 hover:text-amber-300 transition-colors pt-1"
               >
-                <Mail size={18} />
+                <Mail size={14} className="shrink-0" />
+                <span>jumusicclub@gmail.com</span>
               </a>
             </div>
           </div>

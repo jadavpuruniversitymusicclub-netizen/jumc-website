@@ -70,11 +70,14 @@ export default function Footer() {
             <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-crimson">Connect</h4>
             <div className="flex items-center gap-4">
               <motion.a 
-                href="https://www.instagram.com/ju_music_club" 
+                href="https://www.instagram.com/ju_music_club/" 
                 target="_blank" 
                 rel="noopener noreferrer"
+                aria-label="JUMC Instagram (@ju_music_club)"
                 whileHover={{ scale: 1.1 }}
-                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:border-crimson hover:shadow-[0_0_15px_rgba(230,0,38,0.3)] hover:text-crimson transition-all"
+                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                style={{ willChange: "transform" }}
+                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:border-crimson hover:shadow-[0_0_15px_rgba(230,0,38,0.3)] hover:text-crimson transition-all transform-gpu"
               >
                 <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
@@ -83,23 +86,26 @@ export default function Footer() {
                 </svg>
               </motion.a>
               <motion.a 
-                href="#" 
+                href="https://www.instagram.com/ju_music_club/" 
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="JUMC Audio & Performances"
                 whileHover={{ scale: 1.1 }}
-                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:border-crimson hover:shadow-[0_0_15px_rgba(230,0,38,0.3)] hover:text-crimson transition-all"
-              >
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path>
-                  <polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon>
-                </svg>
-              </motion.a>
-              <motion.a 
-                href="#" 
-                whileHover={{ scale: 1.1 }}
-                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:border-crimson hover:shadow-[0_0_15px_rgba(230,0,38,0.3)] hover:text-crimson transition-all"
+                transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                style={{ willChange: "transform" }}
+                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:border-crimson hover:shadow-[0_0_15px_rgba(230,0,38,0.3)] hover:text-crimson transition-all transform-gpu"
               >
                 <Headphones size={20} />
               </motion.a>
             </div>
+            <a
+              href="https://www.instagram.com/ju_music_club/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-[#F7EBD0]/75 hover:text-crimson transition-colors w-max tracking-wide"
+            >
+              Instagram: @ju_music_club ↗
+            </a>
           </div>
 
         </div>

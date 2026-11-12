@@ -13,7 +13,7 @@ export default function Header() {
     return null;
   }
 
-  const showAdminLogin = !pathname?.startsWith('/milaap');
+  const showAdminLogin = !pathname?.startsWith('/admin');
 
   return (
     <header className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-10 font-sans">

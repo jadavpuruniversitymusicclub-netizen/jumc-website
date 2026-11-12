@@ -61,11 +61,11 @@ const PortalModal = ({ isOpen, onClose }: PortalModalProps) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-charcoal mb-1">Department</label>
+                <label className="block text-sm font-bold text-charcoal mb-1">Institution / College</label>
                 <input 
                   type="text" 
                   className="w-full px-4 py-3 rounded-xl bg-white/50 border border-charcoal/20 focus:outline-none focus:border-crimson focus:ring-1 focus:ring-crimson transition-all text-charcoal"
-                  placeholder="e.g., Computer Science"
+                  placeholder="e.g., Jadavpur University"
                 />
               </div>
               <div>

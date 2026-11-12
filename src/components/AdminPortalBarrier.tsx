@@ -31,8 +31,9 @@ export default function AdminPortalBarrier({
               Participant Portal Restricted
             </h1>
             <p className="text-xs sm:text-sm text-amber-100/90 font-light leading-relaxed">
-              Admin accounts cannot use the participant portal. Please use the
-              Admin Login on the JUMC Home page.
+              Admin accounts cannot use the participant portal. Please use the{" "}
+              <span className="font-semibold text-amber-300">Admin Login</span>{" "}
+              at the top right.
             </p>
             {email && (
               <p className="text-[11px] font-mono text-slate-400 pt-1">
@@ -42,6 +43,13 @@ export default function AdminPortalBarrier({
           </div>
 
           <div className="pt-2 space-y-3">
+            <Link
+              href="/admin/login"
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 hover:brightness-110 text-black font-bold text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/20"
+            >
+              <span>Go to Admin Login</span>
+            </Link>
+
             <button
               type="button"
               onClick={() => signOut({ callbackUrl: "/milaap/sign-in" })}
@@ -52,11 +60,11 @@ export default function AdminPortalBarrier({
             </button>
 
             <Link
-              href="/milaap"
+              href="/"
               className="inline-flex items-center justify-center gap-1.5 text-xs text-slate-400 hover:text-amber-300 transition-colors pt-1"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Return to Milaap Home</span>
+              <span>Return to JUMC Official Home</span>
             </Link>
           </div>
         </div>

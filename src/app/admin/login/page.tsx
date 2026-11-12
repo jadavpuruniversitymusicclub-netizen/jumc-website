@@ -74,8 +74,9 @@ export default function AdminLoginPage() {
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
-        className="w-full max-w-md relative z-10"
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        style={{ willChange: "transform, opacity" }}
+        className="w-full max-w-md relative z-10 transform-gpu"
       >
         {/* Back Breadcrumb */}
         <div className="mb-6">

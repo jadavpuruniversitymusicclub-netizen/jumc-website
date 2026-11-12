@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useSyncExternalStore } from 'react';
 import { motion, useMotionValue, useTransform, MotionValue, useAnimationFrame } from 'framer-motion';
 
 const members = [
@@ -38,7 +38,7 @@ function CarouselCard({
   itemWidth, 
   itemHeight 
 }: { 
-  member: any;
+  member: (typeof members)[number];
   index: number;
   total: number;
   dragX: MotionValue<number>;
@@ -61,11 +61,13 @@ function CarouselCard({
   const scale = useTransform(z, [-1, 1], [0.55, 1.05]);
   const opacity = useTransform(z, [-1, -0.2, 1], [0, 0.3, 1]);
   const zIndex = useTransform(z, zVal => Math.round((zVal + 1) * 100));
-  const pointerEvents = useTransform(z, zVal => (zVal > 0.5 ? "auto" : "none") as any);
+  const pointerEvents = useTransform(z, (zVal): "auto" | "none" =>
+    zVal > 0.5 ? "auto" : "none"
+  );
   
   return (
     <motion.div
-      className="absolute flex flex-col items-center bg-white/[0.06] backdrop-blur-xl p-4 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.4)] border border-white/15 hover:border-crimson/50 transition-colors"
+      className="absolute flex flex-col items-center bg-white/[0.06] backdrop-blur-xl p-4 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.4)] border border-white/15 hover:border-crimson/50 transition-colors transform-gpu"
       style={{
         width: itemWidth,
         height: itemHeight,
@@ -73,7 +75,8 @@ function CarouselCard({
         scale,
         opacity,
         zIndex,
-        pointerEvents, 
+        pointerEvents,
+        willChange: "transform, opacity",
       }}
     >
       <img 
@@ -104,7 +107,8 @@ const BackgroundAnimations = () => {
           scale: [1, 1.2, 0.8, 1] 
         }}
         transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute -top-40 -left-20 w-[600px] h-[600px] bg-[#E60026]/10 rounded-full blur-[120px]"
+        style={{ willChange: "transform" }}
+        className="absolute -top-40 -left-20 w-[600px] h-[600px] bg-[#E60026]/10 rounded-full blur-[120px] transform-gpu"
       />
       
       <motion.div
@@ -114,7 +118,8 @@ const BackgroundAnimations = () => {
           scale: [1, 1.1, 0.9, 1] 
         }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        className="absolute top-20 -right-20 w-[500px] h-[500px] bg-gray-200/50 rounded-full blur-[100px]"
+        style={{ willChange: "transform" }}
+        className="absolute top-20 -right-20 w-[500px] h-[500px] bg-gray-200/50 rounded-full blur-[100px] transform-gpu"
       />
 
       <motion.div
@@ -124,14 +129,21 @@ const BackgroundAnimations = () => {
           scale: [1, 1.3, 0.9, 1] 
         }}
         transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-        className="absolute -bottom-40 left-1/3 w-[800px] h-[800px] bg-[#E60026]/5 rounded-full blur-[150px]"
+        style={{ willChange: "transform" }}
+        className="absolute -bottom-40 left-1/3 w-[800px] h-[800px] bg-[#E60026]/5 rounded-full blur-[150px] transform-gpu"
       />
     </div>
   );
 };
 
+const subscribeClient = () => () => {};
+
 export default function CoreMembers() {
-  const [isClient, setIsClient] = useState(false);
+  const isClient = useSyncExternalStore(
+    subscribeClient,
+    () => true,
+    () => false
+  );
   const dragX = useMotionValue(0);
   const filmStripX = useTransform(dragX, x => (x % 32) - 32);
   
@@ -139,10 +151,6 @@ export default function CoreMembers() {
     // Rotate by approx 72px per second (0.12 px per ms * delta ~ 16.6)
     dragX.set(dragX.get() - (0.12 * delta));
   });
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const ITEM_WIDTH = 320; 
   const ITEM_HEIGHT = 440;
@@ -176,8 +184,8 @@ export default function CoreMembers() {
       
       <div className="relative w-full h-[520px] flex justify-center items-center overflow-hidden">
         <motion.div
-          style={{ x: dragX }}
-          className="absolute inset-0 flex justify-center items-center z-20"
+          style={{ x: dragX, willChange: "transform" }}
+          className="absolute inset-0 flex justify-center items-center z-20 transform-gpu"
         >
           {members.map((member, i) => (
             <CarouselCard

@@ -4,11 +4,12 @@ import { motion } from 'framer-motion';
 
 const StatCounter = ({ number, label, delay }: { number: string, label: string, delay: number }) => (
   <motion.div 
-    className="p-6 sm:p-8 rounded-2xl bg-white/[0.05] backdrop-blur-xl border border-white/10 hover:border-crimson/40 transition-all shadow-lg flex flex-col justify-center"
+    className="p-6 sm:p-8 rounded-2xl bg-white/[0.05] backdrop-blur-xl border border-white/10 hover:border-crimson/40 transition-all shadow-lg flex flex-col justify-center transform-gpu"
     initial={{ opacity: 0, x: -20 }}
     whileInView={{ opacity: 1, x: 0 }}
     viewport={{ once: true, margin: "-50px" }}
-    transition={{ duration: 0.6, delay }}
+    transition={{ type: "spring", stiffness: 100, damping: 20, delay }}
+    style={{ willChange: "transform, opacity" }}
   >
     <div className="text-4xl lg:text-5xl font-black text-white mb-2">{number}</div>
     <div className="text-sm uppercase tracking-widest text-white/70 font-bold">{label}</div>
@@ -23,11 +24,12 @@ export default function About() {
           
           {/* Left Side: Typography */}
           <motion.div 
-            className="w-full md:w-1/2"
+            className="w-full md:w-1/2 transform-gpu"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            style={{ willChange: "transform, opacity" }}
           >
             <h2 className="text-sm uppercase tracking-[0.3em] font-bold text-crimson mb-4">Our Legacy</h2>
             <h3 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] tracking-tight mb-8">
@@ -45,9 +47,11 @@ export default function About() {
             </div>
             
             <motion.button 
-              className="mt-10 px-8 py-3 bg-white text-black rounded-full font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors"
+              className="mt-10 px-8 py-3 bg-white text-black rounded-full font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors transform-gpu"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 100, damping: 20 }}
+              style={{ willChange: "transform" }}
             >
               Read Our Story
             </motion.button>

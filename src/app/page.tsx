@@ -16,7 +16,9 @@ export default function Home() {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-10%" }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        style={{ willChange: "transform, opacity" }}
+        className="transform-gpu"
       >
         <About />
       </motion.div>
@@ -25,7 +27,9 @@ export default function Home() {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-10%" }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        style={{ willChange: "transform, opacity" }}
+        className="transform-gpu"
       >
         <CoreMembers />
       </motion.div>
@@ -34,7 +38,9 @@ export default function Home() {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-10%" }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        style={{ willChange: "transform, opacity" }}
+        className="transform-gpu"
       >
         <Sponsors />
       </motion.div>
@@ -43,7 +49,9 @@ export default function Home() {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-10%" }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        style={{ willChange: "transform, opacity" }}
+        className="transform-gpu"
       >
         <Footer />
       </motion.div>
