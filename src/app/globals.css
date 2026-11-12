@@ -1,5 +1,6 @@
 @import url('https://db.onlinewebfonts.com/c/a64ff11d2c24584c767f6257e880dc65?family=Helvetica+Regular');
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Rozha+One&family=Yatra+One&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.cdnfonts.com/css/samarkan');
 @import "tailwindcss";
 
 @font-face {
@@ -13,7 +14,7 @@
 .MilaapFont,
 .font-samarkan,
 .font-milaap {
-  font-family: 'Samarkan', sans-serif;
+  font-family: 'Samarkan', serif;
 }
 
 html {
