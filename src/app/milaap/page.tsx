@@ -4,8 +4,8 @@ import {
   motion,
   useScroll,
   useSpring,
-  useTransform,
   useInView,
+  useMotionValueEvent,
   AnimatePresence,
   type MotionValue,
 } from "framer-motion";
@@ -232,26 +232,31 @@ const competitions = [
 ];
 
 /* ====================================================================
-   FIX 3 & 4: MATHEMATICALLY LOCKED NODE COORDINATES & WINDING SVG PATH
+   SRIJAN-STYLE CALLIGRAPHIC SVG PATH & CALIBRATED MILESTONE THRESHOLDS
    ==================================================================== */
 
-const nodePositions: {
-  x: number;
-  y: number;
+const desktopTimelineHeights = 1625;
+const desktopCalligraphicPath =
+  "M 360 34 C 510 -6, 675 46, 585 92 C 515 126, 375 88, 425 138 C 460 172, 500 166, 500 200 L 500 1580";
+
+const mobileTimelineHeight = 1284;
+const mobileCalligraphicPath =
+  "M 115 24 C 250 -2, 330 42, 255 76 C 195 104, 105 74, 72 114 C 45 146, 20 132, 20 165 L 20 1245";
+
+const timelineMilestones: {
+  desktopY: number;
+  mobileY: number;
   cardSide: "left" | "right";
   threshold: number;
 }[] = [
-  { x: 580, y: 200, cardSide: "left", threshold: 0.09 },
-  { x: 420, y: 480, cardSide: "right", threshold: 0.21 },
-  { x: 580, y: 760, cardSide: "left", threshold: 0.33 },
-  { x: 420, y: 1040, cardSide: "right", threshold: 0.45 },
-  { x: 580, y: 1320, cardSide: "left", threshold: 0.58 },
-  { x: 420, y: 1600, cardSide: "right", threshold: 0.71 },
-  { x: 580, y: 1880, cardSide: "left", threshold: 0.83 },
+  { desktopY: 279, mobileY: 216, cardSide: "left", threshold: 0.345 },
+  { desktopY: 471, mobileY: 368, cardSide: "right", threshold: 0.442 },
+  { desktopY: 663, mobileY: 520, cardSide: "left", threshold: 0.538 },
+  { desktopY: 855, mobileY: 672, cardSide: "right", threshold: 0.635 },
+  { desktopY: 1047, mobileY: 824, cardSide: "left", threshold: 0.732 },
+  { desktopY: 1239, mobileY: 976, cardSide: "right", threshold: 0.829 },
+  { desktopY: 1431, mobileY: 1128, cardSide: "left", threshold: 0.926 },
 ];
-
-const windingPath =
-  "M 500 50 C 530 90, 620 140, 580 200 C 540 260, 380 410, 420 480 C 460 550, 620 690, 580 760 C 540 830, 380 970, 420 1040 C 460 1110, 620 1250, 580 1320 C 540 1390, 380 1530, 420 1600 C 460 1670, 620 1810, 580 1880 C 550 1935, 520 1970, 505 2010 C 490 2050, 435 2040, 445 1995 C 452 1965, 468 2040, 468 2115";
 
 /* ====================================================================
    SPONSORSHIP DATA
@@ -435,15 +440,14 @@ const festivalCoordinators = [
 export default function MilaapPage() {
   const timelineRef = useRef<HTMLDivElement>(null);
 
-  // OPTIMIZATION 2: Exact Center Scroll Sync with tightened spring dynamics
+  // Srijan-style scroll-driven calligraphic drawing progress
   const { scrollYProgress: timelineProgress } = useScroll({
     target: timelineRef,
-    offset: ["start center", "end center"],
+    offset: ["start 65%", "end 75%"],
   });
   const smoothTimelineProgress = useSpring(timelineProgress, {
-    stiffness: 280,
-    damping: 38,
-    mass: 0.15,
+    stiffness: 100,
+    damping: 20,
     restDelta: 0.001,
   });
 
@@ -889,134 +893,104 @@ export default function MilaapPage() {
           </div>
         </MorphTextReveal>
 
-        {/* Responsive Event Timeline Container */}
+        {/* Responsive Srijan-Style Scroll-Driven Calligraphic Event Timeline */}
         <div
           ref={timelineRef}
-          className="relative w-full max-w-5xl mx-auto py-8 md:py-10 md:h-[2300px] transform-gpu"
+          className="relative w-full max-w-5xl mx-auto px-4 overflow-hidden transform-gpu"
         >
-          {/* Mobile Vertical Timeline (< 768px): Centered Cards Zero Horizontal Clipping */}
-          <div className="md:hidden relative flex flex-col items-center gap-5 px-2 sm:px-4">
-            <div
-              aria-hidden="true"
-              className="absolute top-6 bottom-16 left-1/2 -translate-x-1/2 w-0.5 bg-gradient-to-b from-amber-300/60 via-amber-500/40 to-amber-700/20 pointer-events-none"
-            />
-            {competitions.map((comp, idx) => (
-              <motion.div
-                key={`mobile-${comp.title}`}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.15 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 110,
-                  damping: 22,
-                  delay: idx * 0.04,
-                }}
-                style={{ willChange: "transform, opacity" }}
-                className="relative z-10 w-full max-w-[calc(100vw-2rem)] mx-auto bg-[#24060a]/90 backdrop-blur-md border border-amber-500/25 rounded-2xl p-5 shadow-2xl transform-gpu"
-              >
-                <div className="flex items-center justify-between gap-2 mb-2.5">
-                  <span className="text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]">
-                    {comp.icon}
-                  </span>
-                  <span className="text-[10px] font-mono tracking-widest px-2.5 py-0.5 rounded-full border bg-amber-500/20 text-amber-300 border-amber-400/40">
-                    {String(idx + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <h3 className="text-sm sm:text-base font-semibold tracking-wide mb-1.5 text-amber-100">
-                  {comp.title}
-                </h3>
-                <p className="text-xs leading-relaxed text-amber-200/75 font-light">
-                  {comp.desc}
-                </p>
-              </motion.div>
-            ))}
-
-            <div className="relative z-10 text-center pt-4 pb-2 select-none pointer-events-none">
-              <span className="MilaapFont text-5xl tracking-wider bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_0_24px_rgba(245,209,66,0.9)]">
-                milaap
-              </span>
-            </div>
-          </div>
-
-          {/* Desktop Winding SVG Timeline (>= 768px) */}
-          <div className="hidden md:block relative w-full h-full">
-            {/* Central Responsive SVG Canvas */}
+          {/* Mobile Calligraphic Timeline (< 768px): Top Flourish + Left Spine + Dotted Connectors */}
+          <div className="md:hidden relative w-full h-[1284px] overflow-hidden">
             <svg
-              viewBox="0 0 1000 2300"
-              className="absolute inset-0 w-full h-full pointer-events-none"
+              viewBox="0 0 400 1284"
               preserveAspectRatio="none"
+              className="absolute inset-0 w-full h-full pointer-events-none"
               fill="none"
             >
-              <defs>
-                <linearGradient
-                  id="goldGradient"
-                  x1="0%"
-                  y1="0%"
-                  x2="0%"
-                  y2="100%"
-                >
-                  <stop offset="0%" stopColor="#fde68a" />
-                  <stop offset="50%" stopColor="#f59e0b" />
-                  <stop offset="100%" stopColor="#d97706" />
-                </linearGradient>
-              </defs>
-
-              {/* Base Faint Path */}
+              {/* Base Track Path */}
               <path
-                d={windingPath}
-                stroke="rgba(245, 209, 66, 0.15)"
+                d={mobileCalligraphicPath}
+                stroke="rgba(245, 158, 11, 0.15)"
+                strokeWidth="1.5"
+                vectorEffect="non-scaling-stroke"
+                fill="none"
+              />
+              {/* Glowing Scroll-Drawn Calligraphic Path */}
+              <motion.path
+                d={mobileCalligraphicPath}
+                stroke="#fde68a"
                 strokeWidth="2.5"
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
                 fill="none"
+                style={{
+                  pathLength: smoothTimelineProgress,
+                  filter: "drop-shadow(0 0 10px rgba(251, 191, 36, 0.85))",
+                  willChange: "stroke-dashoffset",
+                }}
               />
-
-              {/* Soft ambient glow halo (replaces heavy per-frame SVG drop-shadow filter) */}
-              <motion.path
-                d={windingPath}
-                stroke="rgba(245, 180, 40, 0.22)"
-                strokeWidth="12"
-                fill="none"
-                style={{ pathLength: smoothTimelineProgress }}
-              />
-
-              {/* Active Scroll-Drawn Glowing Path */}
-              <motion.path
-                d={windingPath}
-                stroke="url(#goldGradient)"
-                strokeWidth="4"
-                fill="none"
-                style={{ pathLength: smoothTimelineProgress }}
-              />
-
-              {/* Nodes & Horizontal Connector Lines Driven Strictly via MotionValue */}
-              {nodePositions.map((node, idx) => (
-                <SvgTimelineNode
-                  key={idx}
-                  node={node}
-                  scrollProgress={smoothTimelineProgress}
-                />
-              ))}
-
-              {/* Terminal Dot Just Above the 'i' of 'milaap' at (468, 2115) */}
-              <SvgTerminalDot scrollProgress={smoothTimelineProgress} />
             </svg>
 
-            {/* HTML Competition Cards with Direct MotionValue Transform */}
-            {competitions.map((comp, idx) => {
-              const node = nodePositions[idx];
-              return (
-                <CompetitionCard
-                  key={idx}
-                  comp={comp}
-                  node={node}
-                  idx={idx}
-                  scrollProgress={smoothTimelineProgress}
-                />
-              );
-            })}
+            {competitions.map((comp, idx) => (
+              <CalligraphicMobileRow
+                key={`mobile-${comp.title}`}
+                comp={comp}
+                milestone={timelineMilestones[idx]}
+                idx={idx}
+                scrollProgress={smoothTimelineProgress}
+              />
+            ))}
 
-            {/* Glowing Finale Emblem at top: 93%, directly beneath the path termination dot */}
-            <TimelineFinale scrollProgress={smoothTimelineProgress} />
+            <CalligraphicTimelineFinale
+              scrollProgress={smoothTimelineProgress}
+              isMobile
+            />
+          </div>
+
+          {/* Desktop Calligraphic Timeline (>= 768px): Wide Top Z-Loop Flourish + Alternating Nodes */}
+          <div className="hidden md:block relative w-full h-[1625px] overflow-hidden">
+            <svg
+              viewBox="0 0 1000 1625"
+              preserveAspectRatio="none"
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              fill="none"
+            >
+              {/* Base Track Path */}
+              <path
+                d={desktopCalligraphicPath}
+                stroke="rgba(245, 158, 11, 0.15)"
+                strokeWidth="1.5"
+                vectorEffect="non-scaling-stroke"
+                fill="none"
+              />
+              {/* Glowing Scroll-Drawn Calligraphic Path */}
+              <motion.path
+                d={desktopCalligraphicPath}
+                stroke="#fde68a"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                vectorEffect="non-scaling-stroke"
+                fill="none"
+                style={{
+                  pathLength: smoothTimelineProgress,
+                  filter: "drop-shadow(0 0 10px rgba(251, 191, 36, 0.85))",
+                  willChange: "stroke-dashoffset",
+                }}
+              />
+            </svg>
+
+            {competitions.map((comp, idx) => (
+              <CalligraphicDesktopRow
+                key={`desktop-${comp.title}`}
+                comp={comp}
+                milestone={timelineMilestones[idx]}
+                idx={idx}
+                scrollProgress={smoothTimelineProgress}
+              />
+            ))}
+
+            <CalligraphicTimelineFinale
+              scrollProgress={smoothTimelineProgress}
+            />
           </div>
         </div>
 
@@ -1601,14 +1575,20 @@ export default function MilaapPage() {
           </p>
         </div>
 
-        {/* ── Large Responsive Milaap Wordmark (Visible Across Mobile & Desktop) ── */}
-        <div className="w-[85%] max-w-[320px] sm:max-w-[500px] md:max-w-[700px] mx-auto mt-6 pb-8 text-center select-none pointer-events-none opacity-90 overflow-hidden">
-          <span
-            className="font-samarkan MilaapFont lowercase inline-block leading-[0.82] tracking-tight bg-gradient-to-t from-amber-500/25 via-amber-300/70 to-yellow-200 bg-clip-text text-transparent text-[5.25rem] sm:text-[9rem] md:text-[12.5rem] drop-shadow-[0_4px_24px_rgba(245,158,11,0.3)]"
-            style={{ fontFamily: "'Samarkan', sans-serif" }}
+        {/* ── Massive Rising Watermark (Previous Subtle Style, Proportional Across Viewports) ── */}
+        <div className="relative w-full text-center overflow-hidden">
+          <motion.div
+            initial={{ y: 24, opacity: 1 }}
+            whileInView={{ y: 0, opacity: 1 }}
+            viewport={{ once: true, amount: 0.05 }}
+            transition={{ type: "spring", stiffness: 100, damping: 20 }}
+            style={{ willChange: "transform, opacity" }}
+            className="w-full text-center select-none pointer-events-none transform-gpu"
           >
-            milaap
-          </span>
+            <span className="MilaapFont text-[26vw] leading-[0.75] tracking-tight bg-gradient-to-t from-amber-500/10 via-amber-300/40 to-yellow-200/80 bg-clip-text text-transparent inline-block">
+              milaap
+            </span>
+          </motion.div>
         </div>
       </footer>
     </main>
@@ -1616,213 +1596,237 @@ export default function MilaapPage() {
 }
 
 /* ====================================================================
-   SUB-COMPONENT: SvgTimelineNode (ZERO STATE / DRIVEN BY MOTIONVALUE)
+   SUB-COMPONENT: Srijan-Style Desktop & Mobile Calligraphic Event Nodes
    ==================================================================== */
 
-function SvgTimelineNode({
-  node,
-  scrollProgress,
-}: {
-  node: (typeof nodePositions)[0];
-  scrollProgress: MotionValue<number>;
-}) {
-  const connectorEndX = node.cardSide === "left" ? node.x - 70 : node.x + 70;
-  const tStart = Math.max(0, node.threshold - 0.05);
-  const tEnd = node.threshold;
-
-  // Direct 60FPS GPU transforms without React re-renders
-  const lineOpacity = useTransform(scrollProgress, [tStart, tEnd], [0.2, 1]);
-  const circleScale = useTransform(scrollProgress, [tStart, tEnd], [0.85, 1.25]);
-  const circleFill = useTransform(scrollProgress, [tStart, tEnd], ["#24060a", "#f59e0b"]);
-  const circleStroke = useTransform(scrollProgress, [tStart, tEnd], ["rgba(245, 209, 66, 0.35)", "#fef08a"]);
-  const haloOpacity = useTransform(scrollProgress, [tStart, tEnd, tEnd + 0.08], [0, 0.8, 0.4]);
-
-  return (
-    <g>
-      {/* Horizontal Connector Line */}
-      <motion.line
-        x1={node.x}
-        y1={node.y}
-        x2={connectorEndX}
-        y2={node.y}
-        stroke="url(#goldGradient)"
-        strokeWidth={2.5}
-        style={{ opacity: lineOpacity }}
-      />
-      {/* Connector tip dot */}
-      <motion.circle
-        cx={connectorEndX}
-        cy={node.y}
-        r={3}
-        fill="#fbbf24"
-        style={{ opacity: lineOpacity }}
-      />
-      {/* Outer pulsing halo */}
-      <motion.circle
-        cx={node.x}
-        cy={node.y}
-        r={18}
-        fill="rgba(245, 158, 11, 0.25)"
-        style={{ opacity: haloOpacity }}
-      />
-      {/* Node circle locked to curve */}
-      <motion.circle
-        cx={node.x}
-        cy={node.y}
-        r={8}
-        strokeWidth={2.5}
-        style={{
-          scale: circleScale,
-          fill: circleFill,
-          stroke: circleStroke,
-          transformOrigin: `${node.x}px ${node.y}px`,
-        }}
-      />
-      {/* Center pinpoint */}
-      <motion.circle
-        cx={node.x}
-        cy={node.y}
-        r={3}
-        fill="#ffffff"
-        style={{ opacity: lineOpacity }}
-      />
-    </g>
-  );
-}
-
-/* ====================================================================
-   SUB-COMPONENT: SvgTerminalDot (ZERO STATE / DRIVEN BY MOTIONVALUE)
-   ==================================================================== */
-
-function SvgTerminalDot({
-  scrollProgress,
-}: {
-  scrollProgress: MotionValue<number>;
-}) {
-  const dotOpacity = useTransform(scrollProgress, [0.91, 0.95], [0.25, 1]);
-  const dotScale = useTransform(scrollProgress, [0.91, 0.95], [0.8, 1.25]);
-
-  return (
-    <g>
-      <motion.circle
-        cx={468}
-        cy={2115}
-        r={16}
-        fill="rgba(245, 158, 11, 0.28)"
-        style={{ opacity: dotOpacity }}
-      />
-      <motion.circle
-        cx={468}
-        cy={2115}
-        r={5}
-        fill="#fbbf24"
-        stroke="#fef08a"
-        strokeWidth={2}
-        style={{
-          opacity: dotOpacity,
-          scale: dotScale,
-          transformOrigin: "468px 2115px",
-        }}
-      />
-      <motion.circle
-        cx={468}
-        cy={2115}
-        r={2}
-        fill="#ffffff"
-        style={{ opacity: dotOpacity }}
-      />
-    </g>
-  );
-}
-
-/* ====================================================================
-   SUB-COMPONENT: Competition Card (ZERO STATE / DRIVEN BY MOTIONVALUE)
-   ==================================================================== */
-
-function CompetitionCard({
+function CalligraphicEventCard({
   comp,
-  node,
   idx,
-  scrollProgress,
+  isReached,
 }: {
   comp: (typeof competitions)[0];
-  node: (typeof nodePositions)[0];
   idx: number;
-  scrollProgress: MotionValue<number>;
+  isReached: boolean;
 }) {
-  const tStart = Math.max(0, node.threshold - 0.05);
-  const tEnd = node.threshold;
-
-  // Direct 60FPS GPU transforms - ZERO React re-renders on scroll
-  const cardOpacity = useTransform(scrollProgress, [tStart, tEnd], [0.25, 1]);
-  const cardScale = useTransform(scrollProgress, [tStart, tEnd], [0.92, 1]);
-
-  const topPercent = (node.y / 2300) * 100;
-
   return (
     <div
-      className="absolute pointer-events-auto"
-      style={{
-        top: `${topPercent}%`,
-        transform: "translateY(-50%)",
-        ...(node.cardSide === "left"
-          ? { right: `calc(${100 - (node.x - 70) / 10}% + 8px)` }
-          : { left: `calc(${(node.x + 70) / 10}% + 8px)` }),
-      }}
+      className={`rounded-2xl p-4 sm:p-5 border backdrop-blur-md transition-all duration-500 transform-gpu ${
+        isReached
+          ? "opacity-100 bg-[#24060a]/90 border-amber-400/50 shadow-[0_0_28px_rgba(251,191,36,0.22)]"
+          : "opacity-30 bg-[#1a0505]/70 border-amber-500/15 shadow-lg"
+      }`}
     >
-      <motion.div
-        style={{
-          opacity: cardOpacity,
-          scale: cardScale,
-          willChange: "transform, opacity",
-        }}
-        className="bg-[#24060a]/80 backdrop-blur-md border border-amber-500/25 rounded-2xl p-4 sm:p-5 shadow-2xl w-[210px] sm:w-[260px] md:w-[320px] transform-gpu"
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <span
+          className={`transition-colors duration-500 ${
+            isReached
+              ? "text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.65)]"
+              : "text-amber-400/50"
+          }`}
+        >
+          {comp.icon}
+        </span>
+        <span
+          className={`text-[10px] font-mono tracking-widest px-2 py-0.5 rounded-full border transition-colors duration-500 ${
+            isReached
+              ? "bg-amber-500/20 text-amber-200 border-amber-400/45"
+              : "bg-amber-950/40 text-amber-300/50 border-amber-500/20"
+          }`}
+        >
+          {String(idx + 1).padStart(2, "0")}
+        </span>
+      </div>
+      <h3
+        className={`text-xs sm:text-sm font-semibold tracking-wide mb-1 transition-colors duration-500 ${
+          isReached ? "text-amber-100" : "text-amber-200/70"
+        }`}
       >
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <span className="text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]">
-            {comp.icon}
-          </span>
-          <span className="text-[10px] font-mono tracking-widest px-2 py-0.5 rounded-full border bg-amber-500/20 text-amber-300 border-amber-400/40">
-            {String(idx + 1).padStart(2, "0")}
-          </span>
-        </div>
-        <h3 className="text-xs sm:text-sm font-semibold tracking-wide mb-1.5 text-amber-100">
-          {comp.title}
-        </h3>
-        <p className="text-[10px] sm:text-xs leading-relaxed text-amber-200/70 font-light">
-          {comp.desc}
-        </p>
-      </motion.div>
+        {comp.title}
+      </h3>
+      <p className="text-[11px] sm:text-xs leading-relaxed text-amber-200/70 font-light">
+        {comp.desc}
+      </p>
     </div>
   );
 }
 
-/* ====================================================================
-   SUB-COMPONENT: Timeline Finale Emblem (ZERO STATE / DRIVEN BY MOTIONVALUE)
-   ==================================================================== */
-
-function TimelineFinale({
+function CalligraphicDesktopRow({
+  comp,
+  milestone,
+  idx,
   scrollProgress,
 }: {
+  comp: (typeof competitions)[0];
+  milestone: (typeof timelineMilestones)[0];
+  idx: number;
   scrollProgress: MotionValue<number>;
 }) {
-  const finaleOpacity = useTransform(scrollProgress, [0.92, 0.96], [0.35, 1]);
-  const finaleScale = useTransform(scrollProgress, [0.92, 0.96], [0.92, 1.15]);
+  const [isReached, setIsReached] = useState(
+    () => scrollProgress.get() >= milestone.threshold
+  );
+
+  useMotionValueEvent(scrollProgress, "change", (latest) => {
+    const reached = latest >= milestone.threshold;
+    setIsReached((prev) => (prev === reached ? prev : reached));
+  });
+
+  const topPercent = (milestone.desktopY / desktopTimelineHeights) * 100;
+  const isLeft = milestone.cardSide === "left";
 
   return (
-    <div className="absolute top-[93%] left-1/2 -translate-x-1/2 pointer-events-none select-none text-center">
-      <motion.div
-        style={{
-          opacity: finaleOpacity,
-          scale: finaleScale,
-          willChange: "transform, opacity",
-        }}
-        className="transform-gpu"
+    <div
+      className="absolute left-0 right-0 -translate-y-1/2 grid grid-cols-[1fr_auto_1fr] items-center pointer-events-auto"
+      style={{ top: `${topPercent}%` }}
+    >
+      {/* Left Side Slot */}
+      <div className="flex items-center justify-end min-w-0">
+        {isLeft && (
+          <>
+            <div className="w-full max-w-[320px]">
+              <CalligraphicEventCard
+                comp={comp}
+                idx={idx}
+                isReached={isReached}
+              />
+            </div>
+            <div
+              className={`h-[1px] w-10 sm:w-20 md:w-28 shrink-0 border-t border-dotted border-amber-300/60 transition-opacity duration-500 ${
+                isReached ? "opacity-100" : "opacity-30"
+              }`}
+            />
+          </>
+        )}
+      </div>
+
+      {/* Center Milestone Dot (●) on SVG Spine */}
+      <div className="relative z-10 flex items-center justify-center shrink-0">
+        <span
+          className={`block w-3.5 h-3.5 rounded-full transition-all duration-500 transform-gpu ${
+            isReached
+              ? "bg-amber-100 border-2 border-amber-300 shadow-[0_0_16px_#fbbf24] scale-110"
+              : "bg-amber-900/40 border border-amber-500/20 scale-75"
+          }`}
+        />
+      </div>
+
+      {/* Right Side Slot */}
+      <div className="flex items-center justify-start min-w-0">
+        {!isLeft && (
+          <>
+            <div
+              className={`h-[1px] w-10 sm:w-20 md:w-28 shrink-0 border-t border-dotted border-amber-300/60 transition-opacity duration-500 ${
+                isReached ? "opacity-100" : "opacity-30"
+              }`}
+            />
+            <div className="w-full max-w-[320px]">
+              <CalligraphicEventCard
+                comp={comp}
+                idx={idx}
+                isReached={isReached}
+              />
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CalligraphicMobileRow({
+  comp,
+  milestone,
+  idx,
+  scrollProgress,
+}: {
+  comp: (typeof competitions)[0];
+  milestone: (typeof timelineMilestones)[0];
+  idx: number;
+  scrollProgress: MotionValue<number>;
+}) {
+  const [isReached, setIsReached] = useState(
+    () => scrollProgress.get() >= milestone.threshold
+  );
+
+  useMotionValueEvent(scrollProgress, "change", (latest) => {
+    const reached = latest >= milestone.threshold;
+    setIsReached((prev) => (prev === reached ? prev : reached));
+  });
+
+  const topPercent = (milestone.mobileY / mobileTimelineHeight) * 100;
+
+  return (
+    <div
+      className="absolute left-0 right-0 -translate-y-1/2 flex items-center pointer-events-auto"
+      style={{ top: `${topPercent}%` }}
+    >
+      {/* Milestone Dot (●) locked onto mobile SVG spine at left-[5%] */}
+      <span
+        className={`absolute left-[5%] -translate-x-1/2 z-10 block w-3.5 h-3.5 rounded-full transition-all duration-500 transform-gpu ${
+          isReached
+            ? "bg-amber-100 border-2 border-amber-300 shadow-[0_0_16px_#fbbf24] scale-110"
+            : "bg-amber-900/40 border border-amber-500/20 scale-75"
+        }`}
+      />
+
+      {/* Horizontal Dotted Connector + Card staying cleanly inside mobile viewport */}
+      <div className="flex items-center w-full pl-[5%] min-w-0">
+        <div
+          className={`h-[1px] w-10 sm:w-20 md:w-28 shrink-0 border-t border-dotted border-amber-300/60 transition-opacity duration-500 ${
+            isReached ? "opacity-100" : "opacity-30"
+          }`}
+        />
+        <div className="flex-1 min-w-0 pr-1">
+          <CalligraphicEventCard
+            comp={comp}
+            idx={idx}
+            isReached={isReached}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CalligraphicTimelineFinale({
+  scrollProgress,
+  isMobile = false,
+}: {
+  scrollProgress: MotionValue<number>;
+  isMobile?: boolean;
+}) {
+  const [isReached, setIsReached] = useState(() => scrollProgress.get() >= 0.96);
+
+  useMotionValueEvent(scrollProgress, "change", (latest) => {
+    const reached = latest >= 0.96;
+    setIsReached((prev) => (prev === reached ? prev : reached));
+  });
+
+  return (
+    <div
+      className={`absolute pointer-events-none select-none ${
+        isMobile
+          ? "bottom-1 left-[5%] right-0 flex items-center gap-3"
+          : "bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-center"
+      }`}
+    >
+      <span
+        className={`block w-3.5 h-3.5 rounded-full transition-all duration-500 shrink-0 ${
+          isMobile ? "-translate-x-1/2" : ""
+        } ${
+          isReached
+            ? "bg-amber-100 border-2 border-amber-300 shadow-[0_0_16px_#fbbf24] scale-110"
+            : "bg-amber-900/40 border border-amber-500/20 scale-75"
+        }`}
+      />
+      <span
+        className={`MilaapFont text-3xl sm:text-4xl md:text-5xl tracking-wider bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent transition-all duration-500 ${
+          isReached
+            ? "opacity-100 drop-shadow-[0_0_24px_rgba(245,209,66,0.9)]"
+            : "opacity-30"
+        }`}
       >
-        <span className="MilaapFont text-5xl md:text-6xl tracking-wider bg-gradient-to-b from-yellow-300 via-amber-400 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_0_28px_rgba(245,209,66,0.95)]">
-          milaap
-        </span>
-      </motion.div>
+        milaap
+      </span>
     </div>
   );
 }
