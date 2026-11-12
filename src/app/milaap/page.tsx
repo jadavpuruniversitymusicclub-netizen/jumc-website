@@ -1,5 +1,6 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import {
   motion,
   useInView,
@@ -7,6 +8,10 @@ import {
 } from "framer-motion";
 import Link from "next/link";
 import MilaapAnnouncements from "@/components/MilaapAnnouncements";
+
+const EventLineup = dynamic(() => import("@/components/EventLineup"), {
+  ssr: false,
+});
 import {
   ArrowLeft,
   Sparkles,
@@ -1394,6 +1399,12 @@ export default function MilaapPage() {
             </div>
           </section>
         </MorphTextReveal>
+
+        {/* ================================================================
+            3D WEBGL SCROLL-DRIVEN EVENT LINEUP
+            ================================================================ */}
+        <GoldenDivider />
+        <EventLineup />
 
         {/* ================================================================
             PART 5: UNIFIED HELICAL LOOP SHOWCASE & RULEBOOKS
